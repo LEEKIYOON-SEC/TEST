@@ -49,6 +49,31 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Debug - dump rules_official init
+        run: |
+          echo "===== GIT ====="
+          git rev-parse HEAD
+          git status --porcelain
+          echo "===== FILE EXISTS? ====="
+          ls -la src/rules_official || true
+          echo "===== __init__.py (HEAD) ====="
+          python - <<'PY'
+          import pathlib
+          p = pathlib.Path("src/rules_official/__init__.py")
+          print("exists:", p.exists())
+          print("path:", p.resolve())
+          if p.exists():
+            print(p.read_text(encoding="utf-8", errors="ignore")[:2000])
+          PY
+          echo "===== IMPORT INSPECT ====="
+          python - <<'PY'
+          import importlib
+          m = importlib.import_module("src.rules_official")
+          print("module file:", m.__file__)
+          print("has fetch_official_rules:", hasattr(m, "fetch_official_rules"))
+          print("dir(fetch*):", [x for x in dir(m) if "fetch" in x])
+          PY
+
       - name: Debug dump rules_official init
         run: |
           echo "===== src/rules_official/__init__.py (HEAD) ====="
