@@ -1,158 +1,186 @@
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import List, Tuple, Dict, Optional
 
 from .rule_validation import validate_by_engine
 from .util.textutil import sha256_hex
-from .util.ziputil import write_zip
-from .rule_router import decide_rule_scope
 
 
 @dataclass
 class RuleArtifact:
-    source: str
     engine: str
+    source: str
     rule_path: str
     rule_text: str
-    reference: str
     validated: bool
     validation_details: str
-    fingerprint: str
 
 
-def _fingerprint(rule_text: str) -> str:
-    return sha256_hex((rule_text or "").encode("utf-8"))
+def _int_setting(db_or_none, key: str, default: int) -> int:
+    try:
+        if db_or_none is None:
+            return default
+        v = db_or_none.get_setting_text(key)  # SupabaseDB
+        if v is None:
+            return default
+        return int(v.strip())
+    except Exception:
+        return default
 
 
-def _engine_display(engine: str) -> str:
-    e = (engine or "").lower()
-    if e == "suricata":
-        return "Suricata"
-    if e == "snort2":
-        return "Snort2"
-    if e == "snort3":
-        return "Snort3"
-    if e == "sigma":
-        return "Sigma"
-    if e == "yara":
-        return "YARA"
-    return engine
+def _pick_caps(cfg) -> Dict[str, int]:
+    """
+    cfg에 db 핸들이 없기 때문에(시그니처 유지), env/기본으로 fallback.
+    - 실제 상한은 report_store에서도 최종으로 한번 더 강제됨.
+    """
+    def _env_int(name: str, default: int) -> int:
+        try:
+            return int(os.getenv(name, str(default)).strip())
+        except Exception:
+            return default
+
+    return {
+        "per_rule_max_bytes": _env_int("ARGUS_RULE_TEXT_MAX_BYTES_PER_RULE", 20_000),
+        "max_rules_total": _env_int("ARGUS_ZIP_MAX_RULES_TOTAL", 200),
+        "max_rules_per_engine": _env_int("ARGUS_ZIP_MAX_RULES_PER_ENGINE", 80),
+    }
 
 
-def _engine_guidance_lines() -> List[str]:
-    return [
-        "### 6.0 Engine guidance (operational)",
-        "- suricata: `suricata -T -c /etc/suricata/suricata.yaml -S rules.rules` 로 검증 후 적용",
-        "- snort2: `snort -T -c snort.conf` 로 검증 후 include 적용",
-        "- snort3: `snort -T -c snort.lua -R rules.rules` 로 검증 후 적용",
-        "- sigma: `sigma validate rule.yml` 문법 검증 후 SIEM/EDR 타겟으로 변환",
-        "- yara: `yara -C rule.yar` 컴파일 검증 후 호스트/파일 스캔 적용",
-        "",
-    ]
-
-
-def filter_by_scope(cve: dict, official_hits: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], str]:
-    decision = decide_rule_scope(cve)
-    keep: List[Dict[str, Any]] = []
-
-    for h in official_hits:
-        eng = (h.get("engine") or "").lower()
-        if eng == "sigma" and decision.include_sigma:
-            keep.append(h)
-        elif eng in ("suricata", "snort2", "snort3") and decision.include_network_rules:
-            keep.append(h)
-        elif eng == "yara" and decision.include_yara:
-            keep.append(h)
-
-    return keep, decision.rationale
+def _truncate_rule_text(rule_text: str, cap_bytes: int) -> Tuple[str, bool]:
+    raw = (rule_text or "").encode("utf-8")
+    if len(raw) <= cap_bytes:
+        return rule_text, False
+    cut = raw[:cap_bytes].decode("utf-8", errors="ignore")
+    # 룰은 텍스트가 잘리면 의미가 깨질 수 있으므로, 원칙적으로는 ZIP에서 제외하는 편이 더 안전.
+    # 다만 운영 요구(“복붙 가능한 수준”)을 위해:
+    # - 여기서는 “잘라서 넣지 않고 제외”가 더 안전하므로 truncate 대신 제외 정책을 선택하는 게 맞음.
+    # => 호출부에서 cap 초과 시 제외 처리하게 하므로 이 함수는 사용하지 않음.
+    return cut, True
 
 
 def validate_and_build_bundle(
-    *,
     cfg,
     cve: dict,
-    official_hits: List[Dict[str, Any]],
-) -> Tuple[List[RuleArtifact], Optional[bytes], str, str]:
-    scoped_hits, rationale = filter_by_scope(cve, official_hits)
+    official_hits: List[dict],
+) -> Tuple[List[RuleArtifact], List[str], str, str]:
+    """
+    official_hits: [{engine, source, rule_path, rule_text, reference}, ...]
+    반환:
+      - artifacts: RuleArtifact list (validated 여부 포함)
+      - warnings: list[str]
+      - official_fp: fingerprint for validated official rules
+      - rules_section_md: report 섹션(무엇을 포함/제외했는지 명시)
 
+    정책:
+    - 검증은 필수
+    - ZIP/저장 폭주 방지:
+      - 엔진별/전체 최대 룰 수 제한
+      - 룰 텍스트 bytes cap 초과는 ZIP 포함에서 제외(안전)
+    """
+    caps = _pick_caps(cfg)
+    per_rule_max_bytes = int(caps["per_rule_max_bytes"])
+    max_rules_total = int(caps["max_rules_total"])
+    max_rules_per_engine = int(caps["max_rules_per_engine"])
+
+    warnings: List[str] = []
     artifacts: List[RuleArtifact] = []
-    zip_files: List[Tuple[str, bytes]] = []
 
-    report_lines: List[str] = []
-    report_lines.append("## 6) Rules (Official/Public)")
-    report_lines.append(f"- Routing rationale: {rationale}")
-    report_lines.append("")
-    report_lines.extend(_engine_guidance_lines())
+    # 엔진별 카운트
+    per_engine_count: Dict[str, int] = {}
 
-    if not scoped_hits:
-        report_lines.append("- No official/public rules matched or allowed by routing policy.")
-        return artifacts, None, sha256_hex(b""), "\n".join(report_lines) + "\n"
+    excluded_due_to_caps: List[str] = []
 
-    report_lines.append("### 6.1 Matched rule files (pre-validation)")
-    for h in scoped_hits:
-        report_lines.append(
-            f"- [{_engine_display(h.get('engine'))}] {h.get('source')} :: {h.get('rule_path')}  (ref: {h.get('reference')})"
-        )
-    report_lines.append("")
+    # official_hits 순서는 상위 로직에서 이미 “공신력/우선순위” 기반 정렬되었다고 가정
+    for h in official_hits:
+        engine = (h.get("engine") or "").strip()
+        source = (h.get("source") or "").strip()
+        rule_path = (h.get("rule_path") or "rule.txt").strip()
+        rule_text = (h.get("rule_text") or "").strip()
 
-    report_lines.append("### 6.2 Validation results")
-    for h in scoped_hits:
-        engine = (h.get("engine") or "").lower()
-        rule_text = h.get("rule_text") or ""
-        fp = _fingerprint(rule_text)
+        if not engine or not rule_text:
+            continue
 
+        # 전체 개수 상한
+        if len([a for a in artifacts if a.validated]) >= max_rules_total:
+            excluded_due_to_caps.append(f"[CAP:total] {engine} {source} {rule_path}")
+            continue
+
+        # 엔진별 상한
+        cnt = per_engine_count.get(engine, 0)
+        if cnt >= max_rules_per_engine:
+            excluded_due_to_caps.append(f"[CAP:engine] {engine} {source} {rule_path}")
+            continue
+
+        # 룰 크기 상한(룰을 잘라서 넣으면 오동작 위험이 있으므로, cap 초과는 제외)
+        if len(rule_text.encode("utf-8")) > per_rule_max_bytes:
+            excluded_due_to_caps.append(f"[CAP:per_rule_bytes] {engine} {source} {rule_path} bytes>{per_rule_max_bytes}")
+            continue
+
+        # ✅ 엔진 검증
         vr = validate_by_engine(engine, rule_text)
-        ok = bool(vr.ok)
-
-        artifacts.append(
-            RuleArtifact(
-                source=h.get("source") or "UNKNOWN",
-                engine=engine,
-                rule_path=h.get("rule_path") or "unknown",
-                rule_text=rule_text,
-                reference=h.get("reference") or "",
-                validated=ok,
-                validation_details=vr.details,
-                fingerprint=fp,
-            )
+        art = RuleArtifact(
+            engine=engine,
+            source=source,
+            rule_path=rule_path,
+            rule_text=rule_text,
+            validated=vr.ok,
+            validation_details=vr.details,
         )
+        artifacts.append(art)
 
-        status = "PASS" if ok else "FAIL"
-        report_lines.append(
-            f"- {status} [{_engine_display(engine)}] {h.get('source')} :: {h.get('rule_path')} (fp {fp[:12]})"
-        )
-    report_lines.append("")
+        if vr.ok:
+            per_engine_count[engine] = cnt + 1
 
-    pass_artifacts = [a for a in artifacts if a.validated]
-    if pass_artifacts:
-        report_lines.append("### 6.3 Rules bundle (validated only)")
-        for a in pass_artifacts:
-            zip_path = f"rules/{a.engine}/{a.source}/{a.rule_path}".replace("..", "_")
-            zip_files.append((zip_path, (a.rule_text.strip() + "\n").encode("utf-8")))
-            report_lines.append(f"- Included: {zip_path} (ref: {a.reference})")
-        report_lines.append("")
-        zip_bytes = write_zip(zip_files)
+    # fingerprint: validated official-only
+    validated_texts = []
+    for a in artifacts:
+        if a.validated:
+            # 엔진/경로/본문 기반
+            validated_texts.append(f"{a.engine}|{a.source}|{a.rule_path}|{sha256_hex(a.rule_text.encode('utf-8'))}")
+    official_fp = sha256_hex(("\n".join(sorted(validated_texts))).encode("utf-8")) if validated_texts else ""
+
+    # Report 섹션
+    lines: List[str] = []
+    lines.append("## 6) Official / Public Rules (Validated & Bundled)")
+    lines.append(f"- Bundling caps: per_rule_max_bytes={per_rule_max_bytes}, max_rules_total={max_rules_total}, max_rules_per_engine={max_rules_per_engine}")
+    lines.append("")
+
+    ok_cnt = sum(1 for a in artifacts if a.validated)
+    fail_cnt = sum(1 for a in artifacts if not a.validated)
+    lines.append(f"- Validation results: PASS={ok_cnt}, FAIL={fail_cnt}")
+    lines.append("")
+
+    if excluded_due_to_caps:
+        lines.append("### 6.1 Excluded due to caps (to protect Storage limits)")
+        for x in excluded_due_to_caps[:200]:
+            lines.append(f"- {x}")
+        if len(excluded_due_to_caps) > 200:
+            lines.append(f"- ...(total excluded due to caps: {len(excluded_due_to_caps)})")
+        lines.append("")
+
+    # PASS 목록(Report에서 모두 보여줌)
+    lines.append("### 6.2 Included (validated PASS) rules")
+    if ok_cnt == 0:
+        lines.append("- (none)")
     else:
-        zip_bytes = None
-        report_lines.append("### 6.3 Rules bundle")
-        report_lines.append("- No validated rules to bundle.")
-        report_lines.append("")
+        for a in [x for x in artifacts if x.validated][:400]:
+            lines.append(f"- [{a.engine}] {a.source} :: {a.rule_path}")
+        if ok_cnt > 400:
+            lines.append(f"- ...(total PASS: {ok_cnt})")
+    lines.append("")
 
-    fails = [a for a in artifacts if not a.validated]
-    if fails:
-        report_lines.append("### 6.4 Validation failure details (first 800 chars each)")
-        for a in fails:
-            details = (a.validation_details or "").strip()
-            if len(details) > 800:
-                details = details[:800] + "…(truncated)"
-            report_lines.append(f"- [{_engine_display(a.engine)}] {a.source} :: {a.rule_path} (fp {a.fingerprint[:12]})")
-            report_lines.append("```")
-            report_lines.append(details)
-            report_lines.append("```")
-        report_lines.append("")
+    # FAIL 목록(원인)
+    if fail_cnt:
+        lines.append("### 6.3 Validation FAIL (not bundled into ZIP)")
+        for a in [x for x in artifacts if not x.validated][:120]:
+            det = (a.validation_details or "").strip()
+            det = det[:260].replace("\n", " ") if det else ""
+            lines.append(f"- [{a.engine}] {a.source} :: {a.rule_path} :: {det}")
+        if fail_cnt > 120:
+            lines.append(f"- ...(total FAIL: {fail_cnt})")
+        lines.append("")
 
-    bundle_fp_src = "\n".join(sorted([a.fingerprint for a in pass_artifacts])).encode("utf-8")
-    bundle_fingerprint = sha256_hex(bundle_fp_src)
-
-    return artifacts, zip_bytes, bundle_fingerprint, "\n".join(report_lines).strip() + "\n"
+    rules_section_md = "\n".join(lines).strip() + "\n"
+    return artifacts, warnings, official_fp, rules_section_md
