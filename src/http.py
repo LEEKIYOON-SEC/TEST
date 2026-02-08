@@ -7,7 +7,8 @@ from typing import Optional, Dict, Any
 import requests
 
 
-class HTTPError(RuntimeError):
+class HttpError(RuntimeError):
+    """Backwards-compatible error type for existing modules."""
     pass
 
 
@@ -17,6 +18,65 @@ def _sleep_backoff(attempt: int, base: float = 1.0, cap: float = 20.0) -> None:
     t = t * (0.7 + random.random() * 0.6)
     time.sleep(t)
 
+
+def http_get_json(
+    url: str,
+    *,
+    headers: Optional[Dict[str, str]] = None,
+    params: Optional[Dict[str, str]] = None,
+    timeout: int = 25,
+    max_retries: int = 4,
+    retry_on_status: Optional[set[int]] = None,
+) -> Any:
+    """
+    Compatibility wrapper expected by existing modules:
+      from .http import http_get_json, HttpError
+
+    - Retries on {429, 500, 502, 503, 504} by default
+    - Retries on network errors
+    - Returns parsed JSON
+    """
+    if retry_on_status is None:
+        retry_on_status = {429, 500, 502, 503, 504}
+
+    last_err: Optional[Exception] = None
+
+    for attempt in range(max_retries + 1):
+        try:
+            r = requests.get(url, headers=headers, params=params, timeout=timeout)
+
+            if r.status_code in retry_on_status:
+                last_err = HttpError(f"GET {url} retryable status={r.status_code} body={r.text[:300]}")
+                if attempt < max_retries:
+                    ra = r.headers.get("Retry-After")
+                    if ra:
+                        try:
+                            time.sleep(min(60, int(ra)))
+                        except Exception:
+                            _sleep_backoff(attempt)
+                    else:
+                        _sleep_backoff(attempt)
+                    continue
+
+            if r.status_code >= 400:
+                raise HttpError(f"GET {url} failed status={r.status_code} body={r.text[:500]}")
+
+            try:
+                return r.json()
+            except Exception as e:
+                raise HttpError(f"GET {url} json parse failed: {e} body={r.text[:300]}")
+
+        except (requests.RequestException, HttpError) as e:
+            last_err = e
+            if attempt < max_retries:
+                _sleep_backoff(attempt)
+                continue
+            break
+
+    raise HttpError(str(last_err))
+
+
+# ---- Optional: keep the newer generic API too (for future modules) ----
 
 def request_json(
     method: str,
@@ -31,15 +91,13 @@ def request_json(
     retry_on_status: Optional[set[int]] = None,
 ) -> Any:
     """
-    표준 HTTP 호출:
-    - 기본 retry 대상: 429, 500, 502, 503, 504
-    - 네트워크 예외도 retry
-    - 성공 시 json 반환, 실패 시 HTTPError
+    Generic JSON request helper (used by newer modules).
     """
     if retry_on_status is None:
         retry_on_status = {429, 500, 502, 503, 504}
 
-    last_err = None
+    last_err: Optional[Exception] = None
+
     for attempt in range(max_retries + 1):
         try:
             r = requests.request(
@@ -53,9 +111,8 @@ def request_json(
             )
 
             if r.status_code in retry_on_status:
-                last_err = HTTPError(f"{method} {url} retryable status={r.status_code} body={r.text[:300]}")
+                last_err = HttpError(f"{method} {url} retryable status={r.status_code} body={r.text[:300]}")
                 if attempt < max_retries:
-                    # Retry-After가 있으면 반영
                     ra = r.headers.get("Retry-After")
                     if ra:
                         try:
@@ -67,16 +124,18 @@ def request_json(
                     continue
 
             if r.status_code >= 400:
-                raise HTTPError(f"{method} {url} failed status={r.status_code} body={r.text[:500]}")
+                raise HttpError(f"{method} {url} failed status={r.status_code} body={r.text[:500]}")
 
-            # json 응답 가정
-            return r.json()
+            try:
+                return r.json()
+            except Exception as e:
+                raise HttpError(f"{method} {url} json parse failed: {e} body={r.text[:300]}")
 
-        except (requests.RequestException, ValueError, HTTPError) as e:
+        except (requests.RequestException, HttpError) as e:
             last_err = e
             if attempt < max_retries:
                 _sleep_backoff(attempt)
                 continue
             break
 
-    raise HTTPError(str(last_err))
+    raise HttpError(str(last_err))
