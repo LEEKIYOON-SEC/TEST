@@ -2,9 +2,9 @@ name: Argus-AI-Threat Intelligence
 
 on:
   workflow_dispatch: {}
-  schedule:
+  #schedule:
     # 30분마다 (GitHub Actions cron은 UTC 기준)
-    - cron: "*/30 * * * *"
+    #- cron: "*/30 * * * *"
 
 jobs:
   run:
