@@ -8,28 +8,29 @@ class ArgusDB:
         self.client: Client = create_client(url, key)
 
     def get_cve(self, cve_id):
-        """CVE의 이전 상태 조회"""
         response = self.client.table("cves").select("*").eq("id", cve_id).execute()
         return response.data[0] if response.data else None
 
     def upsert_cve(self, data):
-        """CVE 상태 업데이트 (Insert or Update)"""
         self.client.table("cves").upsert(data).execute()
 
     def upload_report(self, cve_id, content):
-        """상세 리포트 업로드 및 Signed URL 생성"""
         file_path = f"{cve_id}.md"
         bucket = "reports"
         
-        # 파일 업로드 (UTF-8 명시)
-        self.client.storage.from_(bucket).upload(
-            file_path, 
-            content.encode('utf-8'), 
-            {
-                "content-type": "text/markdown; charset=utf-8", 
-                "x-upsert": "true"
-            }
-        )
+        # [수정] UTF-8 인코딩을 명시적으로 처리
+        encoded_content = content.encode('utf-8')
         
-        # 30일 유효한 Signed URL 생성
+        try:
+            self.client.storage.from_(bucket).upload(
+                file_path, 
+                encoded_content, 
+                {
+                    "content-type": "text/markdown; charset=utf-8", 
+                    "x-upsert": "true"
+                }
+            )
+        except:
+            pass # 이미 있는 경우 upsert 처리
+            
         return self.client.storage.from_(bucket).create_signed_url(file_path, 60 * 60 * 24 * 30)
