@@ -34,22 +34,29 @@ class Collector:
         except Exception as e:
             print(f"[WARN] EPSS fetch failed: {e}")
 
-    def fetch_recent_cves(self, hours=100):
+    def fetch_recent_cves(self, hours=2):
         """cve.org에서 최근 변경된 PUBLISHED CVE 조회"""
         now = datetime.datetime.now(pytz.UTC)
         start_time = now - datetime.timedelta(hours=hours)
-        # 시간 형식: 2024-02-08T00:00:00.000Z
         time_str = start_time.strftime("%Y-%m-%dT%H:%M:%S.000Z")
         
+        # [수정 포인트] change_type=PUBLISHED를 잠시 제거하거나, URL을 출력해서 확인
         url = f"https://cveawg.mitre.org/api/cve/history?time_start={time_str}&change_type=PUBLISHED"
         
+        # [DEBUG 코드 추가] --------------------------
+        print(f"\n[DEBUG] Request URL: {url}") # <-- 이 URL을 로그에서 클릭해보세요!
+        # ----------------------------------------
+
         try:
             res = requests.get(url, timeout=10)
+            
+            # [DEBUG 코드 추가] --------------------------
+            print(f"[DEBUG] Status Code: {res.status_code}")
+            print(f"[DEBUG] Response Count: {len(res.json().get('cveRecords', []))}")
+            # ----------------------------------------
+            
             if res.status_code == 200:
-                # cve.org API 응답 구조 파싱
-                # 응답 예: { "cveRecords": [ { "cveMetadata": { "cveId": "..." } } ] }
                 records = res.json().get('cveRecords', [])
-                # ID만 추출
                 return [r['cveMetadata']['cveId'] for r in records]
         except Exception as e:
             print(f"[ERR] Failed to fetch CVE history: {e}")
