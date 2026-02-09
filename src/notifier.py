@@ -9,6 +9,11 @@ class SlackNotifier:
         clean_reason = reason.split(' (')[0] if ' (' in reason else reason
         emoji = "🚨" if "KEV" in reason else "🆕"
         
+        # [변경] 번역된 제목 사용 (없으면 원문)
+        display_title = cve_data.get('title_ko', cve_data.get('title', 'N/A'))
+        # [변경] 번역된 내용 사용 (없으면 summary_ko, 그것도 없으면 원문)
+        display_desc = cve_data.get('desc_ko', cve_data.get('summary_ko', cve_data['description']))
+
         blocks = [
             {
                 "type": "header",
@@ -17,7 +22,7 @@ class SlackNotifier:
             {
                 "type": "section",
                 "fields": [
-                    {"type": "mrkdwn", "text": f"*Title:*\n{cve_data.get('title', 'N/A')}"}
+                    {"type": "mrkdwn", "text": f"*Title:*\n{display_title}"}
                 ]
             },
             {
@@ -30,20 +35,16 @@ class SlackNotifier:
             }
         ]
 
-        # Target Matched 표시 (전체 * 일때는 생략)
         if "(" in reason and "*" not in reason:
             target_info = reason.split('(')[-1].replace(')', '')
             blocks.append({
                 "type": "context",
                 "elements": [{"type": "mrkdwn", "text": f"🎯 *Target Asset:* {target_info}"}]
             })
-
-        # [변경] 한글 요약본 출력 (없으면 원문 사용)
-        description_text = cve_data.get('summary_ko', cve_data['description'])
         
         blocks.append({
             "type": "section",
-            "text": {"type": "mrkdwn", "text": f"*Description:*\n{description_text}"}
+            "text": {"type": "mrkdwn", "text": f"*Description:*\n{display_desc}"}
         })
 
         if report_url:

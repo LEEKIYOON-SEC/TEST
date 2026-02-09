@@ -20,23 +20,62 @@ def is_target_asset(cve_description, cve_id):
     return False, None
 
 def generate_korean_summary(cve_data):
-    """슬랙 메시지용 짧은 한글 요약 생성"""
+    """
+    [수정] 제목과 설명을 포함하여 깔끔한 한글 요약 생성 (잡담 금지)
+    """
     prompt = f"""
-    Translate and summarize this CVE description into KOREAN (Max 3 lines).
+    You are a security analyst system.
+    Task: Translate the Title and Summarize the Description into Korean.
+    
+    [Input]
     Title: {cve_data['title']}
     Description: {cve_data['description']}
+    
+    [Constraints]
+    1. Output MUST be strictly in the following format:
+       제목: [Translated Title]
+       내용: [Summarized Description (Max 3 lines)]
+    2. Do NOT add any introductory text like "Here is the translation".
+    3. Do NOT add any explanations or notes at the end.
+    4. Keep technical terms (SQL Injection, XSS) in English.
     """
     try:
         response = client.models.generate_content(model=config.MODEL_PHASE_0, contents=prompt)
         return response.text.strip()
     except:
-        return cve_data['description'][:200]
+        return f"제목: {cve_data['title']}\n내용: {cve_data['description'][:200]}"
 
 def generate_report_content(cve_data, reason):
-    prompt = f"보안 분석가로서 다음 CVE 정보를 한국어로 분석하여 리포트를 작성하세요.\nID: {cve_data['id']}\nTitle: {cve_data['title']}\n정보: {cve_data['description']}\n사유: {reason}\n\n작성 규칙: 전문적인 한국어를 사용하고 기술 용어는 원문을 유지하며 Markdown 형식으로 작성하세요."
+    """
+    [수정] 리포트 생성 시에도 잡담 금지
+    """
+    prompt = f"""
+    Role: Security Analyst.
+    Task: Analyze this CVE and create a report in KOREAN.
+    
+    [Input]
+    ID: {cve_data['id']}
+    Title: {cve_data['title']}
+    Description: {cve_data['description']}
+    Reason: {reason}
+    
+    [Constraints]
+    1. Language: Korean (Natural, Professional).
+    2. Output Format: Markdown only. No conversational filler.
+    3. Structure:
+       - **개요**: 1-2 sentences summary.
+       - **상세 분석**: Attack vector and impact.
+       - **대응 방안**: Mitigation steps.
+    """
     try:
         response = client.models.generate_content(model=config.MODEL_PHASE_0, contents=prompt)
-        return f"# 🛡️ Argus Intelligence Report\n**Target:** `{cve_data['id']}`\n**Alert:** {reason}\n\n--- \n## 🤖 AI 보안 분석 (Korean)\n**Engine:** `{config.MODEL_PHASE_0}`\n\n{response.text}\n\n--- \n## 📊 Risk Stats\n- **CVSS Score:** {cve_data['cvss']}\n- **EPSS Prob:** {cve_data['epss']*100:.2f}%\n- **KEV Listed:** {'🚨 YES' if cve_data['is_kev'] else 'No'}"
+        ai_text = response.text.strip()
+        # 혹시 모를 마크다운 코드블럭 제거
+        if ai_text.startswith("```markdown"): ai_text = ai_text[11:]
+        if ai_text.startswith("```"): ai_text = ai_text[3:]
+        if ai_text.endswith("```"): ai_text = ai_text[:-3]
+        
+        return f"# 🛡️ Argus Intelligence Report\n**Target:** `{cve_data['id']}`\n**Alert:** {reason}\n\n--- \n## 🤖 AI 보안 분석 (Korean)\n**Engine:** `{config.MODEL_PHASE_0}`\n\n{ai_text}\n\n--- \n## 📊 Risk Stats\n- **CVSS Score:** {cve_data['cvss']}\n- **EPSS Prob:** {cve_data['epss']*100:.2f}%\n- **KEV Listed:** {'🚨 YES' if cve_data['is_kev'] else 'No'}"
     except:
         return f"# 🛡️ Argus Report\nAI 분석 실패\n\n원문:\n{cve_data['description']}"
 
@@ -52,15 +91,13 @@ def main():
 
     for cve_id in target_cve_ids:
         try:
-            time.sleep(20) # RPM 방어
+            time.sleep(20)
             raw_data = collector.enrich_cve(cve_id)
             
-            # [필터 1] PUBLISHED 상태 확인 (REJECTED 제외)
             if raw_data.get('state') != 'PUBLISHED':
                 print(f"[-] 스킵: {cve_id} (상태: {raw_data.get('state')})")
                 continue
 
-            # [필터 2] 자산 필터링
             is_target, match_info = is_target_asset(raw_data['description'], cve_id)
             if not is_target: continue
 
@@ -85,8 +122,20 @@ def main():
             if should_alert:
                 print(f"[!] 알림 발송: {cve_id}")
                 
-                # [추가] 슬랙용 한글 요약 생성
-                current_state['summary_ko'] = generate_korean_summary(current_state)
+                # [변경] 한글 요약 (제목+내용) 생성
+                summary_text = generate_korean_summary(current_state)
+                # AI가 줄바꿈으로 제목/내용을 구분했을 것이므로 파싱 시도
+                lines = summary_text.split('\n')
+                title_ko = current_state['title']
+                desc_ko = summary_text
+                
+                for line in lines:
+                    if line.startswith("제목:"): title_ko = line.replace("제목:", "").strip()
+                    if line.startswith("내용:"): desc_ko = line.replace("내용:", "").strip()
+                
+                # 파싱된 정보를 current_state에 업데이트 (슬랙 전송용)
+                current_state['title_ko'] = title_ko
+                current_state['desc_ko'] = desc_ko
                 
                 report_content = generate_report_content(current_state, alert_reason)
                 report_url = db.upload_report(cve_id, report_content)
