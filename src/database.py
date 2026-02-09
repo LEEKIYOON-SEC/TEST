@@ -18,7 +18,7 @@ class ArgusDB:
         file_path = f"{cve_id}.html"
         bucket = "reports"
         
-        # [디자인 유지] 사용자님이 만족하셨던 CSS Card UI
+        # HTML 템플릿 (CSS 디자인 포함)
         html_template = f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -45,6 +45,7 @@ class ArgusDB:
         .bg-gray {{ background-color: #64748b; }}
         a {{ color: var(--secondary); text-decoration: none; }}
         a:hover {{ text-decoration: underline; }}
+        li {{ margin-bottom: 5px; }}
     </style>
 </head>
 <body>
@@ -55,18 +56,25 @@ class ArgusDB:
 </html>"""
         
         try:
-            # [롤백] utf-8-sig (BOM) 사용 -> 한글 깨짐 100% 방지
-            encoded_content = html_template.encode('utf-8-sig')
+            # UTF-8 인코딩
+            encoded_content = html_template.encode('utf-8')
             
+            # [핵심 수정] file_options를 사용하여 Content-Type을 'text/html'로 강제 지정
+            # 이렇게 해야 브라우저가 소스코드가 아닌 '웹페이지'로 인식합니다.
             self.client.storage.from_(bucket).upload(
-                file_path, 
-                encoded_content, 
-                {
-                    "content-type": "text/html; charset=utf-8", 
-                    "x-upsert": "true"
-                }
+                path=file_path, 
+                file=encoded_content, 
+                file_options={"content-type": "text/html", "upsert": "true"}
             )
-        except Exception as e:
-            print(f"[WARN] Upload failed: {e}")
+        except Exception:
+            # 업로드 실패 시 (이미 존재하는 경우 등) 업데이트 시도
+            try:
+                self.client.storage.from_(bucket).update(
+                    path=file_path,
+                    file=encoded_content,
+                    file_options={"content-type": "text/html", "upsert": "true"}
+                )
+            except:
+                pass
             
         return self.client.storage.from_(bucket).create_signed_url(file_path, 60 * 60 * 24 * 30)
