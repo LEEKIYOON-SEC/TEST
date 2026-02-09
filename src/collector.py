@@ -3,6 +3,7 @@ import datetime
 import pytz
 import os
 import re
+import json # json 모듈 추가
 
 class Collector:
     def __init__(self):
@@ -56,39 +57,24 @@ class Collector:
         except: return []
 
     def parse_affected(self, affected_list):
-        """영향 받는 벤더/제품/버전 파싱 및 한글화"""
         results = []
         for item in affected_list:
             vendor = item.get('vendor', 'Unknown')
             product = item.get('product', 'Unknown')
             versions = []
-            
             for v in item.get('versions', []):
-                status = v.get('status', '')
                 version = v.get('version', '')
                 less_than = v.get('lessThan', '')
                 less_than_eq = v.get('lessThanOrEqual', '')
-                
                 ver_str = ""
-                if status == "affected":
-                    if version != "0" and version != "n/a":
-                        ver_str += f"{version} 부터 "
-                    
-                    if less_than:
-                        ver_str += f"{less_than} 이전"
-                    elif less_than_eq:
-                        ver_str += f"{less_than_eq} 이하"
-                    elif not less_than and not less_than_eq and version:
-                        ver_str = f"{version} (단일 버전)"
-                    
+                if v.get('status') == "affected":
+                    if version and version not in ["0", "n/a"]: ver_str += f"{version} 부터 "
+                    if less_than: ver_str += f"{less_than} 이전"
+                    elif less_than_eq: ver_str += f"{less_than_eq} 이하"
+                    elif not less_than and not less_than_eq and version: ver_str = f"{version} (단일 버전)"
                     if not ver_str: ver_str = "모든 버전"
                     versions.append(ver_str.strip())
-            
-            results.append({
-                "vendor": vendor,
-                "product": product,
-                "versions": ", ".join(versions) if versions else "정보 없음"
-            })
+            results.append({"vendor": vendor, "product": product, "versions": ", ".join(versions) if versions else "정보 없음"})
         return results
 
     def enrich_cve(self, cve_id):
@@ -102,7 +88,7 @@ class Collector:
             data = {
                 "id": cve_id, "title": "N/A", "cvss": 0.0, 
                 "description": "N/A", "state": "UNKNOWN",
-                "cwe": [], "references": [], "affected": []
+                "cwe": [], "references": [], "affected": [], "cce": [] # CCE 필드 추가
             }
             
             if res.status_code == 200:
@@ -111,8 +97,6 @@ class Collector:
                 
                 data['state'] = json_data.get('cveMetadata', {}).get('state', 'UNKNOWN')
                 data['title'] = cna.get('title', 'N/A')
-                
-                # Affected Products 파싱
                 data['affected'] = self.parse_affected(cna.get('affected', []))
                 
                 # Description
@@ -127,12 +111,9 @@ class Collector:
                 try:
                     metrics = cna.get('metrics', [])
                     for m in metrics:
-                        if 'cvssV4_0' in m:
-                            data['cvss'] = m['cvssV4_0'].get('baseScore', 0.0); break
-                        elif 'cvssV3_1' in m:
-                            data['cvss'] = m['cvssV3_1'].get('baseScore', 0.0); break
-                        elif 'cvssV3_0' in m:
-                            data['cvss'] = m['cvssV3_0'].get('baseScore', 0.0); break
+                        if 'cvssV4_0' in m: data['cvss'] = m['cvssV4_0'].get('baseScore', 0.0); break
+                        elif 'cvssV3_1' in m: data['cvss'] = m['cvssV3_1'].get('baseScore', 0.0); break
+                        elif 'cvssV3_0' in m: data['cvss'] = m['cvssV3_0'].get('baseScore', 0.0); break
                 except: pass
 
                 # CWE
@@ -150,6 +131,13 @@ class Collector:
                         if 'url' in ref: data['references'].append(ref['url'])
                 except: pass
 
+                # [추가] CCE 추출 (전체 JSON 문자열에서 정규식 검색)
+                # CCE는 명시적 필드보다 설명이나 참조에 섞여 있는 경우가 많음
+                json_str = json.dumps(json_data)
+                cce_matches = re.findall(r'(CCE-\d{4,}-\d+)', json_str)
+                if cce_matches:
+                    data['cce'] = list(set(cce_matches)) # 중복 제거
+
             return data
         except: 
-            return {"id": cve_id, "title": "Error", "cvss": 0.0, "description": "Error", "state": "ERROR", "cwe": [], "references": [], "affected": []}
+            return {"id": cve_id, "title": "Error", "cvss": 0.0, "description": "Error", "state": "ERROR", "cwe": [], "references": [], "affected": [], "cce": []}

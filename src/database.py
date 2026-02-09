@@ -18,7 +18,7 @@ class ArgusDB:
         file_path = f"{cve_id}.html"
         bucket = "reports"
         
-        # HTML 템플릿 (CSS 디자인 포함)
+        # HTML 템플릿 (CSS 디자인 유지)
         html_template = f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -56,25 +56,19 @@ class ArgusDB:
 </html>"""
         
         try:
-            # UTF-8 인코딩
+            # UTF-8로 인코딩
             encoded_content = html_template.encode('utf-8')
             
-            # [핵심 수정] file_options를 사용하여 Content-Type을 'text/html'로 강제 지정
-            # 이렇게 해야 브라우저가 소스코드가 아닌 '웹페이지'로 인식합니다.
+            # [핵심] content-type을 text/html로 명시하여 업로드
+            # upsert 옵션을 사용하여 기존 파일이 있으면 덮어씀
             self.client.storage.from_(bucket).upload(
                 path=file_path, 
                 file=encoded_content, 
                 file_options={"content-type": "text/html", "upsert": "true"}
             )
-        except Exception:
-            # 업로드 실패 시 (이미 존재하는 경우 등) 업데이트 시도
-            try:
-                self.client.storage.from_(bucket).update(
-                    path=file_path,
-                    file=encoded_content,
-                    file_options={"content-type": "text/html", "upsert": "true"}
-                )
-            except:
-                pass
+        except Exception as e:
+            # 혹시 모를 에러 로깅
+            print(f"[WARN] Supabase Upload Error: {e}")
+            pass
             
         return self.client.storage.from_(bucket).create_signed_url(file_path, 60 * 60 * 24 * 30)

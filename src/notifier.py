@@ -13,7 +13,7 @@ class SlackNotifier:
         display_desc = cve_data.get('desc_ko', cve_data.get('summary_ko', cve_data['description']))
         cwe_info = ", ".join(cve_data.get('cwe', [])) if cve_data.get('cwe') else "N/A"
 
-        # Vendor 정보 포맷팅 (줄바꿈 활용)
+        # Vendor 정보 포맷팅
         affected_text = "정보 없음"
         if cve_data.get('affected'):
             first = cve_data['affected'][0]
@@ -21,35 +21,40 @@ class SlackNotifier:
             if len(cve_data['affected']) > 1:
                 affected_text += f"\n(외 {len(cve_data['affected'])-1}건)"
 
+        # [추가] CCE 정보 포맷팅 (있을 때만 표시)
+        cce_list = cve_data.get('cce', [])
+        cce_text = ", ".join(cce_list) if cce_list else None
+
+        # 통계 필드 구성
+        stats_fields = [
+            {"type": "mrkdwn", "text": f"*CVSS:*\n{cve_data['cvss']}"},
+            {"type": "mrkdwn", "text": f"*EPSS:*\n{cve_data['epss']*100:.2f}%"},
+            {"type": "mrkdwn", "text": f"*KEV:*\n{'✅ YES' if cve_data['is_kev'] else '❌ No'}"},
+            {"type": "mrkdwn", "text": f"*CWE:*\n{cwe_info}"},
+        ]
+        
+        # CCE가 있으면 통계 필드에 추가 (없으면 기존 유지)
+        if cce_text:
+            stats_fields.append({"type": "mrkdwn", "text": f"*CCE:*\n{cce_text}"})
+
         blocks = [
-            # 1. 헤더 (Reason)
             {
                 "type": "header",
                 "text": {"type": "plain_text", "text": f"{emoji} {clean_reason}: {cve_data['id']}"}
             },
-            # 2. 타이틀 (가장 크게)
             {
                 "type": "section",
                 "text": {"type": "mrkdwn", "text": f"*Title:*\n*{display_title}*"}
             },
-            # 3. 구분선 (시각적 분리)
             {"type": "divider"},
-            # 4. 벤더 정보 (타이틀 아래 배치)
             {
                 "type": "section",
                 "text": {"type": "mrkdwn", "text": affected_text}
             },
-            # 5. 구분선
             {"type": "divider"},
-            # 6. 통계 정보 (2열 배치 유지)
             {
                 "type": "section",
-                "fields": [
-                    {"type": "mrkdwn", "text": f"*CVSS:*\n{cve_data['cvss']}"},
-                    {"type": "mrkdwn", "text": f"*EPSS:*\n{cve_data['epss']*100:.2f}%"},
-                    {"type": "mrkdwn", "text": f"*KEV:*\n{'✅ YES' if cve_data['is_kev'] else '❌ No'}"},
-                    {"type": "mrkdwn", "text": f"*CWE:*\n{cwe_info}"},
-                ]
+                "fields": stats_fields # 동적으로 구성된 필드 사용
             }
         ]
 
@@ -60,7 +65,6 @@ class SlackNotifier:
                 "elements": [{"type": "mrkdwn", "text": f"🎯 *Target Asset:* {target_info}"}]
             })
         
-        # 7. 설명 (Description)
         blocks.append({
             "type": "section",
             "text": {"type": "mrkdwn", "text": f"*Description:*\n{display_desc}"}
