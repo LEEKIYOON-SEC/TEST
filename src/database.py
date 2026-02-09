@@ -18,7 +18,7 @@ class ArgusDB:
         file_path = f"{cve_id}.html"
         bucket = "reports"
         
-        # HTML 템플릿 (기존 디자인 유지)
+        # [디자인 유지] 사용자님이 만족하셨던 CSS Card UI
         html_template = f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -55,14 +55,14 @@ class ArgusDB:
 </html>"""
         
         try:
-            # [수정] 표준 UTF-8 사용 및 Content-Type 명시
-            encoded_content = html_template.encode('utf-8')
+            # [롤백] utf-8-sig (BOM) 사용 -> 한글 깨짐 100% 방지
+            encoded_content = html_template.encode('utf-8-sig')
             
             self.client.storage.from_(bucket).upload(
                 file_path, 
                 encoded_content, 
                 {
-                    "content-type": "text/html; charset=utf-8", # 중요: 브라우저가 HTML로 인식하게 함
+                    "content-type": "text/html; charset=utf-8", 
                     "x-upsert": "true"
                 }
             )

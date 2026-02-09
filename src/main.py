@@ -1,7 +1,6 @@
 import os
 import datetime
 import time
-import json
 from google import genai
 from google.genai import types
 from collector import Collector
@@ -21,27 +20,45 @@ def is_target_asset(cve_description, cve_id):
     return False, None
 
 def generate_korean_summary(cve_data):
-    """슬랙용 요약 (JSON 요청으로 안정성 강화)"""
+    """
+    [롤백] JSON 방식 폐기 -> 텍스트 파싱 방식 복구 (한글 출력 보장)
+    """
     prompt = f"""
-    Task: Translate Title and Summarize Description into Korean.
-    [Input] Title: {cve_data['title']} / Desc: {cve_data['description']}
-    [Output] JSON Only: {{"title": "Korean Title", "summary": "Korean Summary (Max 3 lines)"}}
+    Role: Security Expert.
+    Task: Translate Title and Summarize Description into Korean (Max 3 lines).
+    
+    [Input]
+    Title: {cve_data['title']}
+    Desc: {cve_data['description']}
+    
+    [STRICT FORMAT]
+    제목: [Korean Title]
+    내용: [Korean Summary]
+    
+    Do NOT add any other text.
     """
     try:
         response = client.models.generate_content(
-            model=config.MODEL_PHASE_0, contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json", # JSON 강제
-                safety_settings=[types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE")]
-            )
+            model=config.MODEL_PHASE_0, 
+            contents=prompt,
+            config=types.GenerateContentConfig(safety_settings=[types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE")])
         )
-        data = json.loads(response.text)
-        return data.get("title", cve_data['title']), data.get("summary", cve_data['description'][:200])
+        text = response.text.strip()
+        
+        # 텍스트 파싱 (가장 튼튼한 방식)
+        title_ko = cve_data['title']
+        desc_ko = cve_data['description'][:200]
+        
+        for line in text.split('\n'):
+            if line.startswith("제목:"): title_ko = line.replace("제목:", "").strip()
+            if line.startswith("내용:"): desc_ko = line.replace("내용:", "").strip()
+            
+        return title_ko, desc_ko
     except:
         return cve_data['title'], cve_data['description'][:200]
 
 def generate_report_content(cve_data, reason):
-    """HTML 리포트 생성 (Python이 조립)"""
+    """HTML 리포트 본문 생성 (Python 조립 방식)"""
     cwe_str = ", ".join(cve_data['cwe']) if cve_data['cwe'] else "N/A"
     ref_list = "".join([f"<li><a href='{r}' target='_blank'>{r[:80]}...</a></li>" for r in cve_data['references']])
     
@@ -51,49 +68,57 @@ def generate_report_content(cve_data, reason):
     elif score >= 7.0: badge_color = "bg-orange"
     elif score >= 4.0: badge_color = "bg-green"
 
-    # Affected Table Rows
+    # Affected Assets HTML
     affected_html = ""
     for item in cve_data.get('affected', []):
         affected_html += f"<tr><th>Vendor</th><td>{item['vendor']}</td></tr><tr><th>Product</th><td>{item['product']}</td></tr><tr><th>Affected</th><td>{item['versions']}</td></tr>"
 
-    # AI에게 분석 내용을 JSON으로 요청 (HTML 태그 생성 X)
+    # AI에게는 '내용'만 달라고 요청 (HTML 태그 생성 X -> 오류 방지)
     prompt = f"""
-    Role: Security Analyst.
-    Task: Analyze CVE and provide structured output in Korean.
-    [Data] Title: {cve_data['title']} / Desc: {cve_data['description']}
-    [Output] JSON Only:
-    {{
-        "summary": "Detailed summary in Korean",
-        "attack_vector": "How the attack works",
-        "impact": "Potential impact",
-        "mitigation": ["Step 1", "Step 2", "Step 3"]
-    }}
+    Analyze this CVE in Korean.
+    Title: {cve_data['title']}
+    Desc: {cve_data['description']}
+    
+    Output Format:
+    SUMMARY: [One sentence summary]
+    VECTOR: [Attack Vector explanation]
+    IMPACT: [Impact explanation]
+    MITIGATION: [Step 1, Step 2...]
     """
     
-    ai_summary = "분석 실패"
+    # 기본값
+    ai_summary = "분석 대기 중"
     ai_vector = "정보 없음"
     ai_impact = "정보 없음"
-    mitigation_list = "<li>정보 없음</li>"
+    ai_mitigation_html = "<li>정보 없음</li>"
     
     try:
         response = client.models.generate_content(
             model=config.MODEL_PHASE_0, contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json", # JSON 모드
-                safety_settings=[types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE")]
-            )
+            config=types.GenerateContentConfig(safety_settings=[types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE")])
         )
-        data = json.loads(response.text)
-        ai_summary = data.get("summary", "분석 실패")
-        ai_vector = data.get("attack_vector", "정보 없음")
-        ai_impact = data.get("impact", "정보 없음")
+        lines = response.text.split('\n')
+        mitigation_steps = []
         
-        # 대응 방안 리스트 HTML 변환
-        mitigation_list = "".join([f"<li>{step}</li>" for step in data.get("mitigation", [])])
+        for line in lines:
+            line = line.strip()
+            if line.startswith("SUMMARY:"): ai_summary = line.replace("SUMMARY:", "").strip()
+            elif line.startswith("VECTOR:"): ai_vector = line.replace("VECTOR:", "").strip()
+            elif line.startswith("IMPACT:"): ai_impact = line.replace("IMPACT:", "").strip()
+            elif line.startswith("MITIGATION:"): 
+                # 한 줄에 콤마로 구분된 경우 처리
+                parts = line.replace("MITIGATION:", "").strip().split(',')
+                for p in parts: mitigation_steps.append(p.strip())
+            elif line.startswith("-") or line.startswith("*"): # 불릿 포인트 처리
+                mitigation_steps.append(line.replace("-", "").replace("*", "").strip())
+
+        if mitigation_steps:
+            ai_mitigation_html = "".join([f"<li>{step}</li>" for step in mitigation_steps if step])
+            
     except Exception as e:
         print(f"[WARN] AI Analysis Failed: {e}")
 
-    # Python에서 HTML 조립 (오류 없음)
+    # Python이 HTML을 안전하게 조립
     return f"""
     <div class="header">
         <span class="meta-tag">Detected: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}</span>
@@ -126,7 +151,7 @@ def generate_report_content(cve_data, reason):
     <div class="card">
         <div class="card-title">🛡️ Mitigation Strategies</div>
         <div class="mitigation-box">
-            <ul>{mitigation_list}</ul>
+            <ul>{ai_mitigation_html}</ul>
         </div>
     </div>
 
@@ -175,7 +200,7 @@ def main():
             if should_alert:
                 print(f"[!] 알림 발송: {cve_id}")
                 
-                # JSON 방식으로 제목/요약 생성
+                # 한글 요약 생성 (텍스트 파싱)
                 title_ko, desc_ko = generate_korean_summary(current_state)
                 current_state['title_ko'] = title_ko
                 current_state['desc_ko'] = desc_ko
