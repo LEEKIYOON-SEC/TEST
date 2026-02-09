@@ -35,36 +35,44 @@ class Collector:
             print(f"[WARN] EPSS fetch failed: {e}")
 
     def fetch_recent_cves(self, hours=2):
-        """cve.org에서 최근 변경된 PUBLISHED CVE 조회"""
+        """cve.org에서 최근 변경된 CVE 조회 (Endpoint 수정됨)"""
         now = datetime.datetime.now(pytz.UTC)
         start_time = now - datetime.timedelta(hours=hours)
         
-        # [수정 1] 밀리초(.000) 제거 -> API가 가장 좋아하는 표준 포맷
-        # 기존: "%Y-%m-%dT%H:%M:%S.000Z"
+        # cve.org API 포맷 (밀리초 제거)
         time_str = start_time.strftime("%Y-%m-%dT%H:%M:%SZ")
         
-        url = f"https://cveawg.mitre.org/api/cve/history?time_start={time_str}&change_type=PUBLISHED"
+        # [수정 핵심] 
+        # 1. Endpoint: /api/cve/history -> /api/cve/
+        # 2. Parameter: time_start -> time_modified.gt
+        url = f"https://cveawg.mitre.org/api/cve/?time_modified.gt={time_str}"
         
         print(f"\n[DEBUG] Request URL: {url}")
 
         try:
             res = requests.get(url, timeout=10)
-            
             print(f"[DEBUG] Status Code: {res.status_code}")
             
             if res.status_code == 200:
                 records = res.json().get('cveRecords', [])
                 print(f"[DEBUG] Found {len(records)} records")
-                return [r['cveMetadata']['cveId'] for r in records]
+                
+                cve_ids = []
+                for r in records:
+                    # PUBLISHED 상태인 것만 필터링
+                    meta = r.get('cveMetadata', {})
+                    if meta.get('state') == 'PUBLISHED':
+                        cve_ids.append(meta.get('cveId'))
+                
+                print(f"[DEBUG] Filtered (PUBLISHED only): {len(cve_ids)}")
+                return cve_ids
             else:
-                # [수정 2] 200 OK가 아니면 API가 뱉은 에러 메시지를 출력 (원인 파악용)
                 print(f"[DEBUG] Error Response: {res.text}")
                 return []
                 
         except Exception as e:
-            print(f"[ERR] Failed to fetch CVE history: {e}")
+            print(f"[ERR] Failed to fetch CVE list: {e}")
             return []
-        return []
 
     def enrich_cve(self, cve_id):
         """CVE 상세 정보 조회 (CVSS 파싱 등)"""
