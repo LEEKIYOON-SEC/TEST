@@ -29,7 +29,9 @@ class SlackNotifier:
                 "fields": [
                     {"type": "mrkdwn", "text": f"*CVSS:*\n{cve_data['cvss']}"},
                     {"type": "mrkdwn", "text": f"*EPSS:*\n{cve_data['epss']*100:.2f}%"},
-                    {"type": "mrkdwn", "text": f"*CWE:*\n{cwe_info}"}, # CWE 추가
+                    # [복구] KEV 필드 재추가 (절대 삭제 금지)
+                    {"type": "mrkdwn", "text": f"*KEV:*\n{'✅ YES' if cve_data['is_kev'] else '❌ No'}"},
+                    {"type": "mrkdwn", "text": f"*CWE:*\n{cwe_info}"},
                 ]
             }
         ]

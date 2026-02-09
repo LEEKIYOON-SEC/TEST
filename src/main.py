@@ -2,6 +2,7 @@ import os
 import datetime
 import time
 from google import genai
+from google.genai import types # [추가] 설정 타입 임포트
 from collector import Collector
 from database import ArgusDB
 from notifier import SlackNotifier
@@ -19,7 +20,7 @@ def is_target_asset(cve_description, cve_id):
     return False, None
 
 def generate_korean_summary(cve_data):
-    """슬랙용 요약 (전문 용어 보존 규칙 적용)"""
+    """슬랙용 요약 (안전 필터 완화 적용)"""
     prompt = f"""
     Role: Security Expert.
     Task: Translate Title and Summarize Description into Korean (Max 3 lines).
@@ -29,29 +30,37 @@ def generate_korean_summary(cve_data):
     Desc: {cve_data['description']}
     
     [STRICT RULES]
-    1. DO NOT translate technical acronyms. Use formats like:
-       - "SSRF (Server-Side Request Forgery)"
-       - "RCE (Remote Code Execution)"
-       - "SQL Injection"
+    1. DO NOT translate technical acronyms (SSRF, XSS, RCE, SQLi).
     2. Format:
        제목: [Korean Title]
        내용: [Korean Summary]
     3. No intro/outro text.
     """
     try:
-        response = client.models.generate_content(model=config.MODEL_PHASE_0, contents=prompt)
+        # [수정] 안전 설정 추가 (보안 분석 내용은 차단하지 않도록)
+        response = client.models.generate_content(
+            model=config.MODEL_PHASE_0, 
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                safety_settings=[
+                    types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE"),
+                    types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
+                    types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
+                    types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="BLOCK_NONE"),
+                ]
+            )
+        )
         return response.text.strip()
-    except:
+    except Exception as e:
+        # 실패 시 로그에 원인 출력
+        print(f"[WARN] Summary Gen Failed: {e}")
         return f"제목: {cve_data['title']}\n내용: {cve_data['description'][:200]}"
 
 def generate_report_content(cve_data, reason):
-    """HTML 리포트 본문 생성 (CWE, Refs 포함)"""
-    
-    # CWE 및 Reference 문자열 변환
+    """HTML 리포트 본문 생성"""
     cwe_str = ", ".join(cve_data['cwe']) if cve_data['cwe'] else "N/A"
     ref_list = "".join([f"<li><a href='{r}' target='_blank'>{r[:60]}...</a></li>" for r in cve_data['references']])
     
-    # CVSS 배지 색상 결정
     score = cve_data['cvss']
     badge_color = "badge-gray"
     if score >= 9.0: badge_color = "badge-red"
@@ -70,22 +79,30 @@ def generate_report_content(cve_data, reason):
     
     [Rules]
     1. Language: Professional Korean.
-    2. Terminology: DO NOT translate standard terms (e.g., use 'SSRF', 'XSS', 'RCE').
-       - Bad: 서버 측 요청 위조
-       - Good: SSRF (Server-Side Request Forgery)
-    3. Output: Provide ONLY the inner HTML content for the analysis body (Analysis, Mitigation).
-       - Use <h3> for headers.
-       - Use <p> and <ul> for content.
-       - No <html> or <body> tags.
+    2. Terminology: Keep standard terms (SSRF, XSS, RCE).
+    3. Output: Provide ONLY the inner HTML content (<h3>, <p>, <ul>).
     """
     
-    ai_body = "AI 분석 실패"
+    ai_body = ""
     try:
-        response = client.models.generate_content(model=config.MODEL_PHASE_0, contents=prompt)
+        # [수정] 리포트 생성 시에도 안전 설정 적용
+        response = client.models.generate_content(
+            model=config.MODEL_PHASE_0, 
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                safety_settings=[
+                    types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE"),
+                    types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
+                    types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
+                    types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="BLOCK_NONE"),
+                ]
+            )
+        )
         ai_body = response.text.replace("```html", "").replace("```", "").strip()
-    except: pass
+    except Exception as e:
+        print(f"[ERR] Report Gen Failed: {e}")
+        ai_body = f"<p style='color:red'>AI 분석 실패 (Error Reason: {str(e)})</p>"
 
-    # HTML 조립
     return f"""
     <div class="header">
         <h1>🛡️ {cve_data['id']} : {cve_data['title_ko']}</h1>
@@ -134,7 +151,7 @@ def main():
                 "id": cve_id, "title": raw_data['title'], "cvss": raw_data['cvss'],
                 "is_kev": cve_id in collector.kev_set, "epss": collector.epss_cache.get(cve_id, 0.0),
                 "description": raw_data['description'],
-                "cwe": raw_data['cwe'], "references": raw_data['references'] # 추가된 데이터
+                "cwe": raw_data['cwe'], "references": raw_data['references']
             }
             
             last_record = db.get_cve(cve_id)
@@ -149,7 +166,6 @@ def main():
             if should_alert:
                 print(f"[!] 알림 발송: {cve_id}")
                 
-                # 요약 생성 및 파싱
                 summary_text = generate_korean_summary(current_state)
                 lines = summary_text.split('\n')
                 title_ko = current_state['title']
