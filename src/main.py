@@ -15,7 +15,7 @@ client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
 # CVSS 매핑 테이블
 CVSS_MAP = {
-    "AV:N": "네트워크 (Network)", "AV:A": "인접 네트워 (Adjacent)", "AV:L": "로컬 (Local)", "AV:P": "물리적 (Physical)",
+    "AV:N": "네트워크 (Network)", "AV:A": "인접 네트워크 (Adjacent)", "AV:L": "로컬 (Local)", "AV:P": "물리적 (Physical)",
     "AC:L": "낮음 (Low)", "AC:H": "높음 (High)",
     "PR:N": "없음 (None)", "PR:L": "낮음 (Low)", "PR:H": "높음 (High)",
     "UI:N": "없음 (None)", "UI:R": "필수 (Required)",
