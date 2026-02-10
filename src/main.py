@@ -33,40 +33,43 @@ def generate_korean_summary(cve_data):
     """
     try:
         response = client.models.generate_content(
-            model=config.MODEL_PHASE_0, contents=prompt,
+            model=config.MODEL_PHASE_0, 
+            contents=prompt,
             config=types.GenerateContentConfig(safety_settings=[types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE")])
         )
         text = response.text.strip()
-        title_ko, desc_ko = cve_data['title'], cve_data['description'][:200]
+        title_ko = cve_data['title']
+        desc_ko = cve_data['description'][:200]
         for line in text.split('\n'):
             if line.startswith("제목:"): title_ko = line.replace("제목:", "").strip()
             if line.startswith("내용:"): desc_ko = line.replace("내용:", "").strip()
         return title_ko, desc_ko
-    except: return cve_data['title'], cve_data['description'][:200]
+    except:
+        return cve_data['title'], cve_data['description'][:200]
 
 def create_github_issue(cve_data, reason):
     """
-    [New] GitHub Issue를 생성하고 해당 URL 반환 (무조건 렌더링 성공)
+    [조건부 실행] 고위험군일 때만 실행됨
     """
     token = os.environ.get("GH_TOKEN")
-    repo = os.environ.get("GITHUB_REPOSITORY") # 예: user/repo
+    repo = os.environ.get("GITHUB_REPOSITORY")
     if not repo: return None
 
-    # 1. AI 분석 (JSON)
+    # AI 상세 분석 (프롬프트 강화)
     prompt = f"""
     Analyze this CVE in Korean.
     Title: {cve_data['title']}
     Desc: {cve_data['description']}
     
-    Output JSON:
+    Output JSON (Strict):
     {{
         "summary": "Detailed summary",
-        "vector": "Attack vector",
-        "impact": "Impact",
-        "mitigation": ["Step 1", "Step 2"]
+        "vector_analysis": "Explain the attack vector in detail (Network/Local/User interaction, etc)",
+        "impact": "Detailed impact analysis",
+        "mitigation": ["Step 1", "Step 2", "Step 3"]
     }}
     """
-    ai_summary, ai_vector, ai_impact, ai_mitigation = "분석 대기", "-", "-", ["정보 없음"]
+    ai_summary, ai_vector_analysis, ai_impact, ai_mitigation = "분석 대기", "정보 없음", "정보 없음", ["정보 없음"]
     try:
         response = client.models.generate_content(
             model=config.MODEL_PHASE_0, contents=prompt,
@@ -77,16 +80,16 @@ def create_github_issue(cve_data, reason):
         )
         data = json.loads(response.text)
         ai_summary = data.get("summary", "-")
-        ai_vector = data.get("vector", "-")
+        ai_vector_analysis = data.get("vector_analysis", "-")
         ai_impact = data.get("impact", "-")
         ai_mitigation = data.get("mitigation", [])
     except: pass
 
-    # 2. Markdown 본문 작성 (GitHub 스타일)
+    # GitHub Markdown 작성
     cwe_str = ", ".join(cve_data['cwe']) if cve_data['cwe'] else "N/A"
     cce_str = ", ".join(cve_data['cce']) if cve_data['cce'] else "N/A"
     
-    # 뱃지 (Shields.io)
+    # 뱃지 로직
     score = cve_data['cvss']
     color = "lightgrey"
     if score >= 9.0: color = "critical"
@@ -102,6 +105,14 @@ def create_github_issue(cve_data, reason):
 
     mitigation_list = "\n".join([f"- {m}" for m in ai_mitigation])
     ref_list = "\n".join([f"- {r}" for r in cve_data['references']])
+
+    # [중요] 공격 벡터 섹션 (공식 문자열 + AI 분석)
+    vector_section = f"""
+    | 항목 | 내용 |
+    | :--- | :--- |
+    | **Official Vector** | `{cve_data.get('cvss_vector', 'N/A')}` |
+    | **AI Analysis** | {ai_vector_analysis} |
+    """
 
     body = f"""
 # 🛡️ {cve_data['title_ko']}
@@ -119,8 +130,10 @@ def create_github_issue(cve_data, reason):
 | 항목 | 내용 |
 | :--- | :--- |
 | **요약** | {ai_summary} |
-| **공격 벡터** | {ai_vector} |
 | **영향도** | {ai_impact} |
+
+### 🏹 공격 벡터 (Attack Vector)
+{vector_section}
 
 ## 🛡️ 대응 방안 (Mitigation)
 {mitigation_list}
@@ -129,17 +142,13 @@ def create_github_issue(cve_data, reason):
 {ref_list}
     """
 
-    # 3. GitHub API로 Issue 생성
     url = f"https://api.github.com/repos/{repo}/issues"
     headers = {"Authorization": f"token {token}", "Accept": "application/vnd.github.v3+json"}
     payload = {"title": f"[Argus] {cve_data['id']}: {cve_data['title_ko']}", "body": body, "labels": ["security", "cve"]}
     
     resp = requests.post(url, headers=headers, json=payload)
-    if resp.status_code == 201:
-        return resp.json().get("html_url") # 생성된 이슈 URL 반환
-    else:
-        print(f"[ERR] Issue Creation Failed: {resp.text}")
-        return None
+    if resp.status_code == 201: return resp.json().get("html_url")
+    else: return None
 
 def main():
     print(f"[*] Argus Phase 0 시작 (모델: {config.MODEL_PHASE_0})")
@@ -158,8 +167,11 @@ def main():
             is_target, match_info = is_target_asset(raw_data['description'], cve_id)
             if not is_target: continue
 
+            # [수정] 자산 정보 정리 (All Assets 제거)
+            clean_match_info = match_info.replace("All Assets (*)", "Global Match").replace("(*)", "")
+
             current_state = {
-                "id": cve_id, "title": raw_data['title'], "cvss": raw_data['cvss'],
+                "id": cve_id, "title": raw_data['title'], "cvss": raw_data['cvss'], "cvss_vector": raw_data['cvss_vector'],
                 "is_kev": cve_id in collector.kev_set, "epss": collector.epss_cache.get(cve_id, 0.0),
                 "description": raw_data['description'],
                 "cwe": raw_data['cwe'], "references": raw_data['references'],
@@ -170,19 +182,29 @@ def main():
             last_state = last_record['last_alert_state'] if last_record else None
             should_alert, alert_reason = False, ""
             
-            if last_record is None: should_alert, alert_reason = True, f"신규 취약점 ({match_info})"
+            # [조건] 고위험 판단 (CVSS 7.0+ or KEV or EPSS Spike)
+            is_high_risk = False
+            if current_state['cvss'] >= 7.0 or current_state['is_kev']: is_high_risk = True
+            
+            if last_record is None:
+                should_alert, alert_reason = True, f"신규 취약점"
             else:
-                if current_state['is_kev'] and not last_state.get('is_kev'): should_alert, alert_reason = True, "🚨 KEV 등재"
-                elif current_state['epss'] >= 0.1 and (current_state['epss'] - last_state.get('epss', 0)) > 0.05: should_alert, alert_reason = True, "📈 EPSS 급증"
+                if current_state['is_kev'] and not last_state.get('is_kev'):
+                    should_alert, alert_reason, is_high_risk = True, "🚨 KEV 등재", True # KEV 등재 시 무조건 High Risk
+                elif current_state['epss'] >= 0.1 and (current_state['epss'] - last_state.get('epss', 0)) > 0.05:
+                    should_alert, alert_reason, is_high_risk = True, "📈 EPSS 급증", True
 
             if should_alert:
-                print(f"[!] 알림 발송: {cve_id}")
+                print(f"[!] 알림 발송: {cve_id} (HighRisk: {is_high_risk})")
+                
                 title_ko, desc_ko = generate_korean_summary(current_state)
                 current_state['title_ko'] = title_ko
                 current_state['desc_ko'] = desc_ko
                 
-                # [변경] GitHub Issue 생성
-                report_url = create_github_issue(current_state, alert_reason)
+                # [핵심] 고위험일 때만 리포트 생성
+                report_url = None
+                if is_high_risk:
+                    report_url = create_github_issue(current_state, alert_reason)
                 
                 notifier.send_alert(current_state, alert_reason, report_url)
                 

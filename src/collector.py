@@ -86,9 +86,9 @@ class Collector:
             
             res = requests.get(raw_url, timeout=5)
             data = {
-                "id": cve_id, "title": "N/A", "cvss": 0.0, 
+                "id": cve_id, "title": "N/A", "cvss": 0.0, "cvss_vector": "N/A",
                 "description": "N/A", "state": "UNKNOWN",
-                "cwe": [], "references": [], "affected": [], "cce": [] # CCE 필드 준비
+                "cwe": [], "references": [], "affected": [], "cce": []
             }
             
             if res.status_code == 200:
@@ -106,12 +106,22 @@ class Collector:
                             break
                 except: pass
                 
+                # [수정] CVSS 점수 및 Vector String 수집
                 try:
                     metrics = cna.get('metrics', [])
                     for m in metrics:
-                        if 'cvssV4_0' in m: data['cvss'] = m['cvssV4_0'].get('baseScore', 0.0); break
-                        elif 'cvssV3_1' in m: data['cvss'] = m['cvssV3_1'].get('baseScore', 0.0); break
-                        elif 'cvssV3_0' in m: data['cvss'] = m['cvssV3_0'].get('baseScore', 0.0); break
+                        if 'cvssV4_0' in m: 
+                            data['cvss'] = m['cvssV4_0'].get('baseScore', 0.0)
+                            data['cvss_vector'] = m['cvssV4_0'].get('vectorString', 'N/A')
+                            break
+                        elif 'cvssV3_1' in m: 
+                            data['cvss'] = m['cvssV3_1'].get('baseScore', 0.0)
+                            data['cvss_vector'] = m['cvssV3_1'].get('vectorString', 'N/A')
+                            break
+                        elif 'cvssV3_0' in m: 
+                            data['cvss'] = m['cvssV3_0'].get('baseScore', 0.0)
+                            data['cvss_vector'] = m['cvssV3_0'].get('vectorString', 'N/A')
+                            break
                 except: pass
 
                 try:
@@ -127,7 +137,6 @@ class Collector:
                         if 'url' in ref: data['references'].append(ref['url'])
                 except: pass
 
-                # [미래 대비] CCE 자동 추출 로직 (데이터가 없으면 빈 리스트 유지)
                 json_str = json.dumps(json_data)
                 cce_matches = re.findall(r'(CCE-\d{4,}-\d+)', json_str)
                 if cce_matches:
@@ -135,4 +144,4 @@ class Collector:
 
             return data
         except: 
-            return {"id": cve_id, "title": "Error", "cvss": 0.0, "description": "Error", "state": "ERROR", "cwe": [], "references": [], "affected": [], "cce": []}
+            return {"id": cve_id, "title": "Error", "cvss": 0.0, "cvss_vector": "N/A", "description": "Error", "state": "ERROR", "cwe": [], "references": [], "affected": [], "cce": []}
