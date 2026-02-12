@@ -18,7 +18,7 @@ class RuleManager:
         url = f"https://api.github.com/search/code?q=repo:{repo} {query}"
         headers = {"Authorization": f"token {self.gh_token}", "Accept": "application/vnd.github.v3+json"}
         try:
-            res = requests.get(url, headers=headers, timeout=5)
+            res = requests.get(url, headers=headers, timeout=30)
             if res.status_code == 200 and res.json().get('total_count', 0) > 0:
                 item = res.json()['items'][0]
                 print(f"[✅ 검증 로그] GitHub 룰 발견! URL: {item['html_url']}")
@@ -35,7 +35,7 @@ class RuleManager:
         if not self.snort_cache:
             try:
                 # print("[INFO] Snort Community Rules 다운로드 중...")
-                res = requests.get("https://www.snort.org/downloads/community/community-rules.tar.gz", timeout=15)
+                res = requests.get("https://www.snort.org/downloads/community/community-rules.tar.gz", timeout=30)
                 if res.status_code == 200:
                     with tarfile.open(fileobj=io.BytesIO(res.content), mode="r:gz") as tar:
                         for member in tar.getmembers():
@@ -49,7 +49,7 @@ class RuleManager:
 
             try:
                 # print("[INFO] ET Open Rules 다운로드 중...")
-                res = requests.get("https://rules.emergingthreats.net/open/snort-2.9.0/emerging-all.rules", timeout=15)
+                res = requests.get("https://rules.emergingthreats.net/open/snort-2.9.0/emerging-all.rules", timeout=30)
                 if res.status_code == 200:
                     self.snort_cache.append(res.text)
             except Exception as e:
