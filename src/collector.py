@@ -8,6 +8,7 @@ import time
 from typing import List, Dict, Set, Optional
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 from logger import logger
+from rate_limiter import rate_limit_manager
 
 class CollectorError(Exception):
     """데이터 수집 관련 에러"""
@@ -15,18 +16,12 @@ class CollectorError(Exception):
 
 class Collector:
     """
-    CVE 데이터 수집 전문 클래스
+    CVE 데이터 수집 전문 클래스 (v2.0)
     
-    역할:
-    1. KEV (Known Exploited Vulnerabilities) 수집
-    2. EPSS (Exploit Prediction Scoring System) 수집
-    3. GitHub CVE 리포지토리에서 최신 CVE 수집
-    4. CVE 상세 정보 enrichment
-    
-    개선사항:
-    - Rate Limit 관리로 API 차단 방지
-    - 재시도 로직으로 일시적 네트워크 오류 극복
-    - 명확한 에러 로깅으로 문제 추적 용이
+    v2.0 변경사항:
+    - 자체 _rate_limit_wait() 제거 → rate_limit_manager 통합 사용
+    - 모든 API 호출에 check_and_wait() + record_call() 적용
+    - 일관된 rate limit 관리
     """
     
     def __init__(self):
@@ -36,35 +31,6 @@ class Collector:
             "Authorization": f"token {os.environ.get('GH_TOKEN')}",
             "Accept": "application/vnd.github.v3+json"
         }
-        
-        # Rate Limit 추적
-        self._last_api_call = {
-            "github": 0,
-            "epss": 0,
-            "kev": 0
-        }
-    
-    def _rate_limit_wait(self, api_name: str, delay: float = 1.0):
-        """
-        API Rate Limit 관리
-        
-        마지막 호출 후 일정 시간이 지나지 않았으면 대기합니다.
-        이렇게 하면 API 서버가 차단하는 것을 방지할 수 있습니다.
-        
-        Args:
-            api_name: API 이름 (github, epss, kev)
-            delay: 최소 대기 시간 (초)
-        """
-        now = time.time()
-        last_call = self._last_api_call.get(api_name, 0)
-        elapsed = now - last_call
-        
-        if elapsed < delay:
-            wait_time = delay - elapsed
-            logger.debug(f"Rate limit: waiting {wait_time:.1f}s for {api_name}")
-            time.sleep(wait_time)
-        
-        self._last_api_call[api_name] = time.time()
     
     @retry(
         stop=stop_after_attempt(3),
@@ -72,29 +38,16 @@ class Collector:
         retry=retry_if_exception_type(requests.exceptions.RequestException)
     )
     def fetch_kev(self) -> bool:
-        """
-        CISA KEV 목록 다운로드
-        
-        KEV는 Known Exploited Vulnerabilities의 약자로,
-        실제로 악용되고 있는 취약점 목록입니다.
-        이 목록에 있는 CVE는 최우선으로 패치해야 합니다.
-        
-        Returns:
-            성공 여부
-        
-        재시도 로직 설명:
-        - 최대 3번 재시도
-        - 실패할 때마다 2초, 4초, 8초로 대기 시간 증가 (exponential backoff)
-        - 이렇게 하면 서버가 일시적으로 불안정해도 결국 성공할 확률이 높아집니다
-        """
+        """CISA KEV 목록 다운로드"""
         url = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
         
         try:
-            self._rate_limit_wait("kev", 2.0)
+            rate_limit_manager.check_and_wait("kev")
             logger.info("Fetching CISA KEV list...")
             
             response = requests.get(url, timeout=15)
             response.raise_for_status()
+            rate_limit_manager.record_call("kev")
             
             data = response.json()
             self.kev_set = {vuln['cveID'] for vuln in data.get('vulnerabilities', [])}
@@ -103,11 +56,11 @@ class Collector:
             return True
             
         except requests.exceptions.Timeout:
-            logger.error(f"KEV API timeout after 15s")
+            logger.error("KEV API timeout after 15s")
             return False
         except requests.exceptions.RequestException as e:
             logger.error(f"KEV fetch failed: {e}")
-            raise  # 재시도를 위해 예외를 다시 발생시킴
+            raise
         except Exception as e:
             logger.error(f"Unexpected error in fetch_kev: {e}")
             return False
@@ -117,22 +70,7 @@ class Collector:
         wait=wait_exponential(multiplier=1, min=2, max=10)
     )
     def fetch_epss(self, cve_ids: List[str]) -> Dict[str, float]:
-        """
-        EPSS 점수 배치 수집
-        
-        EPSS는 CVE가 실제로 악용될 확률을 예측합니다.
-        예: EPSS 0.8 = 80% 확률로 악용될 것으로 예상
-        
-        Args:
-            cve_ids: CVE ID 리스트
-        
-        Returns:
-            CVE ID → EPSS 점수 딕셔너리
-        
-        배치 처리하는 이유:
-        - CVE를 하나씩 요청하면 너무 느립니다
-        - 한 번에 50개씩 묶어서 요청하면 훨씬 빠릅니다
-        """
+        """EPSS 점수 배치 수집"""
         if not cve_ids:
             return {}
         
@@ -146,11 +84,12 @@ class Collector:
             chunk_num = (i // chunk_size) + 1
             
             try:
-                self._rate_limit_wait("epss", 1.0)
+                rate_limit_manager.check_and_wait("epss")
                 
                 url = f"https://api.first.org/data/v1/epss?cve={','.join(chunk)}"
                 response = requests.get(url, timeout=10)
                 response.raise_for_status()
+                rate_limit_manager.record_call("epss")
                 
                 for item in response.json().get('data', []):
                     cve_id = item.get('cve')
@@ -161,7 +100,6 @@ class Collector:
                 
             except Exception as e:
                 logger.warning(f"EPSS batch {chunk_num} failed: {e}")
-                # 배치 하나 실패해도 계속 진행
                 continue
         
         return self.epss_cache
@@ -171,43 +109,29 @@ class Collector:
         wait=wait_exponential(multiplier=1, min=2, max=10)
     )
     def fetch_recent_cves(self, hours: int = 2) -> List[str]:
-        """
-        GitHub CVEProject에서 최근 CVE 수집
-        
-        CVEProject/cvelistV5는 모든 CVE의 공식 저장소입니다.
-        여기서 최근 N시간 내에 업데이트된 CVE를 찾습니다.
-        
-        Args:
-            hours: 최근 N시간 내 CVE
-        
-        Returns:
-            CVE ID 리스트
-        
-        작동 원리:
-        1. GitHub Commits API로 최근 커밋 가져오기
-        2. 각 커밋의 파일 변경 내역 확인
-        3. CVE-YYYY-NNNNN 형식의 파일명 추출
-        """
+        """GitHub CVEProject에서 최근 CVE 수집"""
         now = datetime.datetime.now(pytz.UTC)
         since_str = (now - datetime.timedelta(hours=hours)).strftime("%Y-%m-%dT%H:%M:%SZ")
         
         url = f"https://api.github.com/repos/CVEProject/cvelistV5/commits?since={since_str}"
         
         try:
-            self._rate_limit_wait("github", 1.0)
+            rate_limit_manager.check_and_wait("github")
             logger.info(f"Fetching CVEs from last {hours} hours...")
             
             response = requests.get(url, headers=self.headers, timeout=15)
             response.raise_for_status()
+            rate_limit_manager.record_call("github")
             
             commits = response.json()
             cve_ids = set()
             
             for commit in commits:
-                self._rate_limit_wait("github", 0.5)
+                rate_limit_manager.check_and_wait("github")
                 
                 commit_response = requests.get(commit['url'], headers=self.headers, timeout=10)
                 commit_response.raise_for_status()
+                rate_limit_manager.record_call("github")
                 
                 for file in commit_response.json().get('files', []):
                     filename = file['filename']
@@ -229,17 +153,7 @@ class Collector:
             return []
     
     def parse_affected(self, affected_list: List[Dict]) -> List[Dict]:
-        """
-        Affected 정보 파싱
-        
-        CVE JSON에서 "어떤 벤더의 어떤 제품이 영향받는지" 정보를 추출합니다.
-        복잡한 버전 정보를 한국어로 읽기 쉽게 변환합니다.
-        
-        예:
-        - "3.0 부터 3.5 이전"
-        - "4.1 이하"
-        - "2.0 (단일 버전)"
-        """
+        """Affected 정보 파싱"""
         results = []
         
         for item in affected_list:
@@ -281,25 +195,10 @@ class Collector:
         wait=wait_exponential(multiplier=1, min=1, max=5)
     )
     def enrich_cve(self, cve_id: str) -> Dict:
-        """
-        CVE 상세 정보 수집
-        
-        CVE ID만으로는 제목, 설명, CVSS 점수 등을 알 수 없습니다.
-        GitHub의 원본 JSON 파일을 다운로드해서 모든 정보를 추출합니다.
-        
-        Args:
-            cve_id: CVE-2024-12345 형식
-        
-        Returns:
-            CVE 전체 정보 딕셔너리
-        
-        파일 경로 규칙:
-        CVE-2024-12345 → cves/2024/12xxx/CVE-2024-12345.json
-        """
+        """CVE 상세 정보 수집"""
         try:
-            self._rate_limit_wait("github", 0.5)
+            rate_limit_manager.check_and_wait("github")
             
-            # CVE ID를 파일 경로로 변환
             parts = cve_id.split('-')
             year, id_num = parts[1], parts[2]
             group_dir = "0xxx" if len(id_num) < 4 else id_num[:-3] + "xxx"
@@ -308,11 +207,11 @@ class Collector:
             
             response = requests.get(raw_url, timeout=10)
             response.raise_for_status()
+            rate_limit_manager.record_call("github")
             
             json_data = response.json()
             cna = json_data.get('containers', {}).get('cna', {})
             
-            # 기본 데이터 구조
             data = {
                 "id": cve_id,
                 "title": "N/A",
@@ -326,22 +225,15 @@ class Collector:
                 "cce": []
             }
             
-            # 상태
             data['state'] = json_data.get('cveMetadata', {}).get('state', 'UNKNOWN')
-            
-            # 제목
             data['title'] = cna.get('title', 'N/A')
-            
-            # 영향받는 제품
             data['affected'] = self.parse_affected(cna.get('affected', []))
             
-            # 설명 (영어만)
             for desc in cna.get('descriptions', []):
                 if desc.get('lang') == 'en':
                     data['description'] = desc.get('value', 'N/A')
                     break
             
-            # CVSS 점수 (v4.0 → v3.1 → v3.0 우선순위)
             for metric in cna.get('metrics', []):
                 if 'cvssV4_0' in metric:
                     data['cvss'] = metric['cvssV4_0'].get('baseScore', 0.0)
@@ -356,19 +248,16 @@ class Collector:
                     data['cvss_vector'] = metric['cvssV3_0'].get('vectorString', 'N/A')
                     break
             
-            # CWE (취약점 유형)
             for pt in cna.get('problemTypes', []):
                 for desc in pt.get('descriptions', []):
                     cwe_id = desc.get('cweId', desc.get('description', ''))
                     if cwe_id:
                         data['cwe'].append(cwe_id)
             
-            # 참고 자료
             for ref in cna.get('references', []):
                 if 'url' in ref:
                     data['references'].append(ref['url'])
             
-            # CCE (Windows 설정 열거) - 보너스 정보
             json_str = json.dumps(json_data)
             cce_matches = re.findall(r'(CCE-\d{4,}-\d+)', json_str)
             if cce_matches:

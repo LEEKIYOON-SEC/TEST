@@ -9,64 +9,55 @@ class RateLimitInfo:
     """
     API Rate Limit 정보를 담는 데이터 클래스
     
-    이것은 마치 "API 사용 내역서"와 같아요.
-    얼마나 썼고, 얼마나 남았고, 언제 리셋되는지 모두 기록합니다.
-    
     Attributes:
-        limit: 최대 호출 가능 횟수 (예: 5000/hour)
+        limit: 최대 호출 가능 횟수
         used: 사용한 횟수
-        reset_at: 리셋 시간 (datetime)
+        reset_at: 리셋 시간
         window_seconds: 시간 윈도우 (초)
+        min_interval: 호출 간 최소 간격 (초)
+        last_call_at: 마지막 호출 시각 (time.time)
     """
     limit: int
     used: int = 0
     reset_at: datetime = field(default_factory=datetime.now)
-    window_seconds: int = 3600  # 기본 1시간
+    window_seconds: int = 3600
+    min_interval: float = 0.0
+    last_call_at: float = 0.0
     
     @property
     def remaining(self) -> int:
-        """남은 호출 가능 횟수"""
         return max(0, self.limit - self.used)
     
     @property
     def usage_percent(self) -> float:
-        """사용률 (0-100%)"""
         if self.limit == 0:
             return 0
         return (self.used / self.limit) * 100
     
     @property
     def is_exhausted(self) -> bool:
-        """한도 소진 여부"""
         return self.used >= self.limit
     
     @property
     def time_until_reset(self) -> float:
-        """리셋까지 남은 시간 (초)"""
         now = datetime.now()
         if now >= self.reset_at:
             return 0
         return (self.reset_at - now).total_seconds()
     
     def should_wait(self) -> bool:
-        """대기가 필요한지 판단"""
-        # 80% 이상 사용 시 속도 조절
         return self.usage_percent >= 80
 
 class RateLimitManager:
     """
-    API Rate Limit 통합 관리자
+    API Rate Limit 통합 관리자 (v2.0)
     
-    역할:
-    1. 각 API의 호출 횟수 추적
-    2. 한도 근접 시 자동 속도 조절
-    3. 한도 초과 방지
-    4. 통계 및 경고
-    
-    작동 원리:
-    - 매 API 호출 전에 check_and_wait() 호출
-    - 사용 가능하면 True 반환, 아니면 대기 후 True
-    - 호출 후 record_call()로 기록
+    v2.0 변경사항:
+    - github_search 전용 rate limit 추가 (핵심!)
+      → GitHub Search API는 일반 API와 별도로 10회/분 제한
+    - min_interval(최소 호출 간격) 지원
+    - handle_429() 메서드 추가 (Retry-After 파싱 대응)
+    - collector.py, rule_manager.py에서 통합 사용
     
     비유:
     이 클래스는 마치 "교통 신호등"과 같아요.
@@ -79,37 +70,57 @@ class RateLimitManager:
         """
         Rate Limit 정보 초기화
         
-        각 API마다 별도의 추적 정보를 관리합니다.
-        마치 각 신용카드마다 별도의 한도가 있는 것과 같아요.
+        ⚠️ 중요: github vs github_search
+        - github (일반 API): 커밋 조회, 파일 다운로드 등 → 5000회/시간
+        - github_search (Search API): 코드 검색 → 10회/분 (매우 엄격!)
+        
+        이 차이를 모르면 429 에러의 늪에 빠집니다!
         """
         self.limits: Dict[str, RateLimitInfo] = {
             "github": RateLimitInfo(
                 limit=5000,
-                window_seconds=3600  # 1시간
+                window_seconds=3600,
+                min_interval=0.5
+            ),
+            # GitHub Search API - 인증 사용자 기준 10회/분
+            # 보수적으로 8회로 설정하여 여유분 확보
+            "github_search": RateLimitInfo(
+                limit=8,
+                window_seconds=60,
+                min_interval=7.0       # 60초/8회 ≈ 7.5초, 넉넉히 7초
             ),
             "groq": RateLimitInfo(
                 limit=30,
-                window_seconds=60  # 1분
+                window_seconds=60,
+                min_interval=2.0
             ),
             "epss": RateLimitInfo(
                 limit=60,
-                window_seconds=60  # 1분
+                window_seconds=60,
+                min_interval=1.0
             ),
             "kev": RateLimitInfo(
-                limit=10,  # 보수적으로 설정
-                window_seconds=3600  # 1시간
+                limit=10,
+                window_seconds=3600,
+                min_interval=2.0
             ),
             "gemini": RateLimitInfo(
                 limit=60,
-                window_seconds=60  # 1분
+                window_seconds=60,
+                min_interval=1.0
+            ),
+            "ruleset_download": RateLimitInfo(
+                limit=20,
+                window_seconds=3600,
+                min_interval=2.0
             )
         }
         
-        # 통계
         self.stats = {
             "total_calls": 0,
             "total_waits": 0,
-            "total_wait_time": 0.0
+            "total_wait_time": 0.0,
+            "rate_limit_hits": 0
         }
         
         logger.info("Rate Limit Manager 초기화 완료")
@@ -119,25 +130,18 @@ class RateLimitManager:
         API 호출 가능 여부 확인 및 대기
         
         이 함수는 API를 호출하기 전에 반드시 호출해야 합니다.
-        마치 횡단보도를 건너기 전에 신호등을 확인하는 것과 같아요.
         
         작동 과정:
         1. 리셋 시간이 지났으면 카운터 초기화
-        2. 한도 소진 시 리셋까지 대기
-        3. 80% 이상 사용 시 속도 조절
-        4. 90% 이상 사용 시 경고 로그
+        2. 최소 호출 간격(min_interval) 대기
+        3. 한도 소진 시 리셋까지 대기
+        4. 80% 이상 사용 시 속도 조절
         
         Args:
-            api_name: API 이름 (github, groq, epss 등)
+            api_name: API 이름 (github, github_search, groq, epss 등)
         
         Returns:
             항상 True (호출 가능 상태가 될 때까지 대기)
-        
-        예시:
-            >>> manager = RateLimitManager()
-            >>> manager.check_and_wait("github")  # 호출 가능 확인
-            >>> # GitHub API 호출...
-            >>> manager.record_call("github")  # 호출 기록
         """
         if api_name not in self.limits:
             logger.warning(f"알 수 없는 API: {api_name}, Rate Limit 적용 안 됨")
@@ -151,70 +155,68 @@ class RateLimitManager:
             old_used = info.used
             info.used = 0
             info.reset_at = now + timedelta(seconds=info.window_seconds)
-            
             if old_used > 0:
                 logger.debug(f"{api_name} Rate Limit 리셋 (이전 사용: {old_used}/{info.limit})")
         
-        # Step 2: 한도 소진 확인
+        # Step 2: 최소 호출 간격 대기
+        if info.min_interval > 0 and info.last_call_at > 0:
+            elapsed = time.time() - info.last_call_at
+            if elapsed < info.min_interval:
+                wait_time = info.min_interval - elapsed
+                logger.debug(f"{api_name} 최소 간격 대기: {wait_time:.1f}초")
+                time.sleep(wait_time)
+                self.stats["total_wait_time"] += wait_time
+        
+        # Step 3: 한도 소진 확인
         if info.is_exhausted:
             wait_time = info.time_until_reset
+            if wait_time <= 0:
+                wait_time = info.window_seconds
+            
             logger.warning(
                 f"⚠️ {api_name} Rate Limit 도달! "
                 f"({info.used}/{info.limit}) "
                 f"{wait_time:.0f}초 대기 중..."
             )
             
-            time.sleep(wait_time + 1)  # 안전 마진 1초
+            time.sleep(wait_time + 1)
             self.stats["total_waits"] += 1
             self.stats["total_wait_time"] += wait_time
             
-            # 리셋 후 재귀 호출
+            info.used = 0
+            info.reset_at = datetime.now() + timedelta(seconds=info.window_seconds)
             return self.check_and_wait(api_name)
         
-        # Step 3: 사용률 기반 속도 조절
+        # Step 4: 사용률 기반 속도 조절
         usage = info.usage_percent
         
         if usage >= 90:
-            # 90% 이상: 경고 + 긴 대기
+            extra_wait = info.min_interval * 2 if info.min_interval > 0 else 5.0
             logger.warning(
                 f"⚠️ {api_name} 사용률 높음: {usage:.1f}% "
-                f"({info.remaining}개 남음) - 속도 조절 중"
+                f"({info.remaining}개 남음) - {extra_wait:.1f}초 추가 대기"
             )
-            wait_time = 5.0  # 5초 대기
-            time.sleep(wait_time)
-            self.stats["total_wait_time"] += wait_time
-            
+            time.sleep(extra_wait)
+            self.stats["total_wait_time"] += extra_wait
         elif usage >= 80:
-            # 80-90%: 적당한 대기
+            extra_wait = info.min_interval if info.min_interval > 0 else 2.0
             logger.debug(
                 f"{api_name} 사용률: {usage:.1f}% "
                 f"({info.remaining}개 남음) - 속도 조절"
             )
-            wait_time = 2.0  # 2초 대기
-            time.sleep(wait_time)
-            self.stats["total_wait_time"] += wait_time
+            time.sleep(extra_wait)
+            self.stats["total_wait_time"] += extra_wait
         
         return True
     
     def record_call(self, api_name: str):
-        """
-        API 호출 기록
-        
-        API를 호출한 후에 이 함수를 호출해서 사용 횟수를 증가시킵니다.
-        마치 전화 통화 후에 통화 시간이 자동으로 기록되는 것과 같아요.
-        
-        Args:
-            api_name: API 이름
-        
-        예시:
-            >>> response = requests.get(github_url)  # API 호출
-            >>> manager.record_call("github")  # 기록
-        """
+        """API 호출 기록"""
         if api_name not in self.limits:
             return
         
         info = self.limits[api_name]
         info.used += 1
+        info.last_call_at = time.time()
         self.stats["total_calls"] += 1
         
         logger.debug(
@@ -222,20 +224,58 @@ class RateLimitManager:
             f"({info.usage_percent:.1f}%)"
         )
     
-    def get_status(self, api_name: Optional[str] = None) -> Dict:
+    def handle_429(self, api_name: str, retry_after: Optional[float] = None):
         """
-        현재 상태 조회
+        429 Too Many Requests 대응
+        
+        API에서 429를 받았을 때 호출합니다.
+        
+        작동 원리:
+        1. Retry-After 헤더가 있으면 그만큼 대기
+        2. 없으면 윈도우 리셋까지 대기
+        3. 카운터를 한도로 설정 (소진 상태 마킹)
         
         Args:
-            api_name: 특정 API 이름 (None이면 전체)
-        
-        Returns:
-            상태 정보 딕셔너리
+            api_name: API 이름
+            retry_after: Retry-After 헤더 값 (초). None이면 자동 계산
         """
+        self.stats["rate_limit_hits"] += 1
+        
+        if api_name not in self.limits:
+            wait_time = retry_after if retry_after else 60
+            logger.warning(f"⚠️ {api_name} 429 수신, {wait_time:.0f}초 대기")
+            time.sleep(wait_time)
+            return
+        
+        info = self.limits[api_name]
+        info.used = info.limit  # 한도 소진으로 마킹
+        
+        if retry_after:
+            wait_time = retry_after + 1
+        else:
+            wait_time = info.time_until_reset
+            if wait_time <= 0:
+                wait_time = info.window_seconds
+        
+        logger.warning(
+            f"⚠️ {api_name} 429 수신! "
+            f"{wait_time:.0f}초 대기 후 재시도 "
+            f"(누적 429: {self.stats['rate_limit_hits']}회)"
+        )
+        
+        time.sleep(wait_time)
+        self.stats["total_waits"] += 1
+        self.stats["total_wait_time"] += wait_time
+        
+        # 리셋
+        info.used = 0
+        info.reset_at = datetime.now() + timedelta(seconds=info.window_seconds)
+    
+    def get_status(self, api_name: Optional[str] = None) -> Dict:
+        """현재 상태 조회"""
         if api_name:
             if api_name not in self.limits:
                 return {}
-            
             info = self.limits[api_name]
             return {
                 "api": api_name,
@@ -246,7 +286,6 @@ class RateLimitManager:
                 "reset_in": round(info.time_until_reset, 0)
             }
         
-        # 전체 상태
         return {
             "apis": {
                 name: {
@@ -261,54 +300,41 @@ class RateLimitManager:
         }
     
     def print_summary(self):
-        """
-        실행 종료 시 요약 출력
-        
-        이것은 마치 "이번 달 통신비 청구서"와 같아요.
-        어떤 API를 얼마나 썼는지 요약해서 보여줍니다.
-        """
+        """실행 종료 시 요약 출력"""
+        logger.info("")
         logger.info("=" * 60)
-        logger.info("Rate Limit 사용 요약")
+        logger.info("📊 Rate Limit 사용 요약")
         logger.info("=" * 60)
         
         for name, info in self.limits.items():
-            usage_bar = self._create_usage_bar(info.usage_percent)
-            logger.info(
-                f"{name:10s}: {info.used:4d}/{info.limit:4d} "
-                f"[{usage_bar}] {info.usage_percent:5.1f}%"
-            )
+            if info.used > 0 or info.last_call_at > 0:
+                usage_bar = self._create_usage_bar(info.usage_percent)
+                logger.info(
+                    f"  {name:18s}: {info.used:4d}/{info.limit:4d} "
+                    f"[{usage_bar}] {info.usage_percent:5.1f}%"
+                )
         
         logger.info("-" * 60)
-        logger.info(f"총 호출 횟수: {self.stats['total_calls']}")
-        logger.info(f"대기 횟수: {self.stats['total_waits']}")
-        logger.info(f"총 대기 시간: {self.stats['total_wait_time']:.1f}초")
+        logger.info(f"  총 API 호출: {self.stats['total_calls']}회")
+        logger.info(f"  Rate Limit 대기: {self.stats['total_waits']}회")
+        logger.info(f"  429 응답 수신: {self.stats['rate_limit_hits']}회")
+        logger.info(f"  총 대기 시간: {self.stats['total_wait_time']:.1f}초")
         logger.info("=" * 60)
     
     def _create_usage_bar(self, percent: float) -> str:
-        """
-        사용률 시각화 바 생성
-        
-        예: [████████░░] 80%
-        
-        왜 필요한가요?
-        - 숫자만 보면 직관적이지 않아요
-        - 시각화하면 한눈에 파악 가능합니다
-        """
+        """사용률 시각화 바 생성"""
         bar_length = 10
         filled = int((percent / 100) * bar_length)
         empty = bar_length - filled
         
-        # 색상 선택
         if percent >= 90:
-            symbol = "█"  # 위험 (빨강 느낌)
+            symbol = "█"
         elif percent >= 70:
-            symbol = "▓"  # 주의 (노랑 느낌)
+            symbol = "▓"
         else:
-            symbol = "░"  # 안전 (초록 느낌)
+            symbol = "░"
         
-        bar = symbol * filled + "░" * empty
-        return bar
+        return symbol * filled + "░" * empty
 
-# 전역 Rate Limit Manager 인스턴스
-# 모든 모듈에서 이것을 import해서 사용합니다
+# 전역 인스턴스
 rate_limit_manager = RateLimitManager()
