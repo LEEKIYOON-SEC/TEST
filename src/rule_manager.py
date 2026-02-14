@@ -527,7 +527,7 @@ class RuleManager:
         return has_enough, reason, indicator_details
     
     @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
-    def _generate_ai_rule(self, rule_type: str, cve_data: Dict) -> Optional[Tuple[str, List[str]]]:
+    def _generate_ai_rule(self, rule_type: str, cve_data: Dict, analysis: Optional[Dict] = None) -> Optional[Tuple[str, List[str]]]:
         """
         AI 기반 탐지 룰 생성
         
@@ -548,7 +548,7 @@ class RuleManager:
             else:
                 logger.debug(f"✅ Observable Gate 통과: {reason}")
         
-        prompt = self._build_rule_prompt(rule_type, cve_data)
+        prompt = self._build_rule_prompt(rule_type, cve_data, analysis)
         
         try:
             response = self.groq_client.chat.completions.create(
@@ -588,8 +588,45 @@ class RuleManager:
             logger.error(f"AI 룰 생성 에러: {e}")
             raise
     
-    def _build_rule_prompt(self, rule_type: str, cve_data: Dict) -> str:
-        """AI를 위한 룰 생성 프롬프트 구성"""
+    def _build_rule_prompt(self, rule_type: str, cve_data: Dict, analysis: Optional[Dict] = None) -> str:
+        """
+        AI를 위한 룰 생성 프롬프트 구성
+        
+        v2.3 개선:
+        - References 추가 (벤더 권고, PoC 링크)
+        - Affected Products 추가 (어떤 제품/버전이 영향받는지)
+        - AI Analysis 추가 (root_cause, attack_scenario 등)
+        """
+        
+        # References 정리 (최대 3개)
+        references_str = "None"
+        if cve_data.get('references'):
+            refs = cve_data['references'][:3]
+            references_str = "\n".join([f"- {ref}" for ref in refs])
+        
+        # Affected Products 정리
+        affected_str = "Unknown"
+        if cve_data.get('affected'):
+            affected_items = []
+            for item in cve_data['affected'][:3]:  # 최대 3개
+                vendor = item.get('vendor', 'Unknown')
+                product = item.get('product', 'Unknown')
+                versions = item.get('versions', 'Unknown')
+                affected_items.append(f"- {vendor} {product} ({versions})")
+            if affected_items:
+                affected_str = "\n".join(affected_items)
+        
+        # AI Analysis 추가 (있으면)
+        analysis_section = ""
+        if analysis:
+            root_cause = analysis.get('root_cause', 'N/A')
+            attack_scenario = analysis.get('attack_scenario', 'N/A')
+            if root_cause != 'N/A' or attack_scenario != 'N/A':
+                analysis_section = f"""
+[AI Analysis - Additional Context]
+Root Cause: {root_cause}
+Attack Scenario: {attack_scenario}
+"""
         
         base_prompt = f"""
 You are a Senior Detection Engineer specializing in {rule_type} rules.
@@ -601,11 +638,18 @@ Description: {cve_data['description']}
 CVSS Vector: {cve_data.get('cvss_vector', 'N/A')}
 CWE: {', '.join(cve_data.get('cwe', []))}
 
+[Affected Products]
+{affected_str}
+
+[References]
+{references_str}
+{analysis_section}
 [CRITICAL REQUIREMENTS]
 1. **Observable Gate**: If no concrete indicator exists, return exactly: SKIP
-2. **No Hallucination**: Use ONLY what's in the description
+2. **No Hallucination**: Use ONLY what's in the description, references, and analysis
 3. **Syntax**: Follow standard {rule_type} syntax strictly
-4. **Conservative**: When uncertain, return SKIP
+4. **Product-Specific**: If affected products are known, tailor the rule
+5. **Conservative**: When uncertain, return SKIP
 
 [Output Format]
 - Return ONLY the raw rule code (no markdown, no explanation)
@@ -663,22 +707,30 @@ level: high
     # [4] 메인 인터페이스
     # ====================================================================
     
-    def get_rules(self, cve_data: Dict, feasibility: bool) -> Dict:
+    def get_rules(self, cve_data: Dict, feasibility: bool, analysis: Optional[Dict] = None) -> Dict:
         """
         CVE에 대한 탐지 룰 수집
         
+        **v2.2 변경사항**:
+        - feasibility 파라미터는 더 이상 사용되지 않습니다
+        - 공개 룰이 없으면 항상 AI 생성을 시도합니다
+        - Observable Gate만으로 AI 생성 여부를 판단합니다
+        
         우선순위:
         1. 공개 룰 (신뢰도 100%)
-        2. AI 생성 룰 (검증 후 제공, 경고 표시)
+        2. AI 생성 룰 (Observable Gate 통과 시, 검증 후 제공)
+        
+        Args:
+            cve_data: CVE 정보
+            feasibility: (Deprecated) 더 이상 사용되지 않음
         
         Returns:
             {
-                "sigma": {"code": "...", "source": "...", "verified": bool},
+                "sigma": {"code": "...", "source": "...", "verified": bool, "indicators": [...]},
                 "network": [
-                    {"code": "...", "source": "Snort 3 ET Open", "engine": "snort3", "verified": true},
-                    {"code": "...", "source": "Suricata 7 ET Open", "engine": "suricata7", "verified": true}
+                    {"code": "...", "source": "...", "engine": "snort3", "verified": true, "indicators": [...]},
                 ],
-                "yara": {"code": "...", "source": "...", "verified": bool}
+                "yara": {"code": "...", "source": "...", "verified": bool, "indicators": [...]}
             }
         """
         rules = {"sigma": None, "network": [], "yara": None}
@@ -696,7 +748,7 @@ level: high
                 "indicators": None  # 공개 룰은 지표 정보 없음
             }
         else:
-            ai_result = self._generate_ai_rule("Sigma", cve_data)
+            ai_result = self._generate_ai_rule("Sigma", cve_data, analysis)
             if ai_result:
                 ai_sigma, indicators = ai_result
                 rules['sigma'] = {
@@ -720,9 +772,9 @@ level: high
                     "verified": True,
                     "indicators": None  # 공개 룰은 지표 정보 없음
                 })
-        elif feasibility:
-            # 공개 룰이 없고 feasibility가 true면 AI 생성
-            ai_result = self._generate_ai_rule("Snort", cve_data)
+        else:
+            # 공개 룰이 없으면 항상 AI 생성 시도 (feasibility 무관)
+            ai_result = self._generate_ai_rule("Snort", cve_data, analysis)
             if ai_result:
                 ai_network, indicators = ai_result
                 rules['network'].append({
@@ -742,8 +794,9 @@ level: high
                 "verified": True,
                 "indicators": None  # 공개 룰은 지표 정보 없음
             }
-        elif feasibility:
-            ai_result = self._generate_ai_rule("Yara", cve_data)
+        else:
+            # 공개 룰이 없으면 항상 AI 생성 시도 (feasibility 무관)
+            ai_result = self._generate_ai_rule("Yara", cve_data, analysis)
             if ai_result:
                 ai_yara, indicators = ai_result
                 rules['yara'] = {
@@ -756,8 +809,9 @@ level: high
         # 결과 요약
         sigma_found = "✅" if rules['sigma'] else "❌"
         network_count = len(rules['network'])
+        network_found = f"✅ ({network_count}개)" if network_count > 0 else "❌"
         yara_found = "✅" if rules['yara'] else "❌"
         
-        logger.info(f"룰 수집 완료: Sigma {sigma_found}, 네트워크 {network_count}개, Yara {yara_found}")
+        logger.info(f"룰 수집 완료: Sigma {sigma_found}, Network {network_found}, Yara {yara_found}")
         
         return rules
