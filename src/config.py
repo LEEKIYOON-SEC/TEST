@@ -78,7 +78,7 @@ class ArgusConfig:
     PERFORMANCE = {
         "max_workers": 3,  # 병렬 처리 워커 수 (너무 많으면 API 한도 초과)
         "batch_size": 10,  # 배치 처리 크기
-        "cve_fetch_hours": 48,  # 최근 N시간 내 CVE 수집
+        "cve_fetch_hours": 2,  # 최근 N시간 내 CVE 수집
         "rule_check_interval_days": 7  # 공식 룰 재확인 주기
     }
     
@@ -92,6 +92,12 @@ class ArgusConfig:
         "SLACK_WEBHOOK_URL",
         "GROQ_API_KEY",
         "GEMINI_API_KEY"
+    ]
+    
+    # 선택적 환경 변수 (없어도 실행 가능, 기능만 비활성화)
+    OPTIONAL_ENV_VARS = [
+        "NVD_API_KEY",       # NVD API (CVSS/CWE 보충)
+        "VULNCHECK_API_KEY"  # VulnCheck KEV (확장 KEV 목록)
     ]
     
     def __init__(self):

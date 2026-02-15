@@ -88,6 +88,24 @@ class RateLimitManager:
                 window_seconds=60,
                 min_interval=2.5
             ),
+            # NVD API: API키 있으면 50req/30초
+            "nvd": RateLimitInfo(
+                limit=40,
+                window_seconds=30,
+                min_interval=1.0
+            ),
+            # VulnCheck Free: 50req/분
+            "vulncheck": RateLimitInfo(
+                limit=40,
+                window_seconds=60,
+                min_interval=1.5
+            ),
+            # GitHub Advisory API: 일반 GitHub API 한도 공유
+            "github_advisory": RateLimitInfo(
+                limit=100,
+                window_seconds=3600,
+                min_interval=0.5
+            ),
             "ruleset_download": RateLimitInfo(
                 limit=20,
                 window_seconds=3600,

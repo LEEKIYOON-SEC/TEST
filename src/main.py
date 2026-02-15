@@ -333,18 +333,14 @@ def _sanitize_for_table(text: str) -> str:
 
 def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, has_official: bool) -> str:
     """
-    GitHub Issue 본문 구성
+    GitHub Issue 본문 구성 (v3.0)
     
-    마크다운 형식의 상세한 보안 리포트를 만듭니다.
-    
-    구성:
-    - 헤더 (제목, 배지, CWE)
-    - 영향받는 자산 테이블
-    - AI 심층 분석 (원인, 시나리오, 영향)
-    - CVSS 벡터 상세 분석
-    - 대응 방안
-    - 탐지 룰 (공식/AI 구분) — 항상 3가지 모두 표시
-    - 참고 자료
+    디자인 변경:
+    - 🔍 AI 심층 분석
+    - 🏹 공격 벡터 상세 → 🏹 AI 예상 공격 시나리오 순서
+    - 🛡️ AI 권고 대응 방안
+    - 🛡️ AI 생성 탐지 룰
+    - 위협 인텔리전스 (PoC, VulnCheck KEV, Nuclei) 추가
     """
     # CVSS 배지 색상
     score = cve_data['cvss']
@@ -357,6 +353,14 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
     kev_color = "FF0000" if cve_data['is_kev'] else "CCCCCC"
     
     badges = f"![CVSS](https://img.shields.io/badge/CVSS-{score}-{color}) ![EPSS](https://img.shields.io/badge/EPSS-{cve_data['epss']*100:.2f}%25-blue) ![KEV](https://img.shields.io/badge/KEV-{'YES' if cve_data['is_kev'] else 'No'}-{kev_color})"
+    
+    # PoC 배지
+    if cve_data.get('has_poc'):
+        badges += f" ![PoC](https://img.shields.io/badge/PoC-{cve_data.get('poc_count', 0)}건_공개-FF4500)"
+    
+    # VulnCheck KEV 배지
+    if cve_data.get('is_vulncheck_kev') and not cve_data['is_kev']:
+        badges += " ![VulnCheck](https://img.shields.io/badge/VulnCheck_KEV-YES-FF6600)"
     
     cwe_str = ", ".join(cve_data['cwe']) if cve_data['cwe'] else "N/A"
     
@@ -376,16 +380,16 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
     # CVSS 벡터 해석
     vector_details = parse_cvss_vector(cve_data.get('cvss_vector', 'N/A'))
     
-    # ✅ AI 분석 결과 테이블 안전화 (|, 줄바꿈 이스케이프)
+    # AI 분석 결과 테이블 안전화
     root_cause = _sanitize_for_table(analysis.get('root_cause', '-'))
     impact = _sanitize_for_table(analysis.get('impact', '-'))
     scenario = analysis.get('scenario', '정보 없음').replace('\n', '<br>')
     vector_details_safe = _sanitize_for_table(vector_details)
     
-    # 룰 섹션 - 항상 3가지 모두 표시
+    # 룰 섹션 — 항상 3가지 모두 표시
     skip_reasons = rules.get('skip_reasons', {})
     
-    rules_section = "## 🛡️ 탐지 룰 (Detection Rules)\n\n"
+    rules_section = "## 🛡️ AI 생성 탐지 룰\n\n"
     
     has_any_ai = any([
         rules.get('sigma') and not rules['sigma'].get('verified'),
@@ -395,7 +399,7 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
     if has_any_ai and not has_official:
         rules_section += "> ⚠️ **주의:** AI 생성 룰은 실제 배포 전 보안 전문가의 검토가 필요합니다.\n\n"
     
-    # Sigma (항상 표시)
+    # Sigma
     if rules.get('sigma'):
         is_verified = rules['sigma'].get('verified')
         badge = "🟢 **공식 검증**" if is_verified else "🔶 **AI 생성 - 검토 필요**"
@@ -404,10 +408,10 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
             indicator_info = f"\n> **Based on:** {', '.join(rules['sigma']['indicators'])}\n"
         rules_section += f"### Sigma Rule ({rules['sigma']['source']}) {badge}\n{indicator_info}```yaml\n{rules['sigma']['code']}\n```\n\n"
     else:
-        reason = skip_reasons.get('sigma', '공개 룰 미발견, AI 생성 실패')
-        rules_section += f"### Sigma Rule ❌ 미생성\n> **사유:** {reason}\n\n"
+        skip_reason = skip_reasons.get('sigma', '공개 룰 미발견, AI 생성 실패')
+        rules_section += f"### Sigma Rule ❌ 미생성\n> **사유:** {skip_reason}\n\n"
     
-    # Snort/Suricata (항상 표시)
+    # Snort/Suricata
     if rules.get('network'):
         for idx, net_rule in enumerate(rules['network'], 1):
             is_verified = net_rule.get('verified')
@@ -418,10 +422,10 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
                 indicator_info = f"\n> **Based on:** {', '.join(net_rule['indicators'])}\n"
             rules_section += f"### Snort/Suricata Rule #{idx} ({net_rule['source']} - {engine_name}) {badge}\n{indicator_info}```bash\n{net_rule['code']}\n```\n\n"
     else:
-        reason = skip_reasons.get('network', '공개 룰 미발견, AI 생성 실패')
-        rules_section += f"### Snort/Suricata Rule ❌ 미생성\n> **사유:** {reason}\n\n"
+        skip_reason = skip_reasons.get('network', '공개 룰 미발견, AI 생성 실패')
+        rules_section += f"### Snort/Suricata Rule ❌ 미생성\n> **사유:** {skip_reason}\n\n"
     
-    # Yara (항상 표시)
+    # Yara
     if rules.get('yara'):
         is_verified = rules['yara'].get('verified')
         badge = "🟢 **공식 검증**" if is_verified else "🔶 **AI 생성 - 검토 필요**"
@@ -430,8 +434,44 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
             indicator_info = f"\n> **Based on:** {', '.join(rules['yara']['indicators'])}\n"
         rules_section += f"### Yara Rule ({rules['yara']['source']}) {badge}\n{indicator_info}```yara\n{rules['yara']['code']}\n```\n\n"
     else:
-        reason = skip_reasons.get('yara', '공개 룰 미발견, AI 생성 실패')
-        rules_section += f"### Yara Rule ❌ 미생성\n> **사유:** {reason}\n\n"
+        skip_reason = skip_reasons.get('yara', '공개 룰 미발견, AI 생성 실패')
+        rules_section += f"### Yara Rule ❌ 미생성\n> **사유:** {skip_reason}\n\n"
+    
+    # Nuclei Template (있으면 표시)
+    if rules.get('nuclei'):
+        rules_section += f"### Nuclei Template ({rules['nuclei']['source']}) 🟢 **공식 검증**\n```yaml\n{rules['nuclei']['code']}\n```\n\n"
+    
+    # 위협 인텔리전스 섹션 (PoC, Advisory 등)
+    threat_intel_section = ""
+    
+    # PoC 정보
+    if cve_data.get('has_poc'):
+        poc_urls = cve_data.get('poc_urls', [])
+        poc_links = "\n".join([f"- {url}" for url in poc_urls[:3]]) if poc_urls else "- (링크 없음)"
+        threat_intel_section += f"""### 🔥 공개 PoC ({cve_data.get('poc_count', 0)}건)
+{poc_links}
+
+"""
+    
+    # GitHub Advisory 패키지 정보
+    advisory = cve_data.get('github_advisory', {})
+    if advisory.get('has_advisory') and advisory.get('packages'):
+        pkg_lines = []
+        for pkg in advisory['packages'][:5]:
+            patched = pkg.get('patched', '')
+            patch_info = f" → 패치: {patched}" if patched else ""
+            pkg_lines.append(f"| {pkg['ecosystem']} | {pkg['name']} | {pkg.get('vulnerable_range', 'N/A')} | {patched or '-'} |")
+        advisory_rows = "\n".join(pkg_lines)
+        threat_intel_section += f"""### 📦 영향받는 패키지 (GitHub Advisory: {advisory.get('ghsa_id', '')})
+| 생태계 | 패키지 | 취약 범위 | 패치 버전 |
+| :--- | :--- | :--- | :--- |
+{advisory_rows}
+
+"""
+    
+    # 위협 인텔 섹션이 있으면 헤더 추가
+    if threat_intel_section:
+        threat_intel_section = f"## 🔎 위협 인텔리전스\n\n{threat_intel_section}"
     
     now_kst = datetime.datetime.now(KST).strftime('%Y-%m-%d %H:%M:%S (KST)')
     
@@ -448,14 +488,11 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
 | :--- | :--- | :--- |
 {affected_rows}
 
-## 🔍 심층 분석
+## 🔍 AI 심층 분석
 | 항목 | 내용 |
 | :--- | :--- |
 | **기술적 원인** | {root_cause} |
 | **비즈니스 영향** | {impact} |
-
-### 🏹 공격 시나리오
-> {scenario}
 
 ### 🏹 공격 벡터 상세
 | 항목 | 내용 |
@@ -463,9 +500,13 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
 | **공식 벡터** | `{cve_data.get('cvss_vector', 'N/A')}` |
 | **상세 분석** | {vector_details_safe} |
 
-## 🛡️ 대응 방안
+### 🏹 AI 예상 공격 시나리오
+> {scenario}
+
+## 🛡️ AI 권고 대응 방안
 {mitigation_list}
 
+{threat_intel_section}
 {rules_section}
 
 ## 🔗 참고 자료
@@ -572,6 +613,13 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
             "affected": raw_data['affected']
         }
         
+        # Step 3.5: 추가 위협 인텔리전스 수집 (NVD, PoC, VulnCheck, Advisory)
+        current_state = collector.enrich_threat_intel(current_state)
+        
+        # VulnCheck KEV도 is_kev 판단에 반영
+        if current_state.get('is_vulncheck_kev') and not current_state['is_kev']:
+            logger.info(f"  📋 {cve_id}: VulnCheck KEV 등재 (CISA KEV 미등재)")
+        
         # Step 4: 알림 필요성 판단
         last_record = db.get_cve(cve_id)
         last_state = last_record.get('last_alert_state') if last_record else None
@@ -641,7 +689,7 @@ def _should_send_alert(current: Dict, last: Optional[Dict]) -> Tuple[bool, str, 
     Returns:
         (알림 필요 여부, 알림 사유, High Risk 여부)
     """
-    is_high_risk = current['cvss'] >= 7.0 or current['is_kev']
+    is_high_risk = current['cvss'] >= 7.0 or current['is_kev'] or current.get('is_vulncheck_kev', False)
     
     # 신규 CVE
     if last is None:
@@ -650,6 +698,14 @@ def _should_send_alert(current: Dict, last: Optional[Dict]) -> Tuple[bool, str, 
     # KEV 등재
     if current['is_kev'] and not last.get('is_kev'):
         return True, "🚨 KEV 등재", True
+    
+    # VulnCheck KEV 등재 (CISA보다 넓은 커버리지)
+    if current.get('is_vulncheck_kev') and not last.get('is_vulncheck_kev'):
+        return True, "📋 VulnCheck KEV 등재", True
+    
+    # PoC 공개
+    if current.get('has_poc') and not last.get('has_poc'):
+        return True, "🔥 PoC 공개", True
     
     # EPSS 급증
     if current['epss'] >= 0.1 and (current['epss'] - last.get('epss', 0)) > 0.05:
@@ -812,6 +868,7 @@ def main():
     
     # Step 4: KEV 및 최신 CVE 수집
     collector.fetch_kev()
+    collector.fetch_vulncheck_kev()
     target_cve_ids = collector.fetch_recent_cves(hours=config.PERFORMANCE["cve_fetch_hours"])
     
     if not target_cve_ids:

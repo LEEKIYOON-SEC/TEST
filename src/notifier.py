@@ -88,6 +88,17 @@ class SlackNotifier:
                 {"type": "mrkdwn", "text": f"*KEV:*\n{'✅ YES' if cve_data['is_kev'] else '❌ No'}"},
                 {"type": "mrkdwn", "text": f"*CWE:*\n{cwe_info}"},
             ]
+            
+            # PoC/VulnCheck 추가 필드
+            extra_fields = []
+            if cve_data.get('has_poc'):
+                extra_fields.append(
+                    {"type": "mrkdwn", "text": f"*🔥 PoC:*\n공개 ({cve_data.get('poc_count', 0)}건)"}
+                )
+            if cve_data.get('is_vulncheck_kev') and not cve_data['is_kev']:
+                extra_fields.append(
+                    {"type": "mrkdwn", "text": "*📋 VulnCheck KEV:*\n✅ YES"}
+                )
 
             # 참고 자료 링크
             ref_text = ""
@@ -103,8 +114,15 @@ class SlackNotifier:
                 {"type": "section", "text": {"type": "mrkdwn", "text": affected_text}},
                 {"type": "divider"},
                 {"type": "section", "fields": stats_fields},
-                {"type": "section", "text": {"type": "mrkdwn", "text": f"*Description:*\n{display_desc}{ref_text}"}}
             ]
+            
+            # PoC/VulnCheck 추가 필드 (있으면)
+            if extra_fields:
+                blocks.append({"type": "section", "fields": extra_fields})
+            
+            blocks.append(
+                {"type": "section", "text": {"type": "mrkdwn", "text": f"*Description:*\n{display_desc}{ref_text}"}}
+            )
 
             # 타겟 자산 정보 (있으면)
             if "(" in reason and "*" not in reason:

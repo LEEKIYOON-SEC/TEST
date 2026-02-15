@@ -617,10 +617,11 @@ class RuleManager:
         """
         AI를 위한 룰 생성 프롬프트 구성
         
-        v2.3 개선:
-        - References 추가 (벤더 권고, PoC 링크)
-        - Affected Products 추가 (어떤 제품/버전이 영향받는지)
-        - AI Analysis 추가 (root_cause, attack_scenario 등)
+        v3.0 개선:
+        - References, Affected Products, AI Analysis
+        - NVD CPE (제품 식별자)
+        - PoC 존재 여부 / Exploit-DB 코드 스니펫
+        - GitHub Advisory 패키지 정보
         """
         
         # References 정리 (최대 3개)
@@ -633,7 +634,7 @@ class RuleManager:
         affected_str = "Unknown"
         if cve_data.get('affected'):
             affected_items = []
-            for item in cve_data['affected'][:3]:  # 최대 3개
+            for item in cve_data['affected'][:3]:
                 vendor = item.get('vendor', 'Unknown')
                 product = item.get('product', 'Unknown')
                 versions = item.get('versions', 'Unknown')
@@ -645,12 +646,54 @@ class RuleManager:
         analysis_section = ""
         if analysis:
             root_cause = analysis.get('root_cause', 'N/A')
-            attack_scenario = analysis.get('attack_scenario', 'N/A')
+            attack_scenario = analysis.get('scenario', analysis.get('attack_scenario', 'N/A'))
             if root_cause != 'N/A' or attack_scenario != 'N/A':
                 analysis_section = f"""
 [AI Analysis - Additional Context]
 Root Cause: {root_cause}
 Attack Scenario: {attack_scenario}
+"""
+        
+        # NVD CPE (제품 식별자 - 정확한 제품/버전 매칭에 유용)
+        cpe_section = ""
+        if cve_data.get('nvd_cpe'):
+            cpe_list = "\n".join([f"- {cpe}" for cpe in cve_data['nvd_cpe'][:3]])
+            cpe_section = f"""
+[NVD CPE - Product Identifiers]
+{cpe_list}
+"""
+        
+        # PoC 정보 (공격 패턴 힌트)
+        poc_section = ""
+        if cve_data.get('has_poc'):
+            poc_urls = cve_data.get('poc_urls', [])
+            poc_info = f"PoC count: {cve_data.get('poc_count', 0)}"
+            if poc_urls:
+                poc_info += "\n" + "\n".join([f"- {url}" for url in poc_urls[:2]])
+            poc_section = f"""
+[Known PoC - Use for detection pattern reference]
+{poc_info}
+"""
+        
+        # Exploit-DB 코드 스니펫 (구체적 공격 패턴)
+        exploit_section = ""
+        if cve_data.get('_exploit_db_snippet'):
+            snippet = cve_data['_exploit_db_snippet'][:1500]
+            exploit_section = f"""
+[Exploit-DB Code Snippet - Extract detection patterns from this]
+{snippet}
+"""
+        
+        # GitHub Advisory 패키지 정보
+        advisory_section = ""
+        advisory = cve_data.get('github_advisory', {})
+        if advisory.get('has_advisory') and advisory.get('packages'):
+            pkg_lines = []
+            for pkg in advisory['packages'][:3]:
+                pkg_lines.append(f"- {pkg['ecosystem']}/{pkg['name']} ({pkg.get('vulnerable_range', 'N/A')})")
+            advisory_section = f"""
+[GitHub Advisory - Affected Packages]
+{chr(10).join(pkg_lines)}
 """
         
         base_prompt = f"""
@@ -668,13 +711,14 @@ CWE: {', '.join(cve_data.get('cwe', []))}
 
 [References]
 {references_str}
-{analysis_section}
+{analysis_section}{cpe_section}{poc_section}{exploit_section}{advisory_section}
 [CRITICAL REQUIREMENTS]
 1. **Observable Gate**: If no concrete indicator exists, return exactly: SKIP
-2. **No Hallucination**: Use ONLY what's in the description, references, and analysis
+2. **No Hallucination**: Use ONLY what's in the description, references, analysis, and exploit data
 3. **Syntax**: Follow standard {rule_type} syntax strictly
 4. **Product-Specific**: If affected products are known, tailor the rule
 5. **Conservative**: When uncertain, return SKIP
+6. **Exploit-Based**: If PoC or Exploit-DB code is available, extract concrete patterns (URLs, payloads, headers) for detection
 
 [Output Format]
 - Return ONLY the raw rule code (no markdown, no explanation)
@@ -758,7 +802,7 @@ level: high
                 "yara": {"code": "...", "source": "...", "verified": bool, "indicators": [...]}
             }
         """
-        rules = {"sigma": None, "network": [], "yara": None, "skip_reasons": {}}
+        rules = {"sigma": None, "network": [], "yara": None, "nuclei": None, "skip_reasons": {}}
         cve_id = cve_data['id']
         
         logger.info(f"룰 수집 시작: {cve_id}")
@@ -833,23 +877,45 @@ level: high
             else:
                 rules['skip_reasons']['yara'] = self._get_skip_reason("Yara", cve_data)
         
+        # ===== Nuclei Template (추가 소스) =====
+        nuclei_template = self._search_github(
+            "projectdiscovery/nuclei-templates", f"{cve_id} filename:.yaml"
+        )
+        if nuclei_template:
+            rules['nuclei'] = {
+                "code": nuclei_template,
+                "source": "Public (Nuclei Templates)",
+                "verified": True,
+                "indicators": None
+            }
+        
+        # ===== Exploit-DB (AI 룰 생성 참고용) =====
+        exploit_code = self._search_github(
+            "offensive-security/exploitdb", f"{cve_id}"
+        )
+        if exploit_code:
+            cve_data['_exploit_db_snippet'] = exploit_code[:2000]
+            logger.info(f"  📄 Exploit-DB 코드 발견: {cve_id}")
+        
         # 결과 요약
         sigma_found = "✅" if rules['sigma'] else "❌"
         network_count = len(rules['network'])
         network_found = f"✅ ({network_count}개)" if network_count > 0 else "❌"
         yara_found = "✅" if rules['yara'] else "❌"
+        nuclei_found = "✅" if rules['nuclei'] else "-"
         
-        logger.info(f"룰 수집 완료: Sigma {sigma_found}, Snort/Suricata {network_found}, Yara {yara_found}")
+        logger.info(f"룰 수집 완료: Sigma {sigma_found}, Snort/Suricata {network_found}, Yara {yara_found}, Nuclei {nuclei_found}")
         
         return rules
     
     def _get_skip_reason(self, rule_type: str, cve_data: Dict) -> str:
         """룰 생성 실패 사유 판별"""
         if rule_type in ["Sigma", "sigma"]:
-            return "공개 Sigma 룰 미발견, AI가 근거 부족으로 생성 거부"
+            return "공개 룰 미발견, AI가 근거 부족으로 생성 거부"
         
-        has_indicators, reason, _ = self._check_observables(cve_data)
+        has_indicators, reason, indicator_details = self._check_observables(cve_data)
         if not has_indicators:
             return f"공개 룰 미발견, 구체적 탐지 지표 부족 ({reason})"
         else:
-            return f"공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: {reason})"
+            details_str = ', '.join(indicator_details) if indicator_details else reason
+            return f"공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: {details_str})"
