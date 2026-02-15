@@ -7,13 +7,18 @@ import yaml
 import yara
 import time
 from groq import Groq
-from tenacity import retry, stop_after_attempt, wait_fixed
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 from typing import Dict, Optional, Tuple, List
 from logger import logger
 from config import config
+from rate_limiter import rate_limit_manager
 
 class RuleManagerError(Exception):
     """룰 관리 관련 에러"""
+    pass
+
+class GitHubSearchRateLimitError(Exception):
+    """GitHub Search API 429 전용 에러 (재시도 제어용)"""
     pass
 
 class RuleManager:
@@ -64,20 +69,14 @@ class RuleManager:
     # [1] 공개 룰 검색
     # ====================================================================
     
-    @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=4, max=30),
+        retry=retry_if_exception_type(GitHubSearchRateLimitError)
+    )
     def _search_github(self, repo: str, query: str) -> Optional[str]:
         """
-        GitHub Code Search로 공개 룰 찾기
-        
-        GitHub에는 보안 커뮤니티가 공유한 수많은 탐지 룰이 있어요.
-        이 함수는 특정 리포지토리에서 CVE ID로 룰을 검색합니다.
-        
-        Args:
-            repo: GitHub 리포지토리 (예: "SigmaHQ/sigma")
-            query: 검색어 (예: "CVE-2024-12345 filename:.yml")
-        
-        Returns:
-            룰 코드 (문자열) 또는 None
+        GitHub Code Search로 공개 룰 찾기 (v3.0 - rate_limit_manager 연동)
         """
         logger.debug(f"GitHub 검색: {repo} / {query}")
         
@@ -88,8 +87,20 @@ class RuleManager:
         }
         
         try:
-            time.sleep(1)  # Rate Limit 방지
+            # ✅ rate_limit_manager로 github_search 호출 간격 조절
+            rate_limit_manager.check_and_wait("github_search")
+            
             response = requests.get(url, headers=headers, timeout=10)
+            rate_limit_manager.record_call("github_search")
+            
+            # ✅ 429 전용 처리
+            if response.status_code == 429:
+                retry_after = response.headers.get('Retry-After')
+                wait_time = float(retry_after) if retry_after else None
+                logger.warning(f"GitHub Search 429 수신 (Retry-After: {wait_time}초)")
+                rate_limit_manager.handle_429("github_search", wait_time)
+                raise GitHubSearchRateLimitError("GitHub Search 429")
+            
             response.raise_for_status()
             
             data = response.json()
@@ -98,10 +109,11 @@ class RuleManager:
                 item = data['items'][0]
                 logger.info(f"✅ 공개 룰 발견: {item['html_url']}")
                 
-                # HTML URL을 Raw URL로 변환
                 raw_url = item['html_url'].replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/')
                 
+                rate_limit_manager.check_and_wait("github")
                 raw_response = requests.get(raw_url, timeout=10)
+                rate_limit_manager.record_call("github")
                 raw_response.raise_for_status()
                 
                 return raw_response.text
@@ -109,9 +121,14 @@ class RuleManager:
             logger.debug(f"❌ 공개 룰 없음: {repo}")
             return None
             
-        except requests.exceptions.RequestException as e:
+        except GitHubSearchRateLimitError:
+            raise  # tenacity가 재시도
+        except requests.exceptions.HTTPError as e:
+            if e.response is not None and e.response.status_code in (403, 422):
+                logger.warning(f"GitHub 검색 실패 ({e.response.status_code}): {repo}")
+                return None
             logger.error(f"GitHub 검색 실패: {e}")
-            raise  # 재시도
+            return None
         except Exception as e:
             logger.error(f"예상치 못한 에러: {e}")
             return None
@@ -526,15 +543,10 @@ class RuleManager:
         
         return has_enough, reason, indicator_details
     
-    @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=30))
     def _generate_ai_rule(self, rule_type: str, cve_data: Dict, analysis: Optional[Dict] = None) -> Optional[Tuple[str, List[str]]]:
         """
-        AI 기반 탐지 룰 생성
-        
-        공개 룰이 없고, 구체적 지표가 충분할 때만 AI에게 룰을 생성하도록 요청합니다.
-        
-        Returns:
-            (룰 코드, 발견된 지표 목록) 또는 None
+        AI 기반 탐지 룰 생성 (v3.0 - rate_limit_manager + 429 재시도)
         """
         logger.debug(f"AI {rule_type} 생성 시도")
         
@@ -551,6 +563,9 @@ class RuleManager:
         prompt = self._build_rule_prompt(rule_type, cve_data, analysis)
         
         try:
+            # ✅ Groq rate limit 대기
+            rate_limit_manager.check_and_wait("groq")
+            
             response = self.groq_client.chat.completions.create(
                 model=self.model,
                 messages=[{"role": "user", "content": prompt}],
@@ -559,6 +574,8 @@ class RuleManager:
                 max_completion_tokens=config.GROQ_RULE_PARAMS["max_completion_tokens"],
                 reasoning_effort=config.GROQ_RULE_PARAMS["reasoning_effort"]
             )
+            
+            rate_limit_manager.record_call("groq")
             
             content = response.choices[0].message.content.strip()
             content = re.sub(r"```[a-z]*\n|```", "", content).strip()
@@ -578,13 +595,21 @@ class RuleManager:
             
             if is_valid:
                 logger.info(f"✅ AI {rule_type} 생성 및 검증 성공")
-                return (content, indicator_details)  # 지표 정보 포함
+                return (content, indicator_details)
             else:
                 logger.warning(f"❌ AI {rule_type} 검증 실패")
                 logger.debug(f"실패한 룰:\n{content}")
                 return None
                 
         except Exception as e:
+            error_str = str(e)
+            # ✅ 429 전용 처리: 대기 후 재시도
+            if "429" in error_str or "rate_limit" in error_str.lower():
+                retry_after = rate_limit_manager.parse_retry_after(error_str)
+                wait_time = retry_after if retry_after else 10
+                logger.warning(f"Groq 429 수신, {wait_time:.1f}초 대기 후 재시도")
+                rate_limit_manager.handle_429("groq", wait_time)
+                raise  # tenacity 재시도
             logger.error(f"AI 룰 생성 에러: {e}")
             raise
     
@@ -745,7 +770,7 @@ level: high
                 "code": public_sigma,
                 "source": "Public (SigmaHQ)",
                 "verified": True,
-                "indicators": None  # 공개 룰은 지표 정보 없음
+                "indicators": None
             }
         else:
             ai_result = self._generate_ai_rule("Sigma", cve_data, analysis)
@@ -755,27 +780,24 @@ level: high
                     "code": f"# ⚠️ AI-Generated - Review Required\n{ai_sigma}",
                     "source": "AI Generated (Validated)",
                     "verified": False,
-                    "indicators": indicators  # 지표 정보 포함
+                    "indicators": indicators
                 }
             else:
                 rules['skip_reasons']['sigma'] = self._get_skip_reason("Sigma", cve_data)
         
         # ===== Snort/Suricata 룰 =====
-        # 여러 엔진의 룰을 모두 수집!
         network_rules = self._fetch_network_rules(cve_id)
         
         if network_rules:
-            # 공개 룰이 하나라도 있으면 모두 추가
             for rule_info in network_rules:
                 rules['network'].append({
                     "code": rule_info["code"],
                     "source": f"Public ({rule_info['source']})",
                     "engine": rule_info["engine"],
                     "verified": True,
-                    "indicators": None  # 공개 룰은 지표 정보 없음
+                    "indicators": None
                 })
         else:
-            # 공개 룰이 없으면 항상 AI 생성 시도 (feasibility 무관)
             ai_result = self._generate_ai_rule("Snort", cve_data, analysis)
             if ai_result:
                 ai_network, indicators = ai_result
@@ -784,7 +806,7 @@ level: high
                     "source": "AI Generated (Regex Validated)",
                     "engine": "generic",
                     "verified": False,
-                    "indicators": indicators  # 지표 정보 포함
+                    "indicators": indicators
                 })
             else:
                 rules['skip_reasons']['network'] = self._get_skip_reason("Snort", cve_data)
@@ -796,10 +818,9 @@ level: high
                 "code": public_yara,
                 "source": "Public (Yara-Rules)",
                 "verified": True,
-                "indicators": None  # 공개 룰은 지표 정보 없음
+                "indicators": None
             }
         else:
-            # 공개 룰이 없으면 항상 AI 생성 시도 (feasibility 무관)
             ai_result = self._generate_ai_rule("Yara", cve_data, analysis)
             if ai_result:
                 ai_yara, indicators = ai_result
@@ -807,7 +828,7 @@ level: high
                     "code": f"// ⚠️ AI-Generated - Review Required\n{ai_yara}",
                     "source": "AI Generated (Compiled)",
                     "verified": False,
-                    "indicators": indicators  # 지표 정보 포함
+                    "indicators": indicators
                 }
             else:
                 rules['skip_reasons']['yara'] = self._get_skip_reason("Yara", cve_data)
@@ -827,9 +848,8 @@ level: high
         if rule_type in ["Sigma", "sigma"]:
             return "공개 Sigma 룰 미발견, AI가 근거 부족으로 생성 거부"
         
-        # Snort/Yara는 Observable Gate 확인
         has_indicators, reason, _ = self._check_observables(cve_data)
         if not has_indicators:
-            return f"공개 룰 미발견, 구체적 탐지 지표 부족 (파일 경로, 웹 파일, URL 파라미터, HTTP 헤더, Hex 값, 레지스트리, 포트 번호 등 미발견)"
+            return f"공개 룰 미발견, 구체적 탐지 지표 부족 ({reason})"
         else:
             return f"공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: {reason})"
