@@ -1,0 +1,46 @@
+# src/blacklist_ip/feeds.yml
+# Tier 1 feeds (no API keys)
+# format:
+#   - plain_ip: 라인에서 IPv4 토큰을 찾아 IP만 수집
+#   - cidr: CIDR 네트워크만 수집 (Spamhaus DROP)
+
+feeds:
+  - name: ET_compromised_ips
+    url: "https://rules.emergingthreats.net/blockrules/compromised-ips.txt"
+    format: "plain_ip"
+    base_score: 60
+    category: "ET compromised-ips"
+
+  - name: ET_Block_IPs
+    url: "https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt"
+    format: "plain_ip"
+    base_score: 70
+    category: "ET Block-IPs"
+
+  # Spamhaus: EDROP는 DROP에 통합(2024-04-10부터). 따라서 DROP만 쓰면 됨.
+  - name: Spamhaus_DROP
+    url: "https://www.spamhaus.org/drop/drop.txt"
+    format: "cidr"
+    base_score: 80
+    category: "Spamhaus DROP (CIDR)"
+
+  # abuse.ch Feodo Tracker (IPs only)
+  - name: abuse_ch_Feodo_C2
+    url: "https://feodotracker.abuse.ch/downloads/ipblocklist.txt"
+    format: "plain_ip"
+    base_score: 90
+    category: "abuse.ch Feodo C2"
+
+  # Tor bulk exit node list (IPs only)
+  - name: Tor_exit_nodes
+    url: "https://check.torproject.org/torbulkexitlist"
+    format: "plain_ip"
+    base_score: 40
+    category: "Tor exit nodes"
+
+  # Blocklist.de all (IPs only)
+  - name: Blocklist_de_all
+    url: "https://lists.blocklist.de/lists/all.txt"
+    format: "plain_ip"
+    base_score: 50
+    category: "Blocklist.de (all)"
