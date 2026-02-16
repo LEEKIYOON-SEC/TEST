@@ -7,18 +7,13 @@ import yaml
 import yara
 import time
 from groq import Groq
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from tenacity import retry, stop_after_attempt, wait_fixed
 from typing import Dict, Optional, Tuple, List
 from logger import logger
 from config import config
-from rate_limiter import rate_limit_manager
 
 class RuleManagerError(Exception):
     """룰 관리 관련 에러"""
-    pass
-
-class GitHubSearchRateLimitError(Exception):
-    """GitHub Search API 429 전용 에러 (재시도 제어용)"""
     pass
 
 class RuleManager:
@@ -69,14 +64,20 @@ class RuleManager:
     # [1] 공개 룰 검색
     # ====================================================================
     
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=4, max=30),
-        retry=retry_if_exception_type(GitHubSearchRateLimitError)
-    )
+    @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
     def _search_github(self, repo: str, query: str) -> Optional[str]:
         """
-        GitHub Code Search로 공개 룰 찾기 (v3.0 - rate_limit_manager 연동)
+        GitHub Code Search로 공개 룰 찾기
+        
+        GitHub에는 보안 커뮤니티가 공유한 수많은 탐지 룰이 있어요.
+        이 함수는 특정 리포지토리에서 CVE ID로 룰을 검색합니다.
+        
+        Args:
+            repo: GitHub 리포지토리 (예: "SigmaHQ/sigma")
+            query: 검색어 (예: "CVE-2024-12345 filename:.yml")
+        
+        Returns:
+            룰 코드 (문자열) 또는 None
         """
         logger.debug(f"GitHub 검색: {repo} / {query}")
         
@@ -87,20 +88,8 @@ class RuleManager:
         }
         
         try:
-            # ✅ rate_limit_manager로 github_search 호출 간격 조절
-            rate_limit_manager.check_and_wait("github_search")
-            
+            time.sleep(1)  # Rate Limit 방지
             response = requests.get(url, headers=headers, timeout=10)
-            rate_limit_manager.record_call("github_search")
-            
-            # ✅ 429 전용 처리
-            if response.status_code == 429:
-                retry_after = response.headers.get('Retry-After')
-                wait_time = float(retry_after) if retry_after else None
-                logger.warning(f"GitHub Search 429 수신 (Retry-After: {wait_time}초)")
-                rate_limit_manager.handle_429("github_search", wait_time)
-                raise GitHubSearchRateLimitError("GitHub Search 429")
-            
             response.raise_for_status()
             
             data = response.json()
@@ -109,11 +98,10 @@ class RuleManager:
                 item = data['items'][0]
                 logger.info(f"✅ 공개 룰 발견: {item['html_url']}")
                 
+                # HTML URL을 Raw URL로 변환
                 raw_url = item['html_url'].replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/')
                 
-                rate_limit_manager.check_and_wait("github")
                 raw_response = requests.get(raw_url, timeout=10)
-                rate_limit_manager.record_call("github")
                 raw_response.raise_for_status()
                 
                 return raw_response.text
@@ -121,14 +109,9 @@ class RuleManager:
             logger.debug(f"❌ 공개 룰 없음: {repo}")
             return None
             
-        except GitHubSearchRateLimitError:
-            raise  # tenacity가 재시도
-        except requests.exceptions.HTTPError as e:
-            if e.response is not None and e.response.status_code in (403, 422):
-                logger.warning(f"GitHub 검색 실패 ({e.response.status_code}): {repo}")
-                return None
+        except requests.exceptions.RequestException as e:
             logger.error(f"GitHub 검색 실패: {e}")
-            return None
+            raise  # 재시도
         except Exception as e:
             logger.error(f"예상치 못한 에러: {e}")
             return None
@@ -543,10 +526,15 @@ class RuleManager:
         
         return has_enough, reason, indicator_details
     
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=30))
+    @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
     def _generate_ai_rule(self, rule_type: str, cve_data: Dict, analysis: Optional[Dict] = None) -> Optional[Tuple[str, List[str]]]:
         """
-        AI 기반 탐지 룰 생성 (v3.0 - rate_limit_manager + 429 재시도)
+        AI 기반 탐지 룰 생성
+        
+        공개 룰이 없고, 구체적 지표가 충분할 때만 AI에게 룰을 생성하도록 요청합니다.
+        
+        Returns:
+            (룰 코드, 발견된 지표 목록) 또는 None
         """
         logger.debug(f"AI {rule_type} 생성 시도")
         
@@ -563,9 +551,6 @@ class RuleManager:
         prompt = self._build_rule_prompt(rule_type, cve_data, analysis)
         
         try:
-            # ✅ Groq rate limit 대기
-            rate_limit_manager.check_and_wait("groq")
-            
             response = self.groq_client.chat.completions.create(
                 model=self.model,
                 messages=[{"role": "user", "content": prompt}],
@@ -574,8 +559,6 @@ class RuleManager:
                 max_completion_tokens=config.GROQ_RULE_PARAMS["max_completion_tokens"],
                 reasoning_effort=config.GROQ_RULE_PARAMS["reasoning_effort"]
             )
-            
-            rate_limit_manager.record_call("groq")
             
             content = response.choices[0].message.content.strip()
             content = re.sub(r"```[a-z]*\n|```", "", content).strip()
@@ -595,21 +578,13 @@ class RuleManager:
             
             if is_valid:
                 logger.info(f"✅ AI {rule_type} 생성 및 검증 성공")
-                return (content, indicator_details)
+                return (content, indicator_details)  # 지표 정보 포함
             else:
                 logger.warning(f"❌ AI {rule_type} 검증 실패")
                 logger.debug(f"실패한 룰:\n{content}")
                 return None
                 
         except Exception as e:
-            error_str = str(e)
-            # ✅ 429 전용 처리: 대기 후 재시도
-            if "429" in error_str or "rate_limit" in error_str.lower():
-                retry_after = rate_limit_manager.parse_retry_after(error_str)
-                wait_time = retry_after if retry_after else 10
-                logger.warning(f"Groq 429 수신, {wait_time:.1f}초 대기 후 재시도")
-                rate_limit_manager.handle_429("groq", wait_time)
-                raise  # tenacity 재시도
             logger.error(f"AI 룰 생성 에러: {e}")
             raise
     
@@ -617,11 +592,10 @@ class RuleManager:
         """
         AI를 위한 룰 생성 프롬프트 구성
         
-        v3.0 개선:
-        - References, Affected Products, AI Analysis
-        - NVD CPE (제품 식별자)
-        - PoC 존재 여부 / Exploit-DB 코드 스니펫
-        - GitHub Advisory 패키지 정보
+        v2.3 개선:
+        - References 추가 (벤더 권고, PoC 링크)
+        - Affected Products 추가 (어떤 제품/버전이 영향받는지)
+        - AI Analysis 추가 (root_cause, attack_scenario 등)
         """
         
         # References 정리 (최대 3개)
@@ -634,7 +608,7 @@ class RuleManager:
         affected_str = "Unknown"
         if cve_data.get('affected'):
             affected_items = []
-            for item in cve_data['affected'][:3]:
+            for item in cve_data['affected'][:3]:  # 최대 3개
                 vendor = item.get('vendor', 'Unknown')
                 product = item.get('product', 'Unknown')
                 versions = item.get('versions', 'Unknown')
@@ -646,54 +620,12 @@ class RuleManager:
         analysis_section = ""
         if analysis:
             root_cause = analysis.get('root_cause', 'N/A')
-            attack_scenario = analysis.get('scenario', analysis.get('attack_scenario', 'N/A'))
+            attack_scenario = analysis.get('attack_scenario', 'N/A')
             if root_cause != 'N/A' or attack_scenario != 'N/A':
                 analysis_section = f"""
 [AI Analysis - Additional Context]
 Root Cause: {root_cause}
 Attack Scenario: {attack_scenario}
-"""
-        
-        # NVD CPE (제품 식별자 - 정확한 제품/버전 매칭에 유용)
-        cpe_section = ""
-        if cve_data.get('nvd_cpe'):
-            cpe_list = "\n".join([f"- {cpe}" for cpe in cve_data['nvd_cpe'][:3]])
-            cpe_section = f"""
-[NVD CPE - Product Identifiers]
-{cpe_list}
-"""
-        
-        # PoC 정보 (공격 패턴 힌트)
-        poc_section = ""
-        if cve_data.get('has_poc'):
-            poc_urls = cve_data.get('poc_urls', [])
-            poc_info = f"PoC count: {cve_data.get('poc_count', 0)}"
-            if poc_urls:
-                poc_info += "\n" + "\n".join([f"- {url}" for url in poc_urls[:2]])
-            poc_section = f"""
-[Known PoC - Use for detection pattern reference]
-{poc_info}
-"""
-        
-        # Exploit-DB 코드 스니펫 (구체적 공격 패턴)
-        exploit_section = ""
-        if cve_data.get('_exploit_db_snippet'):
-            snippet = cve_data['_exploit_db_snippet'][:1500]
-            exploit_section = f"""
-[Exploit-DB Code Snippet - Extract detection patterns from this]
-{snippet}
-"""
-        
-        # GitHub Advisory 패키지 정보
-        advisory_section = ""
-        advisory = cve_data.get('github_advisory', {})
-        if advisory.get('has_advisory') and advisory.get('packages'):
-            pkg_lines = []
-            for pkg in advisory['packages'][:3]:
-                pkg_lines.append(f"- {pkg['ecosystem']}/{pkg['name']} ({pkg.get('vulnerable_range', 'N/A')})")
-            advisory_section = f"""
-[GitHub Advisory - Affected Packages]
-{chr(10).join(pkg_lines)}
 """
         
         base_prompt = f"""
@@ -711,14 +643,13 @@ CWE: {', '.join(cve_data.get('cwe', []))}
 
 [References]
 {references_str}
-{analysis_section}{cpe_section}{poc_section}{exploit_section}{advisory_section}
+{analysis_section}
 [CRITICAL REQUIREMENTS]
 1. **Observable Gate**: If no concrete indicator exists, return exactly: SKIP
-2. **No Hallucination**: Use ONLY what's in the description, references, analysis, and exploit data
+2. **No Hallucination**: Use ONLY what's in the description, references, and analysis
 3. **Syntax**: Follow standard {rule_type} syntax strictly
 4. **Product-Specific**: If affected products are known, tailor the rule
 5. **Conservative**: When uncertain, return SKIP
-6. **Exploit-Based**: If PoC or Exploit-DB code is available, extract concrete patterns (URLs, payloads, headers) for detection
 
 [Output Format]
 - Return ONLY the raw rule code (no markdown, no explanation)
@@ -771,6 +702,145 @@ level: high
 """
         
         return base_prompt
+    
+    # ====================================================================
+    # [4] 메인 인터페이스
+    # ====================================================================
+    
+    def get_rules(self, cve_data: Dict, feasibility: bool, analysis: Optional[Dict] = None) -> Dict:
+        """
+        CVE에 대한 탐지 룰 수집
+        
+        **v2.2 변경사항**:
+        - feasibility 파라미터는 더 이상 사용되지 않습니다
+        - 공개 룰이 없으면 항상 AI 생성을 시도합니다
+        - Observable Gate만으로 AI 생성 여부를 판단합니다
+        
+        우선순위:
+        1. 공개 룰 (신뢰도 100%)
+        2. AI 생성 룰 (Observable Gate 통과 시, 검증 후 제공)
+        
+        Args:
+            cve_data: CVE 정보
+            feasibility: (Deprecated) 더 이상 사용되지 않음
+        
+        Returns:
+            {
+                "sigma": {"code": "...", "source": "...", "verified": bool, "indicators": [...]},
+                "network": [
+                    {"code": "...", "source": "...", "engine": "snort3", "verified": true, "indicators": [...]},
+                ],
+                "yara": {"code": "...", "source": "...", "verified": bool, "indicators": [...]}
+            }
+        """
+        rules = {"sigma": None, "network": [], "yara": None, "nuclei": None, "skip_reasons": {}}
+        cve_id = cve_data['id']
+        
+        logger.info(f"룰 수집 시작: {cve_id}")
+        
+        # ===== Sigma =====
+        public_sigma = self._search_github("SigmaHQ/sigma", f"{cve_id} filename:.yml")
+        if public_sigma:
+            rules['sigma'] = {
+                "code": public_sigma,
+                "source": "Public (SigmaHQ)",
+                "verified": True,
+                "indicators": None  # 공개 룰은 지표 정보 없음
+            }
+        else:
+            ai_result = self._generate_ai_rule("Sigma", cve_data, analysis)
+            if ai_result:
+                ai_sigma, indicators = ai_result
+                rules['sigma'] = {
+                    "code": f"# ⚠️ AI-Generated - Review Required\n{ai_sigma}",
+                    "source": "AI Generated (Validated)",
+                    "verified": False,
+                    "indicators": indicators  # 지표 정보 포함
+                }
+            else:
+                rules['skip_reasons']['sigma'] = self._get_skip_reason("Sigma", cve_data)
+        
+        # ===== 네트워크 룰 (Snort + Suricata) =====
+        # 여러 엔진의 룰을 모두 수집!
+        network_rules = self._fetch_network_rules(cve_id)
+        
+        if network_rules:
+            # 공개 룰이 하나라도 있으면 모두 추가
+            for rule_info in network_rules:
+                rules['network'].append({
+                    "code": rule_info["code"],
+                    "source": f"Public ({rule_info['source']})",
+                    "engine": rule_info["engine"],
+                    "verified": True,
+                    "indicators": None  # 공개 룰은 지표 정보 없음
+                })
+        else:
+            # 공개 룰이 없으면 항상 AI 생성 시도 (feasibility 무관)
+            ai_result = self._generate_ai_rule("Snort", cve_data, analysis)
+            if ai_result:
+                ai_network, indicators = ai_result
+                rules['network'].append({
+                    "code": f"# ⚠️ AI-Generated - Review Required\n{ai_network}",
+                    "source": "AI Generated (Regex Validated)",
+                    "engine": "generic",
+                    "verified": False,
+                    "indicators": indicators  # 지표 정보 포함
+                })
+            else:
+                rules['skip_reasons']['network'] = self._get_skip_reason("Snort", cve_data)
+        
+        # ===== Yara =====
+        public_yara = self._search_github("Yara-Rules/rules", f"{cve_id} filename:.yar")
+        if public_yara:
+            rules['yara'] = {
+                "code": public_yara,
+                "source": "Public (Yara-Rules)",
+                "verified": True,
+                "indicators": None
+            }
+        else:
+            ai_result = self._generate_ai_rule("Yara", cve_data, analysis)
+            if ai_result:
+                ai_yara, indicators = ai_result
+                rules['yara'] = {
+                    "code": f"// ⚠️ AI-Generated - Review Required\n{ai_yara}",
+                    "source": "AI Generated (Compiled)",
+                    "verified": False,
+                    "indicators": indicators
+                }
+            else:
+                rules['skip_reasons']['yara'] = self._get_skip_reason("Yara", cve_data)
+        
+        # ===== Nuclei Template (추가 소스) =====
+        nuclei_template = self._search_github(
+            "projectdiscovery/nuclei-templates", f"{cve_id} filename:.yaml"
+        )
+        if nuclei_template:
+            rules['nuclei'] = {
+                "code": nuclei_template,
+                "source": "Public (Nuclei Templates)",
+                "verified": True,
+                "indicators": None
+            }
+        
+        # ===== Exploit-DB (AI 룰 생성 참고용) =====
+        exploit_code = self._search_github(
+            "offensive-security/exploitdb", f"{cve_id}"
+        )
+        if exploit_code:
+            cve_data['_exploit_db_snippet'] = exploit_code[:2000]
+            logger.info(f"  📄 Exploit-DB 코드 발견: {cve_id}")
+        
+        # 결과 요약
+        sigma_found = "✅" if rules['sigma'] else "❌"
+        network_count = len(rules['network'])
+        network_found = f"✅ ({network_count}개)" if network_count > 0 else "❌"
+        yara_found = "✅" if rules['yara'] else "❌"
+        nuclei_found = "✅" if rules['nuclei'] else "-"
+        
+        logger.info(f"룰 수집 완료: Sigma {sigma_found}, Snort/Suricata {network_found}, Yara {yara_found}, Nuclei {nuclei_found}")
+        
+        return rules
     
     def search_public_only(self, cve_id: str) -> Dict:
         """
@@ -842,142 +912,6 @@ level: high
             logger.info(f"  ✅ 공개 룰 발견: {', '.join(found)}")
         else:
             logger.debug(f"  공개 룰 없음: {cve_id}")
-        
-        return rules
-    
-    # ====================================================================
-    # [4] 메인 인터페이스
-    # ====================================================================
-    
-    def get_rules(self, cve_data: Dict, feasibility: bool, analysis: Optional[Dict] = None) -> Dict:
-        """
-        CVE에 대한 탐지 룰 수집
-        
-        **v2.2 변경사항**:
-        - feasibility 파라미터는 더 이상 사용되지 않습니다
-        - 공개 룰이 없으면 항상 AI 생성을 시도합니다
-        - Observable Gate만으로 AI 생성 여부를 판단합니다
-        
-        우선순위:
-        1. 공개 룰 (신뢰도 100%)
-        2. AI 생성 룰 (Observable Gate 통과 시, 검증 후 제공)
-        
-        Args:
-            cve_data: CVE 정보
-            feasibility: (Deprecated) 더 이상 사용되지 않음
-        
-        Returns:
-            {
-                "sigma": {"code": "...", "source": "...", "verified": bool, "indicators": [...]},
-                "network": [
-                    {"code": "...", "source": "...", "engine": "snort3", "verified": true, "indicators": [...]},
-                ],
-                "yara": {"code": "...", "source": "...", "verified": bool, "indicators": [...]}
-            }
-        """
-        rules = {"sigma": None, "network": [], "yara": None, "nuclei": None, "skip_reasons": {}}
-        cve_id = cve_data['id']
-        
-        logger.info(f"룰 수집 시작: {cve_id}")
-        
-        # ===== Sigma =====
-        public_sigma = self._search_github("SigmaHQ/sigma", f"{cve_id} filename:.yml")
-        if public_sigma:
-            rules['sigma'] = {
-                "code": public_sigma,
-                "source": "Public (SigmaHQ)",
-                "verified": True,
-                "indicators": None
-            }
-        else:
-            ai_result = self._generate_ai_rule("Sigma", cve_data, analysis)
-            if ai_result:
-                ai_sigma, indicators = ai_result
-                rules['sigma'] = {
-                    "code": f"# ⚠️ AI-Generated - Review Required\n{ai_sigma}",
-                    "source": "AI Generated (Validated)",
-                    "verified": False,
-                    "indicators": indicators
-                }
-            else:
-                rules['skip_reasons']['sigma'] = self._get_skip_reason("Sigma", cve_data)
-        
-        # ===== Snort/Suricata 룰 =====
-        network_rules = self._fetch_network_rules(cve_id)
-        
-        if network_rules:
-            for rule_info in network_rules:
-                rules['network'].append({
-                    "code": rule_info["code"],
-                    "source": f"Public ({rule_info['source']})",
-                    "engine": rule_info["engine"],
-                    "verified": True,
-                    "indicators": None
-                })
-        else:
-            ai_result = self._generate_ai_rule("Snort", cve_data, analysis)
-            if ai_result:
-                ai_network, indicators = ai_result
-                rules['network'].append({
-                    "code": f"# ⚠️ AI-Generated - Review Required\n{ai_network}",
-                    "source": "AI Generated (Regex Validated)",
-                    "engine": "generic",
-                    "verified": False,
-                    "indicators": indicators
-                })
-            else:
-                rules['skip_reasons']['network'] = self._get_skip_reason("Snort", cve_data)
-        
-        # ===== Yara =====
-        public_yara = self._search_github("Yara-Rules/rules", f"{cve_id} filename:.yar")
-        if public_yara:
-            rules['yara'] = {
-                "code": public_yara,
-                "source": "Public (Yara-Rules)",
-                "verified": True,
-                "indicators": None
-            }
-        else:
-            ai_result = self._generate_ai_rule("Yara", cve_data, analysis)
-            if ai_result:
-                ai_yara, indicators = ai_result
-                rules['yara'] = {
-                    "code": f"// ⚠️ AI-Generated - Review Required\n{ai_yara}",
-                    "source": "AI Generated (Compiled)",
-                    "verified": False,
-                    "indicators": indicators
-                }
-            else:
-                rules['skip_reasons']['yara'] = self._get_skip_reason("Yara", cve_data)
-        
-        # ===== Nuclei Template (추가 소스) =====
-        nuclei_template = self._search_github(
-            "projectdiscovery/nuclei-templates", f"{cve_id} filename:.yaml"
-        )
-        if nuclei_template:
-            rules['nuclei'] = {
-                "code": nuclei_template,
-                "source": "Public (Nuclei Templates)",
-                "verified": True,
-                "indicators": None
-            }
-        
-        # ===== Exploit-DB (AI 룰 생성 참고용) =====
-        exploit_code = self._search_github(
-            "offensive-security/exploitdb", f"{cve_id}"
-        )
-        if exploit_code:
-            cve_data['_exploit_db_snippet'] = exploit_code[:2000]
-            logger.info(f"  📄 Exploit-DB 코드 발견: {cve_id}")
-        
-        # 결과 요약
-        sigma_found = "✅" if rules['sigma'] else "❌"
-        network_count = len(rules['network'])
-        network_found = f"✅ ({network_count}개)" if network_count > 0 else "❌"
-        yara_found = "✅" if rules['yara'] else "❌"
-        nuclei_found = "✅" if rules['nuclei'] else "-"
-        
-        logger.info(f"룰 수집 완료: Sigma {sigma_found}, Snort/Suricata {network_found}, Yara {yara_found}, Nuclei {nuclei_found}")
         
         return rules
     
