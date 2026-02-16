@@ -148,8 +148,10 @@ References: {json.dumps(cve_data.get('references', [])[:3])}
    - DO NOT fabricate specific function names (e.g., memcpy, strcpy, eval) unless they appear in the description
 
 2. **Attack Scenario (Kill Chain)**
-   - Describe a realistic attack flow based on the CVSS vector
-   - Use MITRE ATT&CK stages: Initial Access → Execution → Impact
+   - Describe a realistic attack flow using MITRE ATT&CK framework
+   - Include specific technique IDs (e.g., T1210, T1059, T1078) for each stage
+   - Use stages: Initial Access → Execution → Impact
+   - Base the scenario on the CVSS vector and CWE
    - Mark inferred steps with [추정]
 
 3. **Business Impact Assessment**
