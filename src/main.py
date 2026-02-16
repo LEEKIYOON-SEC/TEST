@@ -384,7 +384,8 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
     # AI 분석 결과 테이블 안전화
     root_cause = _sanitize_for_table(analysis.get('root_cause', '-'))
     impact = _sanitize_for_table(analysis.get('impact', '-'))
-    scenario = analysis.get('scenario', '정보 없음').replace('\n', '<br>')
+    # scenario: 줄바꿈을 마크다운 단락 구분으로 변환 (볼드 단계명이 각각 줄로 표시)
+    scenario = analysis.get('scenario', '정보 없음').replace('\n', '\n\n')
     vector_details_safe = _sanitize_for_table(vector_details)
     
     # 룰 섹션 — 항상 3가지 모두 표시
@@ -502,7 +503,7 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
 | **상세 분석** | {vector_details_safe} |
 
 ### 🏹 AI 예상 공격 시나리오
-> {scenario}
+{scenario}
 
 ## 🛡️ AI 권고 대응 방안
 {mitigation_list}

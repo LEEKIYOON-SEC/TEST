@@ -148,11 +148,14 @@ References: {json.dumps(cve_data.get('references', [])[:3])}
    - DO NOT fabricate specific function names (e.g., memcpy, strcpy, eval) unless they appear in the description
 
 2. **Attack Scenario (Kill Chain)**
+   - Start with "MITRE ATT&CK 기반 공격 흐름:"
    - Describe a realistic attack flow using MITRE ATT&CK framework
-   - Include specific technique IDs (e.g., T1210, T1059, T1078) for each stage
-   - Use stages: Initial Access → Execution → Impact
+   - Include specific technique IDs (e.g., T1210, T1059, T1078) with their names
    - Base the scenario on the CVSS vector and CWE
    - Mark inferred steps with [추정]
+   - Use newline (\n) between each stage in the JSON string value
+   - Format EXACTLY as:
+     MITRE ATT&CK 기반 공격 흐름:\n**초기 접근(Initial Access)** – 설명 (T코드: 기법명). [추정]\n**실행(Execution)** – 설명 (T코드: 기법명). [추정]\n**영향(Impact)** – 설명 (T코드: 기법명). [추정]
 
 3. **Business Impact Assessment**
    - Evaluate CIA impact based on the CVSS vector values
