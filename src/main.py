@@ -367,9 +367,10 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
     # 영향받는 자산 테이블
     affected_rows = ""
     for item in cve_data.get('affected', []):
-        affected_rows += f"| {item['vendor']} | {item['product']} | {item['versions']} |\n"
+        patch = item.get('patch_version', '-') or '-'
+        affected_rows += f"| {item['vendor']} | {item['product']} | {item['versions']} | {patch} |\n"
     if not affected_rows:
-        affected_rows = "| - | - | - |"
+        affected_rows = "| - | - | - | - |"
     
     # 대응 방안
     mitigation_list = "\n".join([f"- {m}" for m in analysis.get('mitigation', [])])
@@ -484,8 +485,8 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
 **취약점 유형 (CWE):** {cwe_str}
 
 ## 📦 영향 받는 자산
-| 벤더 | 제품 | 버전 |
-| :--- | :--- | :--- |
+| 벤더 | 제품 | 영향 버전 | 패치 버전 |
+| :--- | :--- | :--- | :--- |
 {affected_rows}
 
 ## 🔍 AI 심층 분석

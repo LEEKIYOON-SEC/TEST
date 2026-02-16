@@ -78,6 +78,8 @@ class SlackNotifier:
             if cve_data.get('affected'):
                 first = cve_data['affected'][0]
                 affected_text = f"• *Vendor:* {first['vendor']}\n• *Product:* {first['product']}\n• *Versions:* {first['versions']}"
+                if first.get('patch_version'):
+                    affected_text += f"\n• *Patch:* {first['patch_version']} 이상"
                 if len(cve_data['affected']) > 1:
                     affected_text += f"\n(외 {len(cve_data['affected'])-1}건)"
 

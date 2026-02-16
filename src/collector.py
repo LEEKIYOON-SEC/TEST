@@ -154,13 +154,14 @@ class Collector:
             return []
     
     def parse_affected(self, affected_list: List[Dict]) -> List[Dict]:
-        """Affected 정보 파싱"""
+        """Affected 정보 파싱 (v2.0 - patch_version 추출)"""
         results = []
         
         for item in affected_list:
             vendor = item.get('vendor', 'Unknown')
             product = item.get('product', 'Unknown')
             versions = []
+            patch_version = None
             
             for v in item.get('versions', []):
                 version = v.get('version', '')
@@ -173,8 +174,10 @@ class Collector:
                         ver_str += f"{version} 부터 "
                     if less_than:
                         ver_str += f"{less_than} 이전"
+                        patch_version = less_than  # 이 버전 이상으로 패치
                     elif less_than_eq:
                         ver_str += f"{less_than_eq} 이하"
+                        # lessThanOrEqual은 정확한 패치 버전을 알 수 없음
                     elif not less_than and not less_than_eq and version:
                         ver_str = f"{version} (단일 버전)"
                     
@@ -182,11 +185,17 @@ class Collector:
                         ver_str = "모든 버전"
                     
                     versions.append(ver_str.strip())
+                
+                # unaffected/fixed 상태에서 패치 버전 추출
+                elif v.get('status') in ['unaffected', 'fixed'] and version:
+                    if not patch_version:
+                        patch_version = version
             
             results.append({
                 "vendor": vendor,
                 "product": product,
-                "versions": ", ".join(versions) if versions else "정보 없음"
+                "versions": ", ".join(versions) if versions else "정보 없음",
+                "patch_version": patch_version
             })
         
         return results

@@ -5,6 +5,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 from typing import Dict, Optional
 from logger import logger
 from config import config
+from rate_limiter import rate_limit_manager
 
 class AnalyzerError(Exception):
     """분석 관련 에러"""
@@ -12,19 +13,14 @@ class AnalyzerError(Exception):
 
 class Analyzer:
     """
-    CVE 심층 분석 엔진
+    CVE 심층 분석 엔진 (v3.0 - Anti-Hallucination)
     
-    AI를 사용해서 CVE를 분석하고 다음을 제공합니다:
-    1. 기술적 원인 (Root Cause)
-    2. 공격 시나리오 (Kill Chain)
-    3. 비즈니스 영향 (CIA Impact)
-    4. 대응 방안 (Mitigation)
-    5. 탐지 룰 생성 가능성 (Rule Feasibility)
-    
-    개선사항:
-    - 더 명확한 프롬프트로 AI의 정확도 향상
-    - 에러 발생 시 폴백 메커니즘 제공
-    - 토큰 한도 증가로 복잡한 CVE도 분석 가능
+    v3.0 변경사항:
+    - 모든 섹션에 Anti-Hallucination 가드 추가
+    - [추정] 마커로 확인된 사실 vs 추론 구분
+    - Mitigation에서 버전 번호 날조 방지
+    - NVD CPE, PoC, GitHub Advisory 등 enriched 데이터 전달
+    - rate_limit_manager 연동
     """
     
     def __init__(self):
@@ -39,30 +35,16 @@ class Analyzer:
     
     @retry(
         stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=2, max=10)
+        wait=wait_exponential(multiplier=1, min=4, max=30)
     )
     def analyze_cve(self, cve_data: Dict) -> Dict:
-        """
-        CVE 심층 분석 수행
-        
-        이 함수는 AI에게 CVE를 분석하도록 요청합니다.
-        마치 보안 전문가에게 "이 취약점을 분석해주세요"라고 부탁하는 것과 같아요.
-        
-        Args:
-            cve_data: CVE 정보 딕셔너리
-        
-        Returns:
-            분석 결과 딕셔너리
-        
-        재시도 로직:
-        - AI API도 가끔 실패할 수 있어요 (서버 과부하 등)
-        - 최대 3번까지 재시도하며, 실패할 때마다 대기 시간 증가
-        - 3번 모두 실패하면 안전한 기본값 반환
-        """
+        """CVE 심층 분석 수행 (v3.0 - rate_limit_manager + anti-hallucination)"""
         logger.info(f"Analyzing {cve_data['id']} with AI...")
         
         try:
             prompt = self._build_analysis_prompt(cve_data)
+            
+            rate_limit_manager.check_and_wait("groq")
             
             response = self.client.chat.completions.create(
                 model=self.model,
@@ -74,9 +56,10 @@ class Analyzer:
                 response_format=config.GROQ_ANALYSIS_PARAMS["response_format"]
             )
             
+            rate_limit_manager.record_call("groq")
+            
             result = json.loads(response.choices[0].message.content)
             
-            # 결과 검증
             if not self._validate_analysis_result(result):
                 logger.warning(f"{cve_data['id']}: Invalid AI response, using fallback")
                 return self._fallback_analysis(cve_data)
@@ -86,30 +69,68 @@ class Analyzer:
             
         except json.JSONDecodeError as e:
             logger.error(f"{cve_data['id']}: Failed to parse AI JSON response: {e}")
-            raise  # 재시도
+            raise
         except Exception as e:
+            error_str = str(e)
+            if "429" in error_str or "rate_limit" in error_str.lower():
+                retry_after = rate_limit_manager.parse_retry_after(error_str)
+                wait_time = retry_after if retry_after else 10
+                logger.warning(f"Groq 429 수신 (Analyzer), {wait_time:.1f}초 대기")
+                rate_limit_manager.handle_429("groq", wait_time)
+                raise
             logger.error(f"{cve_data['id']}: Analysis error: {e}")
-            # 3번 재시도 후에도 실패하면 여기로 옴
             return self._fallback_analysis(cve_data)
     
     def _build_analysis_prompt(self, cve_data: Dict) -> str:
         """
-        AI를 위한 프롬프트 생성
+        AI를 위한 프롬프트 생성 (v3.0 - Anti-Hallucination)
         
-        프롬프트는 AI에게 주는 지시사항이에요.
-        좋은 프롬프트를 만드는 것은 좋은 질문을 하는 것과 같습니다.
-        
-        핵심 포인트:
-        1. 명확한 역할 부여 ("당신은 시니어 보안 분석가입니다")
-        2. 구체적인 작업 설명
-        3. 예시와 제약사항 제공
-        4. 출력 형식 명시
-        
-        이렇게 하면 AI가 더 정확하고 일관된 답변을 합니다.
+        핵심 원칙:
+        - 제공된 데이터에 있는 사실만 사용
+        - 추론은 반드시 [추정] 마커 표시
+        - 버전 번호, 함수명, API명 등 구체적 기술 정보는 데이터에 명시된 경우만 사용
         """
+        
+        # 추가 위협 인텔리전스 (있으면)
+        enriched_section = ""
+        
+        # NVD CPE
+        if cve_data.get('nvd_cpe'):
+            cpe_list = ", ".join(cve_data['nvd_cpe'][:3])
+            enriched_section += f"\nNVD CPE: {cpe_list}"
+        
+        # PoC 존재 여부
+        if cve_data.get('has_poc'):
+            poc_urls = cve_data.get('poc_urls', [])
+            enriched_section += f"\nPoC: 공개됨 ({cve_data.get('poc_count', 0)}건)"
+            if poc_urls:
+                enriched_section += f" - {poc_urls[0]}"
+        
+        # GitHub Advisory
+        advisory = cve_data.get('github_advisory', {})
+        if advisory.get('has_advisory') and advisory.get('packages'):
+            pkgs = [f"{p['ecosystem']}/{p['name']}" for p in advisory['packages'][:3]]
+            enriched_section += f"\nAffected Packages: {', '.join(pkgs)}"
+        
+        # VulnCheck KEV
+        if cve_data.get('is_vulncheck_kev'):
+            enriched_section += "\nVulnCheck KEV: 실제 악용 확인됨"
+        
+        if enriched_section:
+            enriched_section = f"\n[Additional Threat Intelligence]{enriched_section}\n"
+        
         return f"""
-You are a Senior Security Analyst with expertise in vulnerability assessment and threat intelligence.
-Analyze the following CVE deeply and professionally.
+You are a Senior Security Analyst. Analyze the following CVE based STRICTLY on the provided data.
+
+=== ANTI-HALLUCINATION RULES (CRITICAL - APPLY TO ALL SECTIONS) ===
+1. Use ONLY information explicitly stated in the [Context] and [Additional Threat Intelligence] below.
+2. If specific technical details (function names, version numbers, file paths, API names) are NOT in the provided data, DO NOT invent them.
+3. When you make an inference based on CWE type or CVSS vector (not from the description), prefix it with "[추정]".
+   - Example: "[추정] CWE-121 (Stack Buffer Overflow) 특성상 경계 검증 누락이 원인으로 보인다."
+   - Do NOT write: "memcpy/strcpy 함수의 경계 검증 누락이 원인이다." (unless these function names appear in the description)
+4. For mitigation: NEVER fabricate specific version numbers for patches. Instead say "제조사의 최신 보안 패치 적용" or reference the vendor advisory.
+5. For attack scenario: Base it on the CVSS vector and CWE, but mark inferred steps with [추정].
+===
 
 [Context]
 CVE-ID: {cve_data['id']}
@@ -117,89 +138,69 @@ Description: {cve_data['description']}
 CWE: {', '.join(cve_data.get('cwe', ['Unknown']))}
 CVSS Vector: {cve_data.get('cvss_vector', 'N/A')}
 Affected Products: {json.dumps(cve_data.get('affected', []))}
-
+References: {json.dumps(cve_data.get('references', [])[:3])}
+{enriched_section}
 [Analysis Tasks]
-Provide a comprehensive security analysis with the following sections:
 
 1. **Root Cause Analysis**
-   - Identify the technical root cause (e.g., "Buffer overflow in X parser due to missing bounds check")
-   - Be specific about the vulnerable component
-   - Explain why the vulnerability exists
+   - Identify the technical root cause based on the description and CWE
+   - If the description only mentions a vulnerability class (e.g., "buffer overflow") without specific function/component details, state that and add "[추정]" before any inference
+   - DO NOT fabricate specific function names (e.g., memcpy, strcpy, eval) unless they appear in the description
 
 2. **Attack Scenario (Kill Chain)**
-   - Describe a realistic attack flow using MITRE ATT&CK framework
-   - Include stages: Initial Access → Execution → Impact
-   - Be concrete and actionable
+   - Describe a realistic attack flow based on the CVSS vector
+   - Use MITRE ATT&CK stages: Initial Access → Execution → Impact
+   - Mark inferred steps with [추정]
 
 3. **Business Impact Assessment**
-   - Evaluate impact on Confidentiality, Integrity, and Availability (CIA)
-   - Consider real-world consequences (data breach, service disruption, etc.)
-   - Assess severity for different organization types
+   - Evaluate CIA impact based on the CVSS vector values
+   - State what is confirmed by the vector vs what is inferred
 
 4. **Mitigation Strategy**
-   - Provide specific remediation steps
-   - Include patching guidance (which versions to upgrade to)
-   - Suggest workarounds if patches aren't available
-   - Prioritize actions by urgency
+   - Check the Affected Products data above for version ranges (e.g., "X 부터 Y 이전")
+     * If "lessThan"/"이전" version exists → recommend updating to that version or higher (e.g., "Y 이상으로 업데이트")
+     * If "patch_version" field exists → use it as the recommended minimum version
+     * If only "단일 버전" or "모든 버전" with no upper bound → say "제조사의 최신 보안 패치 적용" (DO NOT invent a version number)
+   - NEVER fabricate version numbers that are not present in the provided data
+   - Suggest general workarounds based on the vulnerability class
+   - Reference the vendor advisory URL if available in References
 
 5. **Detection Rule Feasibility**
-   - **CRITICAL GATE:** Set to **true** ONLY IF you can identify AT LEAST 3 of these indicators:
-     * Specific file paths (e.g., "/etc/config/settings.xml")
-     * Exact URL parameters (e.g., "?id=", "&cmd=")
-     * Known magic bytes or file signatures (e.g., "0x4D5A")
-     * Specific function names or API calls (e.g., "strcpy()", "eval()")
-     * HTTP headers or User-Agent patterns
-     * Registry keys (Windows)
-     * Port numbers with protocol behaviors
-     * Known exploit strings or payloads
-     * Log patterns with exact field names
-   
-   - Set to **false** if:
-     * Description is generic ("unspecified vulnerability", "memory corruption")
-     * Attack vectors are vague ("remote code execution" without specifics)
-     * Technical details are missing
-   
+   - Set to **true** ONLY IF at least 3 concrete indicators exist IN THE PROVIDED DATA:
+     * Specific file paths, URL parameters, magic bytes, function names, HTTP headers,
+       registry keys, port numbers, exploit strings, log patterns
+   - Set to **false** if indicators would need to be guessed
    - **NEVER GUESS OR HALLUCINATE INDICATORS**
 
 [Language & Terminology]
 - Translate ALL output values into Korean (한국어)
-- KEEP technical terms in standard English or Korean transliteration:
+- KEEP technical terms in English or Korean transliteration:
   - Good: "Buffer Overflow", "버퍼 오버플로우", "SQL Injection", "SQL 인젝션"
   - Bad: "완충 범람", "SQL 주입"
 - JSON keys must remain in English
 
 [Output Format]
-Return ONLY a valid JSON object with these exact keys:
+Return ONLY a valid JSON object:
 {{
-  "root_cause": "한국어 설명",
-  "scenario": "한국어 공격 시나리오",
+  "root_cause": "한국어 설명 (추론 시 [추정] 표기)",
+  "scenario": "한국어 공격 시나리오 (추론 시 [추정] 표기)",
   "impact": "한국어 영향도 평가",
   "mitigation": ["단계별", "대응", "방안"],
   "rule_feasibility": true or false
 }}
 
-Do NOT include markdown code fences, explanations, or any text outside the JSON object.
+Do NOT include markdown code fences or any text outside the JSON.
 """
     
     def _validate_analysis_result(self, result: Dict) -> bool:
-        """
-        AI 응답 검증
-        
-        AI가 때때로 잘못된 형식으로 답변할 수 있어요.
-        이 함수는 필수 필드가 모두 있는지, 타입이 올바른지 확인합니다.
-        
-        마치 학생의 답안지를 채점하기 전에 이름과 학번이 적혀있는지 
-        확인하는 것과 같습니다.
-        """
+        """AI 응답 검증"""
         required_keys = ['root_cause', 'scenario', 'impact', 'mitigation', 'rule_feasibility']
         
-        # 필수 키 확인
         for key in required_keys:
             if key not in result:
                 logger.warning(f"Missing required key: {key}")
                 return False
         
-        # 타입 확인
         if not isinstance(result['mitigation'], list):
             logger.warning("mitigation must be a list")
             return False
@@ -211,15 +212,7 @@ Do NOT include markdown code fences, explanations, or any text outside the JSON 
         return True
     
     def _fallback_analysis(self, cve_data: Dict) -> Dict:
-        """
-        폴백 분석 결과
-        
-        AI 분석이 완전히 실패했을 때 사용하는 안전한 기본값입니다.
-        "분석 불가"라고 표시하되, 시스템이 중단되지 않도록 합니다.
-        
-        이것은 마치 비상구와 같아요. 평소엔 사용 안 하지만,
-        문제가 생겼을 때 시스템이 멈추지 않도록 보호합니다.
-        """
+        """폴백 분석 결과"""
         logger.warning(f"{cve_data['id']}: Using fallback analysis (AI failed)")
         
         return {
@@ -228,8 +221,8 @@ Do NOT include markdown code fences, explanations, or any text outside the JSON 
             "impact": "정보 부족으로 영향도를 평가할 수 없습니다.",
             "mitigation": [
                 "제조사 보안 권고문 확인",
-                "영향받는 버전 확인",
-                "가능한 빠른 시일 내 패치 적용"
+                "영향받는 버전 확인 후 패치 적용",
+                "취약 구간 네트워크 접근 제한"
             ],
-            "rule_feasibility": False  # 정보 부족 시 룰 생성 불가
+            "rule_feasibility": False
         }
