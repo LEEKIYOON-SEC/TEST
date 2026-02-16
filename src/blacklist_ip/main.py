@@ -1,8 +1,17 @@
 # src/blacklist_ip/main.py
+import os
+import sys
+
+# Allow running as a script: python src/blacklist_ip/main.py
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+_SRC_DIR = os.path.abspath(os.path.join(_THIS_DIR, ".."))
+if _SRC_DIR not in sys.path:
+    sys.path.insert(0, _SRC_DIR)
+
 import argparse
 import datetime as dt
 from zoneinfo import ZoneInfo
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
 from blacklist_ip.config import load_settings
 from blacklist_ip.collector_tier1 import collect_tier1_safe
@@ -79,7 +88,6 @@ def main():
         ratelimit=settings.ratelimit,
     )
 
-    # 하드캡을 내부에서 지키며 전수 시도
     enrichment = enricher.enrich_many(prioritized_new_ips)
 
     # -------------------------

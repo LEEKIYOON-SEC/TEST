@@ -30,4 +30,4 @@ jobs:
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
           ABUSEIPDB_API_KEY: ${{ secrets.ABUSEIPDB_API_KEY }}
         run: |
-          python src/blacklist_ip/main.py --mode daily --tz Asia/Seoul
+          PYTHONPATH=src python -m blacklist_ip.main --mode daily --tz Asia/Seoul
