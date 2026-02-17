@@ -137,44 +137,50 @@ def parse_cvss_vector(vector_str: str) -> str:
     
     return "<br>".join(mapped_parts)
 
-def is_target_asset(cve_description: str, cve_id: str) -> Tuple[bool, Optional[str]]:
+def is_target_asset(cve_data: Dict, cve_id: str) -> Tuple[bool, Optional[str]]:
     """
-    자산 필터링 (감시 대상인지 확인)
-    
-    config의 TARGET_ASSETS와 CVE 설명을 비교해서
-    우리가 관심있는 제품인지 판단합니다.
-    
-    작동 원리:
-    1. assets.json에서 감시 대상 로드
-    2. CVE 설명에 벤더명과 제품명이 있는지 확인
-    3. 와일드카드(*) 지원
-    
+    자산 필터링 (감시 대상인지 확인) - v2.0
+
+    v2.0 변경사항:
+    - 1차: CVE affected 필드의 구조화된 vendor/product 정보로 판단
+    - 2차(보조): description 텍스트에서 키워드 매칭 (affected가 N/A인 경우 대비)
+
     Args:
-        cve_description: CVE 설명 텍스트
+        cve_data: CVE 전체 데이터 (affected, description 포함)
         cve_id: CVE ID
-    
+
     Returns:
         (매칭 여부, 매칭 정보)
-    
-    예시:
-    - assets.json에 "apache/struts" 등록
-    - CVE 설명에 "apache struts" 포함
-    - → (True, "Matched: apache/struts")
     """
-    desc_lower = cve_description.lower()
-    
     for target in config.get_target_assets():
-        vendor = target.get('vendor', '').lower()
-        product = target.get('product', '').lower()
-        
+        t_vendor = target.get('vendor', '').lower()
+        t_product = target.get('product', '').lower()
+
         # 전체 감시 모드
-        if vendor == "*" and product == "*":
+        if t_vendor == "*" and t_product == "*":
             return True, "All Assets (*)"
-        
-        # 벤더/제품 매칭
-        if vendor in desc_lower and (product == "*" or product in desc_lower):
-            return True, f"Matched: {vendor}/{product}"
-    
+
+        # 1차: affected 필드의 구조화된 vendor/product 매칭
+        for affected in cve_data.get('affected', []):
+            a_vendor = affected.get('vendor', '').lower()
+            a_product = affected.get('product', '').lower()
+
+            # vendor가 N/A, Unknown이면 건너뛰기 (2차에서 description으로 확인)
+            if a_vendor in ('', 'unknown', 'n/a'):
+                continue
+
+            vendor_match = (t_vendor in a_vendor) or (a_vendor in t_vendor)
+            product_match = (t_product == "*") or (t_product in a_product) or (a_product in t_product)
+
+            if vendor_match and product_match:
+                return True, f"Matched (affected): {a_vendor}/{a_product}"
+
+        # 2차(보조): description 텍스트 매칭
+        # affected에 정보가 없거나 N/A인 경우를 위한 fallback
+        desc_lower = cve_data.get('description', '').lower()
+        if desc_lower and t_vendor in desc_lower and (t_product == "*" or t_product in desc_lower):
+            return True, f"Matched (description): {t_vendor}/{t_product}"
+
     return False, None
 
 def generate_korean_summary(cve_data: Dict) -> Tuple[str, str]:
@@ -530,8 +536,8 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
             logger.debug(f"{cve_id}: PUBLISHED 상태 아님, 건너뜀")
             return None
         
-        # Step 2: 자산 필터링
-        is_target, match_info = is_target_asset(raw_data['description'], cve_id)
+        # Step 2: 자산 필터링 (affected vendor/product 우선, description 보조)
+        is_target, match_info = is_target_asset(raw_data, cve_id)
         if not is_target:
             logger.debug(f"{cve_id}: 감시 대상 아님, 건너뜀")
             return None

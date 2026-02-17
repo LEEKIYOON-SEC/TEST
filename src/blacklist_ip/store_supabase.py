@@ -66,6 +66,25 @@ class Store:
         for i in range(0, len(payload), CHUNK):
             self.sb.table("shield_indicators").upsert(payload[i:i + CHUNK]).execute()
 
+    def get_highrisk_indicators(self, date: dt.date) -> List[Dict[str, Any]]:
+        """
+        특정 날짜의 고위험(Critical/High) indicator 목록 조회.
+        방화벽 제거 알림용: 어제의 고위험 IP가 오늘 제거되었는지 비교하기 위함.
+        """
+        try:
+            res = (
+                self.sb.table("shield_indicators")
+                .select("indicator, final_score, risk, category")
+                .eq("date", date.isoformat())
+                .in_("risk", ["Critical", "High"])
+                .order("final_score", desc=True)
+                .limit(100)
+                .execute()
+            )
+            return res.data or []
+        except Exception:
+            return []
+
     # -------------------------
     # Enrichment cache
     # -------------------------

@@ -85,6 +85,16 @@ def main():
     print(f"  어제: {len(y_set)}개, 오늘: {len(today_set)}개", flush=True)
     print(f"  신규: {len(delta.new_indicators)}개, 제거: {len(delta.removed_indicators)}개 ({time.time()-t0:.1f}s)", flush=True)
 
+    # 어제의 고위험 IP 중 오늘 완전 제거된 IP 식별 (방화벽 제거 대상)
+    removed_set = set(delta.removed_indicators)
+    yesterday_highrisk = store.get_highrisk_indicators(yesterday)
+    removed_highrisk = [
+        r for r in yesterday_highrisk
+        if r.get("indicator") in removed_set
+    ]
+    if removed_highrisk:
+        print(f"  방화벽 제거 대상: {len(removed_highrisk)}개 (어제 고위험 → 오늘 피드에서 제거됨)", flush=True)
+
     # -------------------------
     # Tier 2: 신규 IP만 enrichment (CIDR 제외)
     # -------------------------
@@ -155,6 +165,7 @@ def main():
         topn=settings.topn_report,
         api_usage=api_usage,
         feed_failures=feed_failures,
+        removed_highrisk=removed_highrisk,
     )
     send_slack(settings.slack_webhook_url, blocks)
     print(f"  Slack 전송 완료", flush=True)
