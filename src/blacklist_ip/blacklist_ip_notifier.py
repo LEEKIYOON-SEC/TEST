@@ -88,13 +88,14 @@ def build_slack_blocks(
     api_usage: Dict[str, Any],
     feed_failures: Optional[List[Dict[str, Any]]] = None,
     removed_highrisk: Optional[List[Dict[str, Any]]] = None,
+    degraded_highrisk: Optional[List[Dict[str, Any]]] = None,
 ) -> List[Dict[str, Any]]:
     """
-    Slack Block Kit 메시지 구성 (v2.0).
+    Slack Block Kit 메시지 구성 (v3.0).
 
-    v2.0 추가:
-    - removed_highrisk: 어제 고위험이었으나 오늘 피드에서 완전 제거된 IP 목록
-      → 방화벽 블랙리스트에서 제거 대상 안내
+    v3.0 추가:
+    - removed_highrisk: 어제 고위험 → 오늘 피드에서 완전 제거된 IP (확실한 제거 대상)
+    - degraded_highrisk: 어제 고위험 → 오늘 Medium/Low로 등급 하락 (검토 대상)
     """
     total = len(scored)
     new_cnt = len(new_indicators)
@@ -154,9 +155,17 @@ def build_slack_blocks(
             "text": {"type": "mrkdwn", "text": "*🆕 신규 고위험 IP TOP 10:* 해당 없음"}
         })
 
-    # 방화벽 제거 대상 (어제 고위험이었으나 오늘 피드에서 완전 제거된 IP)
-    if removed_highrisk:
+    # ── 방화벽 관리 섹션 ──
+    has_firewall_section = removed_highrisk or degraded_highrisk
+    if has_firewall_section:
         blocks.append({"type": "divider"})
+        blocks.append({
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": "*🔥 방화벽 블랙리스트 관리*"}
+        })
+
+    # Case 1: 피드에서 완전 제거 (확실한 제거 대상)
+    if removed_highrisk:
         rm_lines = []
         for r in removed_highrisk[:10]:
             ip = r.get("indicator", "-")
@@ -172,10 +181,34 @@ def build_slack_blocks(
         blocks.append({
             "type": "section",
             "text": {"type": "mrkdwn", "text":
-                f"*🗑️ 방화벽 제거 대상 ({len(removed_highrisk)}건):*\n"
-                "어제 고위험이었으나 오늘 모든 피드에서 제거된 IP입니다.\n"
-                "방화벽 블랙리스트에서 삭제를 검토하세요.\n\n"
+                f"*🗑️ 제거 대상 ({len(removed_highrisk)}건):*\n"
+                "어제 고위험 → 오늘 모든 피드에서 사라짐. 차단 해제하세요.\n\n"
                 + "\n".join(rm_lines) + more
+            }
+        })
+
+    # Case 2: 등급 하락 (검토 대상)
+    if degraded_highrisk:
+        dg_lines = []
+        for r in degraded_highrisk[:10]:
+            ip = r.get("indicator", "-")
+            y_score = r.get("yesterday_score", 0)
+            y_risk = r.get("yesterday_risk", "-")
+            t_score = r.get("today_score", 0)
+            t_risk = r.get("today_risk", "-")
+            cat = r.get("category", "-")
+            dg_lines.append(f"• `{ip}` ({y_risk} {y_score}점 → {t_risk} {t_score}점) - {cat}")
+
+        more = ""
+        if len(degraded_highrisk) > 10:
+            more = f"\n… (+{len(degraded_highrisk)-10} more)"
+
+        blocks.append({
+            "type": "section",
+            "text": {"type": "mrkdwn", "text":
+                f"*⬇️ 등급 하락 검토 ({len(degraded_highrisk)}건):*\n"
+                "어제 고위험 → 오늘 Medium/Low로 하락. 피드에는 남아있으나 차단 해제를 검토하세요.\n\n"
+                + "\n".join(dg_lines) + more
             }
         })
 

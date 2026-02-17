@@ -1,4 +1,4 @@
-# src/blacklist_ip/main.py
+\# src/blacklist_ip/main.py
 import os
 import sys
 import time
@@ -85,15 +85,17 @@ def main():
     print(f"  어제: {len(y_set)}개, 오늘: {len(today_set)}개", flush=True)
     print(f"  신규: {len(delta.new_indicators)}개, 제거: {len(delta.removed_indicators)}개 ({time.time()-t0:.1f}s)", flush=True)
 
-    # 어제의 고위험 IP 중 오늘 완전 제거된 IP 식별 (방화벽 제거 대상)
+    # 어제의 고위험 IP 중 방화벽 제거/검토 대상 식별
     removed_set = set(delta.removed_indicators)
     yesterday_highrisk = store.get_highrisk_indicators(yesterday)
+
+    # Case 1: 어제 Critical/High → 오늘 피드에서 완전 사라짐
     removed_highrisk = [
         r for r in yesterday_highrisk
         if r.get("indicator") in removed_set
     ]
-    if removed_highrisk:
-        print(f"  방화벽 제거 대상: {len(removed_highrisk)}개 (어제 고위험 → 오늘 피드에서 제거됨)", flush=True)
+    # Case 2: 어제 Critical/High → 오늘 피드에 있지만 Medium/Low로 등급 하락
+    # (scoring 완료 후 아래에서 계산 - scored 결과 필요)
 
     # -------------------------
     # Tier 2: 신규 IP만 enrichment (CIDR 제외)
@@ -135,6 +137,29 @@ def main():
     )
     print(f"  Scoring 완료: {len(scored)}개 ({time.time()-t0:.1f}s)", flush=True)
 
+    # Case 2 계산: 어제 Critical/High → 오늘 Medium/Low로 등급 하락
+    degraded_highrisk = []
+    for r in yesterday_highrisk:
+        ip = r.get("indicator")
+        if ip in removed_set:
+            continue  # Case 1에 해당 (이미 removed_highrisk에 포함)
+        today_record = scored.get(ip)
+        if today_record and today_record.get("risk") in ("Medium", "Low"):
+            degraded_highrisk.append({
+                "indicator": ip,
+                "yesterday_score": r.get("final_score", 0),
+                "yesterday_risk": r.get("risk", "-"),
+                "today_score": today_record.get("final_score", 0),
+                "today_risk": today_record.get("risk", "-"),
+                "category": r.get("category", "-"),
+            })
+    degraded_highrisk.sort(key=lambda x: x["yesterday_score"], reverse=True)
+
+    if removed_highrisk:
+        print(f"  방화벽 제거 대상: {len(removed_highrisk)}개 (어제 고위험 → 오늘 피드에서 제거됨)", flush=True)
+    if degraded_highrisk:
+        print(f"  등급 하락 검토: {len(degraded_highrisk)}개 (어제 고위험 → 오늘 Medium/Low)", flush=True)
+
     api_usage = {
         "abuseipdb": enricher.usage.abuseipdb,
         "internetdb": enricher.usage.internetdb,
@@ -166,6 +191,7 @@ def main():
         api_usage=api_usage,
         feed_failures=feed_failures,
         removed_highrisk=removed_highrisk,
+        degraded_highrisk=degraded_highrisk,
     )
     send_slack(settings.slack_webhook_url, blocks)
     print(f"  Slack 전송 완료", flush=True)
