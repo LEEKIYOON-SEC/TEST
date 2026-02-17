@@ -87,15 +87,14 @@ def build_slack_blocks(
     topn: int,
     api_usage: Dict[str, Any],
     feed_failures: Optional[List[Dict[str, Any]]] = None,
+    removed_highrisk: Optional[List[Dict[str, Any]]] = None,
 ) -> List[Dict[str, Any]]:
     """
-    Slack Block Kit 메시지 구성.
+    Slack Block Kit 메시지 구성 (v2.0).
 
-    feed_failures 예:
-      [
-        {"feed": "ET_compromised_ips", "url": "...", "error": "HTTP 403"},
-        {"feed": "spamhaus_drop", "url": "...", "error": "timeout"},
-      ]
+    v2.0 추가:
+    - removed_highrisk: 어제 고위험이었으나 오늘 피드에서 완전 제거된 IP 목록
+      → 방화벽 블랙리스트에서 제거 대상 안내
     """
     total = len(scored)
     new_cnt = len(new_indicators)
@@ -155,9 +154,33 @@ def build_slack_blocks(
             "text": {"type": "mrkdwn", "text": "*🆕 신규 고위험 IP TOP 10:* 해당 없음"}
         })
 
+    # 방화벽 제거 대상 (어제 고위험이었으나 오늘 피드에서 완전 제거된 IP)
+    if removed_highrisk:
+        blocks.append({"type": "divider"})
+        rm_lines = []
+        for r in removed_highrisk[:10]:
+            ip = r.get("indicator", "-")
+            score = r.get("final_score", 0)
+            risk = r.get("risk", "-")
+            cat = r.get("category", "-")
+            rm_lines.append(f"• `{ip}` (어제 {score}점/{risk}) - {cat}")
+
+        more = ""
+        if len(removed_highrisk) > 10:
+            more = f"\n… (+{len(removed_highrisk)-10} more)"
+
+        blocks.append({
+            "type": "section",
+            "text": {"type": "mrkdwn", "text":
+                f"*🗑️ 방화벽 제거 대상 ({len(removed_highrisk)}건):*\n"
+                "어제 고위험이었으나 오늘 모든 피드에서 제거된 IP입니다.\n"
+                "방화벽 블랙리스트에서 삭제를 검토하세요.\n\n"
+                + "\n".join(rm_lines) + more
+            }
+        })
+
     # 피드 실패 요약(운영 가시성)
     if feed_failures:
-        # 너무 길어지지 않게 3개만 노출
         shown = feed_failures[:3]
         fail_lines = []
         for f in shown:

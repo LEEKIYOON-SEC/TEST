@@ -154,23 +154,10 @@ class SlackNotifier:
     
     def send_official_rule_update(self, cve_id: str, title: str, rules_info: Dict, original_report_url: Optional[str] = None) -> bool:
         """
-        공식 룰 발견 알림
-        
-        이전에 AI 생성 룰로 보고된 CVE에 대해
-        공식 룰이 발견되었을 때 알림을 보냅니다.
-        
-        Args:
-            cve_id: CVE ID
-            title: CVE 제목
-            rules_info: 룰 정보 (get_rules 결과)
-            original_report_url: 원본 GitHub Issue URL
-        
-        Returns:
-            성공 여부
-        
-        왜 별도 알림?
-        - 공식 룰은 AI 룰보다 훨씬 신뢰할 수 있어요
-        - 보안팀이 빠르게 교체할 수 있도록 알려줍니다
+        공식 룰 발견 알림 (v2.0 - 룰 내용 포함)
+
+        Slack 메시지에 발견된 모든 엔진의 룰 내용을 포함합니다.
+        룰이 긴 경우 GitHub Issue 링크로 전체 룰을 안내합니다.
         """
         try:
             blocks = [
@@ -178,42 +165,73 @@ class SlackNotifier:
                 {"type": "section", "text": {"type": "mrkdwn", "text": f"*{title}*\n\n이전에 AI 생성 룰로 보고된 취약점에 대한 *공식 검증된 룰*이 발견되었습니다."}},
                 {"type": "divider"}
             ]
-            
-            # 발견된 공식 룰 표시
-            rule_text = "*🛡️ 발견된 공식 룰:*\n"
-            
+
+            rule_count = 0
+
             # Sigma
-            if rules_info.get('sigma') and rules_info['sigma'].get('verified'):
-                rule_text += f"• Sigma: {rules_info['sigma']['source']}\n"
-            
-            # Network (여러 개 가능)
+            if rules_info.get('sigma') and rules_info['sigma'].get('code'):
+                rule_count += 1
+                sigma_code = rules_info['sigma']['code'].strip()
+                preview = sigma_code[:800] + "\n..." if len(sigma_code) > 800 else sigma_code
+                blocks.append({
+                    "type": "section",
+                    "text": {"type": "mrkdwn", "text": f"*🟢 Sigma* ({rules_info['sigma']['source']})\n```{preview}```"}
+                })
+
+            # Network (여러 개 - 모두 표시)
             if rules_info.get('network'):
                 for net_rule in rules_info['network']:
-                    if net_rule.get('verified'):
+                    if net_rule.get('code'):
+                        rule_count += 1
                         engine = net_rule.get('engine', 'unknown').upper()
-                        rule_text += f"• Network ({engine}): {net_rule['source']}\n"
-            
+                        rule_code = net_rule['code'].strip()
+                        preview = rule_code[:800] + "\n..." if len(rule_code) > 800 else rule_code
+                        blocks.append({
+                            "type": "section",
+                            "text": {"type": "mrkdwn", "text": f"*🟢 {engine}* ({net_rule['source']})\n```{preview}```"}
+                        })
+
             # Yara
-            if rules_info.get('yara') and rules_info['yara'].get('verified'):
-                rule_text += f"• Yara: {rules_info['yara']['source']}\n"
-            
-            blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": rule_text}})
-            
-            # 원본 리포트 링크
+            if rules_info.get('yara') and rules_info['yara'].get('code'):
+                rule_count += 1
+                yara_code = rules_info['yara']['code'].strip()
+                preview = yara_code[:800] + "\n..." if len(yara_code) > 800 else yara_code
+                blocks.append({
+                    "type": "section",
+                    "text": {"type": "mrkdwn", "text": f"*🟢 Yara* ({rules_info['yara']['source']})\n```{preview}```"}
+                })
+
+            # Nuclei
+            if rules_info.get('nuclei') and rules_info['nuclei'].get('code'):
+                rule_count += 1
+                nuclei_code = rules_info['nuclei']['code'].strip()
+                preview = nuclei_code[:800] + "\n..." if len(nuclei_code) > 800 else nuclei_code
+                blocks.append({
+                    "type": "section",
+                    "text": {"type": "mrkdwn", "text": f"*🟢 Nuclei* ({rules_info['nuclei']['source']})\n```{preview}```"}
+                })
+
+            blocks.append({"type": "divider"})
+            blocks.append({
+                "type": "context",
+                "elements": [{"type": "mrkdwn", "text": f"총 {rule_count}개 엔진의 공식 룰 발견. 위 룰을 복사하여 보안 장비에 등록하세요."}]
+            })
+
+            # GitHub Issue 링크 (전체 룰 + 상세 분석)
             if original_report_url:
                 blocks.append({
                     "type": "actions",
                     "elements": [
-                        {"type": "button", "text": {"type": "plain_text", "text": "업데이트된 리포트 보기"}, "url": original_report_url, "style": "primary"}
+                        {"type": "button", "text": {"type": "plain_text", "text": "전체 룰 + 상세 리포트 보기"}, "url": original_report_url, "style": "primary"}
                     ]
                 })
-            
+
             response = requests.post(self.webhook_url, json={"blocks": blocks}, timeout=10)
             response.raise_for_status()
-            
-            logger.info(f"공식 룰 발견 알림 전송: {cve_id}")
+
+            logger.info(f"공식 룰 발견 알림 전송: {cve_id} ({rule_count}개 엔진)")
             return True
-            
+
         except Exception as e:
             logger.error(f"공식 룰 알림 실패: {e}")
             return False

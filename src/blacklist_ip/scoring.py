@@ -29,16 +29,18 @@ def compute_source_bonus(sources_count: int, step: int, cap: int) -> int:
 
 def adjust_from_abuseipdb(abuse: Dict[str, Any]) -> int:
     """
-    AbuseIPDB 핵심: abuseConfidenceScore(0~100), totalReports 등을 활용.
+    AbuseIPDB 세분화 스코어링 (v2.0).
 
-    정책(기본안):
-      - 90~100: +20
-      - 70~89 : +12
-      - 40~69 : +6
-      - 10~39 : +0
-      - 0~9   : -10  (피드 false positive 가능성 완화)
+    기존 5단계 버킷 → 연속적 점수로 변경하여 동점 IP 차별화.
 
-    totalReports < 3이면 신뢰도 낮다고 보고 보정치를 절반으로 감소.
+    구성요소:
+      1) confidence 기반: int(c * 0.25) → 0~25 (1점 단위 정밀도)
+         - c < 10이면 페널티: -10 (false positive 가능성)
+      2) 신고 건수 보너스: min(8, reports // 5) → 0~8
+         - 신고가 많을수록 신뢰도 높음
+      3) 신고 건수 < 3이면 전체 보정치 50% 감소 (낮은 신뢰도)
+
+    총 범위: -10 ~ +33
     """
     c = abuse.get("abuseConfidenceScore")
     reports = abuse.get("totalReports")
@@ -48,20 +50,24 @@ def adjust_from_abuseipdb(abuse: Dict[str, Any]) -> int:
     except Exception:
         return 0
 
-    if 90 <= c <= 100:
-        adj = 20
-    elif 70 <= c <= 89:
-        adj = 12
-    elif 40 <= c <= 69:
-        adj = 6
-    elif 10 <= c <= 39:
-        adj = 0
-    else:  # 0~9
+    # 1) confidence 연속 점수
+    if c < 10:
         adj = -10
+    else:
+        adj = int(c * 0.25)  # 10→2, 50→12, 80→20, 100→25
 
+    # 2) 신고 건수 보너스
+    try:
+        if reports is not None:
+            r = int(reports)
+            adj += min(8, r // 5)  # 5건→1, 15건→3, 40건→8
+    except Exception:
+        pass
+
+    # 3) 신고 건수 < 3이면 신뢰도 낮음
     try:
         if reports is not None and int(reports) < 3:
-            adj = int(adj / 2)
+            adj = int(adj * 0.5)
     except Exception:
         pass
 
@@ -70,19 +76,19 @@ def adjust_from_abuseipdb(abuse: Dict[str, Any]) -> int:
 
 def adjust_from_internetdb(inetdb: Dict[str, Any]) -> int:
     """
-    Shodan InternetDB는 '악성 판정'이 아니라 '노출/서비스 힌트'이므로
-    과대평가하지 않도록 보수적으로 포트 기반 가산만 적용.
+    Shodan InternetDB 세분화 스코어링 (v2.0).
 
-    정책(기본안):
-      - 위험 포트 1개 이상: +5
-      - 3개 이상: +10
-      - 5개 이상: +15
+    기존 3단계 버킷 → 위험 포트 수 + 알려진 취약점 수로 세분화.
 
-    위험 포트 목록은 운영 정책에 따라 조정 가능.
+    구성요소:
+      1) 위험 포트: min(15, count * 3) → 0~15
+      2) 알려진 취약점(vulns): min(10, len(vulns) * 2) → 0~10
+
+    총 범위: 0 ~ +25
     """
     ports = inetdb.get("ports") or []
     if not isinstance(ports, list):
-        return 0
+        ports = []
 
     risky_ports = {
         22,   # SSH
@@ -99,18 +105,16 @@ def adjust_from_internetdb(inetdb: Dict[str, Any]) -> int:
         25,   # SMTP (오픈 릴레이/스팸 인프라 가능성)
     }
 
-    count = 0
-    for p in ports:
-        if isinstance(p, int) and p in risky_ports:
-            count += 1
+    risky_count = sum(1 for p in ports if isinstance(p, int) and p in risky_ports)
+    port_adj = min(15, risky_count * 3)
 
-    if count >= 5:
-        return 15
-    if count >= 3:
-        return 10
-    if count >= 1:
-        return 5
-    return 0
+    # 알려진 취약점 수 (InternetDB vulns 필드)
+    vulns = inetdb.get("vulns") or []
+    if not isinstance(vulns, list):
+        vulns = []
+    vuln_adj = min(10, len(vulns) * 2)
+
+    return port_adj + vuln_adj
 
 
 def apply_scoring(
