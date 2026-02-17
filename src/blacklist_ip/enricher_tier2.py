@@ -1,8 +1,9 @@
 # src/blacklist_ip/enricher_tier2.py
 import datetime as dt
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 import requests
 
@@ -46,9 +47,17 @@ def _safe_json(resp: requests.Response) -> Dict[str, Any]:
 
 class Enricher:
     """
-    Tier 2: "어제 대비 신규 IP"만 enrichment.
+    Tier 2: "어제 대비 신규 IP"만 enrichment (v2.0 - 병렬 처리).
     - Provider: AbuseIPDB + Shodan InternetDB
     - 캐시 우선, 하드캡, 부분 실패 허용
+    - InternetDB는 ThreadPoolExecutor로 병렬 처리
+
+    v2.0 주요 개선:
+    - max_enrich 하드캡으로 총 enrichment 대상 제한 (기본 500)
+    - AbuseIPDB: 순차 처리 (1req/s rate limit)
+    - InternetDB: 병렬 처리 (기본 10 workers)
+    - 단계별 진행률 로깅
+    - 30분 GitHub Actions 타임아웃 내 완료 보장
     """
 
     def __init__(
@@ -59,6 +68,8 @@ class Enricher:
         cache_ttl_hours,
         timeouts,
         ratelimit,
+        max_enrich: int = 500,
+        workers: int = 10,
     ):
         self.abuseipdb_key = abuseipdb_key
         self.store = store
@@ -66,14 +77,20 @@ class Enricher:
         self.cache_ttl_hours = cache_ttl_hours
         self.timeouts = timeouts
         self.ratelimit = ratelimit
+        self.max_enrich = max_enrich
+        self.workers = workers
 
         self.usage = APIUsage()
 
         self.rl_abuse = SimpleRateLimiter(self.ratelimit.abuseipdb_min_interval)
-        self.rl_inetdb = SimpleRateLimiter(self.ratelimit.internetdb_min_interval)
 
     def enrich_many(self, ips: List[str]) -> Dict[str, Dict[str, Any]]:
         """
+        신규 IP enrichment (v2.0 - 2단계 처리).
+
+        Phase 1: AbuseIPDB 순차 처리 (rate limit 1req/s)
+        Phase 2: InternetDB 병렬 처리 (ThreadPoolExecutor)
+
         returns:
           {
             "1.2.3.4": {
@@ -83,18 +100,84 @@ class Enricher:
             ...
           }
         """
-        result: Dict[str, Dict[str, Any]] = {}
+        # 하드캡 적용
+        target_ips = ips[:self.max_enrich]
+        skipped = len(ips) - len(target_ips)
+        total = len(target_ips)
 
-        for ip in ips:
-            result[ip] = {}
+        if skipped > 0:
+            print(f"  [Enricher] 대상: {total}개 (하드캡 {self.max_enrich}), 스킵: {skipped}개", flush=True)
+        else:
+            print(f"  [Enricher] 대상: {total}개", flush=True)
 
-            abuse = self._get_cached_or_fetch_abuseipdb(ip)
-            if abuse is not None:
-                result[ip]["abuseipdb"] = abuse
+        if total == 0:
+            return {}
 
-            inetdb = self._get_cached_or_fetch_internetdb(ip)
-            if inetdb is not None:
-                result[ip]["internetdb"] = inetdb
+        result: Dict[str, Dict[str, Any]] = {ip: {} for ip in target_ips}
+
+        # ── Phase 1: AbuseIPDB (순차 - rate limit 1req/s) ──
+        if self.abuseipdb_key:
+            abuse_quota = int(self.quotas.abuseipdb_daily_max)
+            abuse_target = min(total, abuse_quota)
+            print(f"  [AbuseIPDB] 순차 enrichment 시작 (quota: {abuse_quota})", flush=True)
+            start = time.time()
+
+            for i, ip in enumerate(target_ips, 1):
+                if self.usage.abuseipdb >= abuse_quota:
+                    print(f"  [AbuseIPDB] quota 소진 ({abuse_quota}), 중단", flush=True)
+                    break
+
+                abuse = self._get_cached_or_fetch_abuseipdb(ip)
+                if abuse is not None:
+                    result[ip]["abuseipdb"] = abuse
+
+                if i % 100 == 0 or i == abuse_target:
+                    pct = (i / abuse_target * 100)
+                    print(f"  [AbuseIPDB] {i}/{abuse_target} ({pct:.0f}%)", flush=True)
+
+            elapsed = time.time() - start
+            print(f"  [AbuseIPDB] 완료: {self.usage.abuseipdb}건 ({elapsed:.1f}s)", flush=True)
+
+        # ── Phase 2: InternetDB (병렬 - ThreadPoolExecutor) ──
+        inetdb_quota = int(self.quotas.internetdb_daily_max)
+        inetdb_targets = target_ips[:inetdb_quota]
+
+        if inetdb_targets:
+            print(f"  [InternetDB] 병렬 enrichment 시작 (workers: {self.workers}, 대상: {len(inetdb_targets)}개)", flush=True)
+            start = time.time()
+            done_count = 0
+            inetdb_total = len(inetdb_targets)
+
+            with ThreadPoolExecutor(max_workers=self.workers) as executor:
+                future_to_ip = {
+                    executor.submit(self._fetch_internetdb_safe, ip): ip
+                    for ip in inetdb_targets
+                }
+
+                for future in as_completed(future_to_ip):
+                    ip = future_to_ip[future]
+                    done_count += 1
+                    try:
+                        data = future.result()
+                        if data is not None:
+                            result[ip]["internetdb"] = data
+                            self.usage.internetdb += 1
+
+                            # 캐시 저장
+                            try:
+                                ttl = _utc_now() + dt.timedelta(hours=int(self.cache_ttl_hours.internetdb))
+                                self.store.put_cache(ip, "internetdb", data, ttl)
+                            except Exception:
+                                pass
+                    except Exception:
+                        pass
+
+                    if done_count % 100 == 0 or done_count == inetdb_total:
+                        pct = (done_count / inetdb_total * 100)
+                        print(f"  [InternetDB] {done_count}/{inetdb_total} ({pct:.0f}%)", flush=True)
+
+            elapsed = time.time() - start
+            print(f"  [InternetDB] 완료: {self.usage.internetdb}건 ({elapsed:.1f}s)", flush=True)
 
         return result
 
@@ -152,22 +235,21 @@ class Enricher:
     # -------------------------
     # Shodan InternetDB (키 불필요)
     # -------------------------
-    def _get_cached_or_fetch_internetdb(self, ip: str) -> Optional[Dict[str, Any]]:
-        cached = self.store.get_cache(ip, "internetdb")
-        if cached is not None:
-            return cached
-
-        if self.usage.internetdb >= int(self.quotas.internetdb_daily_max):
-            return None
+    def _fetch_internetdb_safe(self, ip: str) -> Optional[Dict[str, Any]]:
+        """
+        InternetDB fetch (병렬 처리용, 예외를 None으로 반환).
+        캐시 확인 포함.
+        """
+        # 캐시 확인
+        try:
+            cached = self.store.get_cache(ip, "internetdb")
+            if cached is not None:
+                return cached
+        except Exception:
+            pass
 
         try:
-            self.rl_inetdb.wait()
-            data = self._fetch_internetdb(ip)
-            self.usage.internetdb += 1
-
-            ttl = _utc_now() + dt.timedelta(hours=int(self.cache_ttl_hours.internetdb))
-            self.store.put_cache(ip, "internetdb", data, ttl)
-            return data
+            return self._fetch_internetdb(ip)
         except Exception:
             return None
 

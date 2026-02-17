@@ -70,6 +70,10 @@ class Settings:
     # Reporting
     topn_report: int = 10
 
+    # Enrichment 제한 (GitHub Actions 30분 타임아웃 방어)
+    max_enrich_count: int = 500  # 최대 enrichment 대상 IP 수
+    enrich_workers: int = 10     # InternetDB 병렬 워커 수
+
     quotas: Quotas = Quotas()
     cache_ttl_hours: CacheTTLHours = CacheTTLHours()
     timeouts: ProviderTimeoutSec = ProviderTimeoutSec()

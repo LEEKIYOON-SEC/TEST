@@ -1,4 +1,5 @@
 import os
+import re
 import json
 from groq import Groq
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -38,35 +39,48 @@ class Analyzer:
         wait=wait_exponential(multiplier=1, min=4, max=30)
     )
     def analyze_cve(self, cve_data: Dict) -> Dict:
-        """CVE 심층 분석 수행 (v3.0 - rate_limit_manager + anti-hallucination)"""
+        """CVE 심층 분석 수행 (v3.1 - response_format 호환성 개선)"""
         logger.info(f"Analyzing {cve_data['id']} with AI...")
-        
+
         try:
             prompt = self._build_analysis_prompt(cve_data)
-            
+
             rate_limit_manager.check_and_wait("groq")
-            
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=config.GROQ_ANALYSIS_PARAMS["temperature"],
-                top_p=config.GROQ_ANALYSIS_PARAMS["top_p"],
-                max_completion_tokens=config.GROQ_ANALYSIS_PARAMS["max_completion_tokens"],
-                reasoning_effort=config.GROQ_ANALYSIS_PARAMS["reasoning_effort"],
-                response_format=config.GROQ_ANALYSIS_PARAMS["response_format"]
-            )
-            
+
+            # response_format 제거: 일부 모델(openai/gpt-oss-120b 등)에서
+            # json_object 모드가 지원되지 않아 400 에러 발생.
+            # 대신 프롬프트에서 JSON 출력을 지시하고 수동으로 파싱합니다.
+            api_params = {
+                "model": self.model,
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": config.GROQ_ANALYSIS_PARAMS["temperature"],
+                "top_p": config.GROQ_ANALYSIS_PARAMS["top_p"],
+                "max_completion_tokens": config.GROQ_ANALYSIS_PARAMS["max_completion_tokens"],
+            }
+
+            # reasoning_effort는 지원하는 모델에서만 전달
+            if config.GROQ_ANALYSIS_PARAMS.get("reasoning_effort"):
+                api_params["reasoning_effort"] = config.GROQ_ANALYSIS_PARAMS["reasoning_effort"]
+
+            response = self.client.chat.completions.create(**api_params)
+
             rate_limit_manager.record_call("groq")
-            
-            result = json.loads(response.choices[0].message.content)
-            
+
+            raw_content = response.choices[0].message.content.strip()
+            result = self._extract_json(raw_content)
+
+            if result is None:
+                logger.warning(f"{cve_data['id']}: Failed to extract JSON from AI response")
+                logger.debug(f"Raw response: {raw_content[:500]}")
+                return self._fallback_analysis(cve_data)
+
             if not self._validate_analysis_result(result):
                 logger.warning(f"{cve_data['id']}: Invalid AI response, using fallback")
                 return self._fallback_analysis(cve_data)
-            
+
             logger.info(f"{cve_data['id']}: Analysis complete (feasibility={result.get('rule_feasibility')})")
             return result
-            
+
         except json.JSONDecodeError as e:
             logger.error(f"{cve_data['id']}: Failed to parse AI JSON response: {e}")
             raise
@@ -80,6 +94,36 @@ class Analyzer:
                 raise
             logger.error(f"{cve_data['id']}: Analysis error: {e}")
             return self._fallback_analysis(cve_data)
+
+    def _extract_json(self, text: str) -> Optional[Dict]:
+        """
+        AI 응답에서 JSON 객체를 안전하게 추출
+
+        AI가 마크다운 코드 블록이나 설명 텍스트를 포함할 수 있으므로
+        여러 방법으로 JSON을 추출합니다.
+        """
+        # 1차 시도: 그대로 파싱
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError:
+            pass
+
+        # 2차 시도: 마크다운 코드 블록 제거 후 파싱
+        cleaned = re.sub(r"```(?:json)?\s*\n?", "", text).strip()
+        try:
+            return json.loads(cleaned)
+        except json.JSONDecodeError:
+            pass
+
+        # 3차 시도: 텍스트에서 첫 번째 JSON 객체 추출
+        match = re.search(r'\{[\s\S]*\}', text)
+        if match:
+            try:
+                return json.loads(match.group())
+            except json.JSONDecodeError:
+                pass
+
+        return None
     
     def _build_analysis_prompt(self, cve_data: Dict) -> str:
         """

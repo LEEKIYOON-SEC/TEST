@@ -1,6 +1,7 @@
 # src/blacklist_ip/main.py
 import os
 import sys
+import time
 
 # Allow running as a script: python src/blacklist_ip/main.py
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -53,31 +54,45 @@ def prioritize_new_ips(new_ips: List[str], tier1_records: Dict[str, Any]) -> Lis
 
 
 def main():
+    pipeline_start = time.time()
     args = parse_args()
     settings = load_settings()
 
     report_date = kst_today(args.tz)
     yesterday = report_date - dt.timedelta(days=1)
+    print(f"=== The Shield Daily Pipeline ({report_date.isoformat()}) ===", flush=True)
 
     store = Store(settings.supabase_url, settings.supabase_key)
 
     # -------------------------
     # Tier 1: 전체 수집 (피드별 실패 허용)
     # -------------------------
+    t0 = time.time()
+    print("[Step 1/5] Tier 1: 피드 수집 중...", flush=True)
     tier1_records, feed_failures = collect_tier1_safe(settings.feeds_path)
     today_set = set(tier1_records.keys())
+    print(f"  수집 완료: {len(tier1_records)}개 indicator ({time.time()-t0:.1f}s)", flush=True)
+    if feed_failures:
+        print(f"  피드 실패: {len(feed_failures)}건", flush=True)
 
     # -------------------------
     # Delta: 어제 대비 신규/제거
     # -------------------------
+    t0 = time.time()
+    print("[Step 2/5] Delta 계산 중...", flush=True)
     y_set = store.get_snapshot_indicator_set(yesterday)
     delta = compute_delta(y_set, today_set)
+    print(f"  어제: {len(y_set)}개, 오늘: {len(today_set)}개", flush=True)
+    print(f"  신규: {len(delta.new_indicators)}개, 제거: {len(delta.removed_indicators)}개 ({time.time()-t0:.1f}s)", flush=True)
 
     # -------------------------
     # Tier 2: 신규 IP만 enrichment (CIDR 제외)
     # -------------------------
+    t0 = time.time()
+    print("[Step 3/5] Tier 2: Enrichment 시작...", flush=True)
     new_ips = [x for x in delta.new_indicators if "/" not in x]
     prioritized_new_ips = prioritize_new_ips(new_ips, tier1_records)
+    print(f"  신규 IP (CIDR 제외): {len(new_ips)}개, 우선순위 정렬 완료", flush=True)
 
     enricher = Enricher(
         abuseipdb_key=settings.abuseipdb_api_key,
@@ -86,13 +101,18 @@ def main():
         cache_ttl_hours=settings.cache_ttl_hours,
         timeouts=settings.timeouts,
         ratelimit=settings.ratelimit,
+        max_enrich=settings.max_enrich_count,
+        workers=settings.enrich_workers,
     )
 
     enrichment = enricher.enrich_many(prioritized_new_ips)
+    print(f"  Enrichment 완료 ({time.time()-t0:.1f}s)", flush=True)
 
     # -------------------------
     # Scoring
     # -------------------------
+    t0 = time.time()
+    print("[Step 4/5] Scoring 중...", flush=True)
     scored = apply_scoring(
         tier1_records=tier1_records,
         enrichment=enrichment,
@@ -103,6 +123,7 @@ def main():
         source_bonus_step=settings.source_bonus_step,
         source_bonus_cap=settings.source_bonus_cap,
     )
+    print(f"  Scoring 완료: {len(scored)}개 ({time.time()-t0:.1f}s)", flush=True)
 
     api_usage = {
         "abuseipdb": enricher.usage.abuseipdb,
@@ -112,6 +133,8 @@ def main():
     # -------------------------
     # Persist snapshot
     # -------------------------
+    t0 = time.time()
+    print("[Step 5/5] Supabase 저장 + Slack 전송 중...", flush=True)
     store.upsert_snapshot(
         date=report_date,
         scored=scored,
@@ -119,6 +142,7 @@ def main():
         removed_count=len(delta.removed_indicators),
         api_usage=api_usage,
     )
+    print(f"  Supabase 저장 완료 ({time.time()-t0:.1f}s)", flush=True)
 
     # -------------------------
     # Slack report
@@ -133,6 +157,10 @@ def main():
         feed_failures=feed_failures,
     )
     send_slack(settings.slack_webhook_url, blocks)
+    print(f"  Slack 전송 완료", flush=True)
+
+    elapsed = time.time() - pipeline_start
+    print(f"\n=== Pipeline 완료 (총 {elapsed:.1f}s / {elapsed/60:.1f}min) ===", flush=True)
 
 
 if __name__ == "__main__":
