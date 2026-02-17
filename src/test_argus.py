@@ -296,13 +296,35 @@ def test_d_official_rule_slack():
         },
         "network": [
             {
-                "code": 'alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (msg:"ET EXPLOIT Apache Log4j RCE"; content:"${jndi:"; sid:2034647; rev:1;)',
+                "code": 'alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Apache Log4j RCE Attempt - Snort 2.9"; content:"${jndi:"; nocase; sid:2034647; rev:1;)',
+                "source": "Public (Snort 2.9 ET Open)",
+                "engine": "snort2",
+                "verified": True
+            },
+            {
+                "code": 'alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Apache Log4j RCE Attempt - Snort 3"; content:"${jndi:"; nocase; sid:2034648; rev:1;)',
+                "source": "Public (Snort 3 Community)",
+                "engine": "snort3",
+                "verified": True
+            },
+            {
+                "code": 'alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Apache Log4j RCE Attempt - Suricata 5"; content:"${jndi:"; nocase; sid:2034649; rev:1;)',
+                "source": "Public (Suricata 5 ET Open)",
+                "engine": "suricata5",
+                "verified": True
+            },
+            {
+                "code": 'alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Apache Log4j RCE Attempt - Suricata 7"; content:"${jndi:"; nocase; sid:2034650; rev:1;)',
                 "source": "Public (Suricata 7 ET Open)",
                 "engine": "suricata7",
                 "verified": True
             }
         ],
-        "yara": None
+        "yara": {
+            "code": 'rule Log4Shell_Exploitation {\n  meta:\n    description = "Detects Log4Shell exploitation attempt"\n    cve = "CVE-2021-44228"\n  strings:\n    $jndi = "${jndi:" nocase\n    $ldap = "ldap://" nocase\n  condition:\n    any of them\n}',
+            "source": "Public (Yara-Rules)",
+            "verified": True
+        }
     }
     
     logger.info("  Slack으로 공식 룰 발견 알림 전송 중...")
