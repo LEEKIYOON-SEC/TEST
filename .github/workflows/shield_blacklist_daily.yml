@@ -1,7 +1,7 @@
-name: The Shield - Daily Blacklist IP Report
+#name: The Shield - Daily Blacklist IP Report
 
-on:
-  workflow_dispatch:
+#on:
+  #workflow_dispatch:
   #schedule:
     #- cron: "0 0 * * *"  # 00:00 UTC = 09:00 KST
 
