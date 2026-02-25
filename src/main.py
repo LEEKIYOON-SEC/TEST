@@ -469,10 +469,11 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
         )
         
         if not should_alert:
-            # 알림 불필요, DB만 업데이트
+            # 알림 불필요, DB만 업데이트 (content_hash도 갱신)
             db.upsert_cve({
                 "id": cve_id,
-                "updated_at": datetime.datetime.now(KST).isoformat()
+                "updated_at": datetime.datetime.now(KST).isoformat(),
+                "content_hash": raw_data.get('content_hash')
             })
             return None
         
@@ -491,7 +492,7 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
         # Step 7: Slack 알림
         notifier.send_alert(current_state, alert_reason, report_url)
         
-        # Step 8: DB 저장
+        # Step 8: DB 저장 (content_hash 포함)
         db_data = {
             "id": cve_id,
             "cvss_score": current_state['cvss'],
@@ -500,7 +501,8 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
             "last_alert_at": datetime.datetime.now(KST).isoformat(),
             "last_alert_state": current_state,
             "report_url": report_url,
-            "updated_at": datetime.datetime.now(KST).isoformat()
+            "updated_at": datetime.datetime.now(KST).isoformat(),
+            "content_hash": raw_data.get('content_hash')
         }
         
         if rules_info:
@@ -644,33 +646,45 @@ def main():
     # Step 3: 공식 룰 재발견
     check_for_official_rules()
     
-    # Step 4: KEV 및 최신 CVE 수집
+    # Step 4: KEV 및 최신 CVE 수집 (스마트 필터링 적용)
     collector.fetch_kev()
-    target_cve_ids = collector.fetch_recent_cves(hours=config.PERFORMANCE["cve_fetch_hours"])
-    
-    if not target_cve_ids:
+    target_cves = collector.fetch_recent_cves(
+        hours=config.PERFORMANCE["cve_fetch_hours"],
+        db=db
+    )
+
+    if not target_cves:
         logger.info("처리할 CVE 없음")
         return
-    
-    # Step 5: EPSS 수집
+
+    # Step 5: 우선순위 정렬 + 배치 제한
+    # 신규 CVE(is_new=True)를 먼저 처리
+    target_cves.sort(key=lambda x: (not x['is_new'],))
+
+    max_per_run = config.PERFORMANCE.get("max_cves_per_run", 50)
+    if len(target_cves) > max_per_run:
+        logger.warning(f"CVE {len(target_cves)}건 중 상위 {max_per_run}건만 처리 (할당량 보호)")
+        target_cves = target_cves[:max_per_run]
+
+    target_cve_ids = [c['cve_id'] for c in target_cves]
+
+    # Step 6: EPSS 수집
     collector.fetch_epss(target_cve_ids)
-    
+
     logger.info(f"분석 대상: {len(target_cve_ids)}건")
-    
-    # Step 6: 병렬 처리로 CVE 분석
+
+    # Step 7: 병렬 처리로 CVE 분석
     results = []
     max_workers = config.PERFORMANCE["max_workers"]
-    
+
     logger.info(f"병렬 처리 시작 (워커: {max_workers}명)")
-    
+
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        # 각 CVE에 대해 process_single_cve 함수를 비동기 실행
         future_to_cve = {
             executor.submit(process_single_cve, cve_id, collector, db, notifier): cve_id
             for cve_id in target_cve_ids
         }
-        
-        # 완료된 작업부터 결과 수집
+
         for future in as_completed(future_to_cve):
             cve_id = future_to_cve[future]
             try:
@@ -679,8 +693,8 @@ def main():
                     results.append(result)
             except Exception as e:
                 logger.error(f"{cve_id} 처리 중 예외 발생: {e}")
-    
-    # Step 7: 결과 요약
+
+    # Step 8: 결과 요약
     elapsed = time.time() - start_time
     logger.info("=" * 60)
     logger.info(f"처리 완료: {len(results)}/{len(target_cve_ids)}건 성공")

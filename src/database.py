@@ -107,6 +107,51 @@ class ArgusDB:
             logger.error(f"AI 생성 CVE 조회 실패: {e}")
             return []
     
+    def get_content_hash(self, cve_id: str) -> Optional[str]:
+        """CVE의 콘텐츠 해시 조회"""
+        try:
+            response = self.client.table("cves").select("content_hash").eq("id", cve_id).execute()
+            if response.data:
+                return response.data[0].get('content_hash')
+            return None
+        except Exception as e:
+            logger.error(f"콘텐츠 해시 조회 실패 ({cve_id}): {e}")
+            return None
+
+    def batch_get_content_hashes(self, cve_ids: List[str]) -> Dict[str, str]:
+        """여러 CVE의 콘텐츠 해시를 한번에 조회 (API 호출 최소화)"""
+        result = {}
+        if not cve_ids:
+            return result
+
+        try:
+            for i in range(0, len(cve_ids), 50):
+                chunk = cve_ids[i:i+50]
+                response = self.client.table("cves").select("id, content_hash").in_("id", chunk).execute()
+                for row in (response.data or []):
+                    if row.get('content_hash'):
+                        result[row['id']] = row['content_hash']
+
+            logger.debug(f"배치 해시 조회: {len(cve_ids)}건 요청, {len(result)}건 발견")
+            return result
+        except Exception as e:
+            logger.error(f"배치 해시 조회 실패: {e}")
+            return result
+
+    def get_all_cves_for_dashboard(self, days: int = 90) -> List[Dict]:
+        """대시보드용 CVE 데이터 조회 (최근 N일)"""
+        try:
+            cutoff = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=days)).isoformat()
+            response = self.client.table("cves") \
+                .select("id, cvss_score, epss_score, is_kev, last_alert_at, last_alert_state, report_url, updated_at") \
+                .gte("updated_at", cutoff) \
+                .order("updated_at", desc=True) \
+                .execute()
+            return response.data or []
+        except Exception as e:
+            logger.error(f"대시보드 CVE 조회 실패: {e}")
+            return []
+
     def get_report_url(self, cve_id: str) -> Optional[str]:
         try:
             record = self.get_cve(cve_id)

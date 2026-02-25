@@ -5,6 +5,7 @@ import os
 import re
 import json
 import time
+import hashlib
 from typing import List, Dict, Set, Optional
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 from logger import logger
@@ -15,6 +16,12 @@ class CollectorError(Exception):
     pass
 
 class Collector:
+    # 벌크 메인테넌스 커밋 감지 패턴
+    BULK_PATTERNS = re.compile(
+        r'(format|standardize|normalize|batch|bulk|automated|metadata|date.?time|migration|mass.?update|reformat)',
+        re.IGNORECASE
+    )
+
     def __init__(self):
         self.kev_set: Set[str] = set()
         self.vulncheck_kev_set: Set[str] = set()
@@ -23,6 +30,12 @@ class Collector:
             "Authorization": f"token {os.environ.get('GH_TOKEN')}",
             "Accept": "application/vnd.github.v3+json"
         }
+        # config import는 순환 참조 방지를 위해 지연
+        try:
+            from config import config
+            self.bulk_threshold = config.PERFORMANCE.get("bulk_commit_threshold", 100)
+        except Exception:
+            self.bulk_threshold = 100
     
     @retry(
         stop=stop_after_attempt(3),
@@ -96,47 +109,170 @@ class Collector:
         
         return self.epss_cache
     
+    # ====================================================================
+    # [3] 콘텐츠 해시 기반 스마트 필터링
+    # ====================================================================
+
+    def _compute_content_hash(self, json_data: dict) -> str:
+        """CVE JSON에서 의미있는 필드만 추출하여 SHA-256 해시 생성.
+
+        날짜/시간, assignerOrgId, serial 등 메타데이터 필드는 제외하여
+        벌크 메타데이터 패치(날짜 형식 변경 등)에 영향받지 않음.
+        """
+        cna = json_data.get('containers', {}).get('cna', {})
+        meaningful = {
+            "descriptions": cna.get('descriptions', []),
+            "affected": cna.get('affected', []),
+            "metrics": cna.get('metrics', []),
+            "problemTypes": cna.get('problemTypes', []),
+            "references": cna.get('references', []),
+            "title": cna.get('title', ''),
+            "state": json_data.get('cveMetadata', {}).get('state', ''),
+        }
+        canonical = json.dumps(meaningful, sort_keys=True, separators=(',', ':'))
+        return hashlib.sha256(canonical.encode()).hexdigest()
+
+    def _is_bulk_commit(self, commit_detail: dict) -> bool:
+        """벌크 메인테넌스 커밋인지 감지.
+
+        조건: 파일 수가 threshold 이상이면 벌크로 간주.
+        커밋 메시지에 벌크 패턴이 있으면 추가 확신.
+        """
+        files = commit_detail.get('files', [])
+        file_count = len(files)
+        message = commit_detail.get('commit', {}).get('message', '')
+
+        # 파일 수만으로 벌크 판단 (threshold 이상이면 항상 벌크)
+        if file_count >= self.bulk_threshold:
+            if self.BULK_PATTERNS.search(message):
+                logger.info(f"벌크 커밋 감지: {file_count}개 파일, 메시지 패턴 매칭")
+            else:
+                logger.info(f"벌크 커밋 감지: {file_count}개 파일 (대량 수정)")
+            return True
+
+        return False
+
+    def _extract_cve_id(self, filename: str) -> Optional[str]:
+        """파일명에서 CVE ID 추출"""
+        if filename.endswith(".json") and "CVE-" in filename:
+            match = re.search(r'(CVE-\d{4}-\d{4,7})', filename)
+            if match:
+                return match.group(1)
+        return None
+
+    def _fetch_raw_cve_json(self, cve_id: str) -> Optional[dict]:
+        """raw.githubusercontent.com에서 CVE JSON만 다운로드 (API 한도 미소모).
+
+        enrich_cve()와 달리 NVD/EPSS/PoC 등 외부 API 호출 없음.
+        해시 비교용 경량 사전 검사에 사용.
+        """
+        try:
+            parts = cve_id.split('-')
+            year, id_num = parts[1], parts[2]
+            group_dir = "0xxx" if len(id_num) < 4 else id_num[:-3] + "xxx"
+
+            raw_url = f"https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/{year}/{group_dir}/{cve_id}.json"
+            response = requests.get(raw_url, timeout=10)
+            response.raise_for_status()
+
+            return response.json()
+        except Exception as e:
+            logger.debug(f"{cve_id} raw JSON 조회 실패: {e}")
+            return None
+
     @retry(
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=2, max=10)
     )
-    def fetch_recent_cves(self, hours: int = 2) -> List[str]:
-        """GitHub CVEProject에서 최근 CVE 수집"""
+    def fetch_recent_cves(self, hours: int = 2, db=None) -> List[dict]:
+        """GitHub CVEProject에서 최근 CVE 수집 (스마트 필터링).
+
+        3단계 필터링:
+        1. 커밋에서 CVE ID 추출 + 벌크 커밋 감지
+        2. 일반 커밋 CVE → 전부 처리 대상
+        3. 벌크 커밋 CVE → 콘텐츠 해시 비교 → 메타데이터만 변경된 것 스킵
+
+        Returns:
+            List[dict]: [{"cve_id": str, "is_new": bool}, ...]
+        """
         now = datetime.datetime.now(pytz.UTC)
         since_str = (now - datetime.timedelta(hours=hours)).strftime("%Y-%m-%dT%H:%M:%SZ")
-        
+
         url = f"https://api.github.com/repos/CVEProject/cvelistV5/commits?since={since_str}"
-        
+
         try:
             rate_limit_manager.check_and_wait("github")
             logger.info(f"Fetching CVEs from last {hours} hours...")
-            
+
             response = requests.get(url, headers=self.headers, timeout=15)
             response.raise_for_status()
             rate_limit_manager.record_call("github")
-            
+
             commits = response.json()
-            cve_ids = set()
-            
+
+            seen = set()
+            normal_cve_ids = []
+            bulk_cve_ids = []
+            result = []
+            skipped = 0
+
+            # Phase 1: 모든 커밋에서 CVE ID 수집 + 벌크 여부 태깅
             for commit in commits:
                 rate_limit_manager.check_and_wait("github")
-                
+
                 commit_response = requests.get(commit['url'], headers=self.headers, timeout=10)
                 commit_response.raise_for_status()
                 rate_limit_manager.record_call("github")
-                
-                for file in commit_response.json().get('files', []):
-                    filename = file['filename']
-                    
-                    if filename.endswith(".json") and "CVE-" in filename:
-                        match = re.search(r'(CVE-\d{4}-\d{4,7})', filename)
-                        if match:
-                            cve_ids.add(match.group(1))
-            
-            cve_list = list(cve_ids)
-            logger.info(f"Found {len(cve_list)} unique CVEs")
-            return cve_list
-            
+
+                commit_detail = commit_response.json()
+                is_bulk = self._is_bulk_commit(commit_detail)
+
+                for file_info in commit_detail.get('files', []):
+                    cve_id = self._extract_cve_id(file_info['filename'])
+                    if not cve_id or cve_id in seen:
+                        continue
+                    seen.add(cve_id)
+
+                    if is_bulk:
+                        bulk_cve_ids.append(cve_id)
+                    else:
+                        normal_cve_ids.append(cve_id)
+
+            # Phase 2: 일반 커밋 CVE → 전부 처리 대상
+            for cve_id in normal_cve_ids:
+                result.append({"cve_id": cve_id, "is_new": True})
+
+            # Phase 3: 벌크 커밋 CVE → 배치 해시 비교로 필터링
+            if bulk_cve_ids:
+                if db:
+                    existing_hashes = db.batch_get_content_hashes(bulk_cve_ids)
+                    logger.info(f"벌크 커밋 CVE {len(bulk_cve_ids)}건 중 DB 해시 {len(existing_hashes)}건 발견")
+
+                    for cve_id in bulk_cve_ids:
+                        old_hash = existing_hashes.get(cve_id)
+                        if old_hash is None:
+                            # DB에 없음 → 신규 CVE, 반드시 처리
+                            result.append({"cve_id": cve_id, "is_new": True})
+                            continue
+
+                        # DB에 있음 → raw JSON 가져와서 해시 비교
+                        raw_json = self._fetch_raw_cve_json(cve_id)
+                        if raw_json is None:
+                            continue
+                        new_hash = self._compute_content_hash(raw_json)
+                        if new_hash != old_hash:
+                            result.append({"cve_id": cve_id, "is_new": False})
+                        else:
+                            skipped += 1
+                else:
+                    # DB 없으면 벌크 커밋도 모두 처리
+                    for cve_id in bulk_cve_ids:
+                        result.append({"cve_id": cve_id, "is_new": True})
+
+            logger.info(f"스마트 필터링 결과: {len(result)}건 처리 대상 "
+                       f"(일반 {len(normal_cve_ids)}건, 벌크 {len(bulk_cve_ids)}건 중 {skipped}건 스킵)")
+            return result
+
         except requests.exceptions.RequestException as e:
             logger.error(f"GitHub API error: {e}")
             raise
@@ -212,7 +348,10 @@ class Collector:
             
             json_data = response.json()
             cna = json_data.get('containers', {}).get('cna', {})
-            
+
+            # 콘텐츠 해시 계산 (DB 저장용)
+            content_hash = self._compute_content_hash(json_data)
+
             data = {
                 "id": cve_id,
                 "title": "N/A",
@@ -223,7 +362,8 @@ class Collector:
                 "cwe": [],
                 "references": [],
                 "affected": [],
-                "cce": []
+                "cce": [],
+                "content_hash": content_hash
             }
             
             data['state'] = json_data.get('cveMetadata', {}).get('state', 'UNKNOWN')
