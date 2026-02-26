@@ -1,34 +1,38 @@
 {
-  "generated_at": "2026-02-26T21:50:17.471193+00:00",
+  "generated_at": "2026-02-26T23:08:58.956076+00:00",
   "cve": {
     "total": 1000,
-    "recent_24h": 136,
+    "recent_24h": 161,
     "kev_count": 6,
     "severity": {
-      "None": 813,
-      "High": 75,
-      "Medium": 89,
+      "High": 98,
+      "Medium": 103,
+      "None": 774,
       "Low": 11,
-      "Critical": 12
+      "Critical": 14
     },
     "daily_trend": [
       {
         "date": "2026-02-17",
-        "count": 25
+        "count": 40
       },
       {
         "date": "2026-02-18",
-        "count": 839
+        "count": 799
       },
       {
         "date": "2026-02-26",
-        "count": 136
+        "count": 161
       }
     ],
     "top_vendors": [
       {
         "vendor": "n/a",
-        "count": 773
+        "count": 734
+      },
+      {
+        "vendor": "Microsoft",
+        "count": 59
       },
       {
         "vendor": "Linux",
@@ -36,10 +40,6 @@
       },
       {
         "vendor": "NVIDIA",
-        "count": 12
-      },
-      {
-        "vendor": "Microsoft",
         "count": 12
       },
       {
