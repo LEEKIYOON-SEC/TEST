@@ -1,38 +1,38 @@
 {
-  "generated_at": "2026-02-26T12:07:19.658988+00:00",
+  "generated_at": "2026-02-26T12:35:30.587733+00:00",
   "cve": {
     "total": 1000,
-    "recent_24h": 3,
+    "recent_24h": 8,
     "kev_count": 9,
     "severity": {
-      "High": 58,
+      "High": 63,
+      "Medium": 60,
       "Critical": 10,
-      "None": 873,
-      "Medium": 56,
+      "None": 864,
       "Low": 3
     },
     "daily_trend": [
       {
         "date": "2026-02-17",
-        "count": 13
+        "count": 18
       },
       {
         "date": "2026-02-18",
-        "count": 984
+        "count": 974
       },
       {
         "date": "2026-02-26",
-        "count": 3
+        "count": 8
       }
     ],
     "top_vendors": [
       {
         "vendor": "n/a",
-        "count": 834
+        "count": 825
       },
       {
         "vendor": "Microsoft",
-        "count": 46
+        "count": 43
       },
       {
         "vendor": "Linux",
@@ -59,11 +59,11 @@
         "count": 5
       },
       {
-        "vendor": "piwik",
-        "count": 3
+        "vendor": "A3factura",
+        "count": 4
       },
       {
-        "vendor": "Grandstream",
+        "vendor": "Wavlink",
         "count": 3
       }
     ]

@@ -1,5 +1,238 @@
 [
   {
+    "id": "CVE-2025-14343",
+    "title": "Dokuzsoft Technology E-Commerce 제품의 반사형 XSS 취약점",
+    "description": "Dokuzsoft Technology Ltd.의 E-Commerce 제품에서 웹 페이지 생성 시 입력값 검증 미흡으로 반사형 XSS 취약점이 발견되었습니다. 이 문제는 E-Commerce 제품 버전 10122025까지 영향을 미칩니다. 공격자는 악성 스크립트를 삽입하여 사용자에게 피해를 줄 수 있습니다.",
+    "cvss": 7.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "Dokuzsoft Technology Ltd.",
+        "product": "E-Commerce Product",
+        "versions": "10122025 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/TEST/issues/46",
+    "date": "2026-02-26T12:35:23.333464+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-2679",
+    "title": "A3factura 소프트웨어의 다중 취약점",
+    "description": "A3factura 웹 플랫폼의 'a3factura-app.wolterskluwer.es/#/incomes/salesInvoices' 엔드포인트 내 'customerName' 파라미터에서 반사형 XSS 취약점이 발견되었습니다. 이를 통해 공격자는 피해자의 브라우저에서 임의 코드를 실행할 수 있습니다.",
+    "cvss": 4.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "A3factura",
+        "product": "A3factura",
+        "versions": "4.111.2-rev.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T12:35:14.303757+00:00",
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-1198",
+    "title": "SIMPLE.ERP SQL Injection 취약점",
+    "description": "SIMPLE.ERP의 \"Obroty na kontach\" 창 검색 기능에서 SQL Injection 취약점이 발견되었습니다. 입력값 검증 부족으로 인증된 공격자가 데이터베이스에 악성 쿼리를 실행할 수 있습니다. 해당 문제는 6.30@A04.4_u06 버전에서 수정되었습니다.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Simple SA",
+        "product": "Simple.ERP",
+        "versions": "6.30@A04.4_u06 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/TEST/issues/45",
+    "date": "2026-02-26T12:06:53.60305+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-2680",
+    "title": "A3factura 소프트웨어의 다중 취약점",
+    "description": "A3factura 웹 플랫폼의 'a3factura-app.wolterskluwer.es/#/incomes/salesDeliveryNotes' 엔드포인트 내 'customerVATNumber' 파라미터에서 반사형 XSS 취약점이 발견되었습니다. 이를 통해 공격자는 피해자의 브라우저에서 임의 코드를 실행할 수 있습니다.",
+    "cvss": 4.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "A3factura",
+        "product": "A3factura",
+        "versions": "4.111.2-rev.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T12:35:13.609668+00:00",
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-2677",
+    "title": "A3factura 소프트웨어의 다중 취약점",
+    "description": "A3factura 웹 플랫폼의 'a3factura-app.wolterskluwer.es/#/incomes/representatives-management' 엔드포인트 내 'name' 파라미터에서 반사형 XSS 취약점이 발견되었습니다. 이를 통해 공격자는 피해자의 브라우저에서 임의 코드를 실행할 수 있습니다.",
+    "cvss": 4.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "A3factura",
+        "product": "A3factura",
+        "versions": "4.111.2-rev.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T12:35:10.174746+00:00",
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-2678",
+    "title": "A3factura 소프트웨어의 다중 취약점",
+    "description": "A3factura 웹 플랫폼의 'name' 파라미터에서 반사형 XSS 취약점이 발견되었습니다. 'a3factura-app.wolterskluwer.es/#/incomes/customers' 엔드포인트에서 공격자가 피해자의 브라우저에서 임의 코드를 실행할 수 있습니다.",
+    "cvss": 4.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "A3factura",
+        "product": "A3factura",
+        "versions": "4.111.2-rev.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T12:35:09.869332+00:00",
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-2616",
+    "title": "Beetel 777VR1 웹 관리 인터페이스의 하드코딩된 자격 증명",
+    "description": "Beetel 777VR1 펌웨어 01.00.09 버전 이하에서 웹 관리 인터페이스의 알려지지 않은 기능에 하드코딩된 자격 증명 취약점이 발견되었습니다. 로컬 네트워크 내에서 공격이 가능하며, 공개된 익스플로잇이 존재합니다. 설정 변경을 권장하며, 제조사는 이에 대해 응답하지 않았습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-798",
+      "CWE-259"
+    ],
+    "affected": [
+      {
+        "vendor": "Beetel",
+        "product": "777VR1",
+        "versions": "01.00.09 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/10",
+    "date": "2026-02-17T15:44:00.002639+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-7631",
+    "title": "Tumeva News 소프트웨어의 시간 기반 Blind SQLi 취약점",
+    "description": "Tumeva Internet Technologies의 Tumeva News 소프트웨어에서 SQL Injection 취약점이 발견되었습니다. 이 취약점은 버전 17022026 이하에 영향을 미치며, 특수 요소의 부적절한 중성화로 인해 발생합니다. 해당 벤더에 취약점 공개 사실을 알렸으나 응답이 없었습니다.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Tumeva Internet Technologies Software Information Advertising and Consulting Services Trade Ltd. Co.",
+        "product": "Tumeva News Software",
+        "versions": "17022026 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3",
+    "date": "2026-02-17T12:05:31.978165+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-2001",
+    "title": "WowRevenue <= 2.1.3 - 인증되지 않은 플러그인 설치/활성화 취약점",
+    "description": "WowRevenue 플러그인은 2.1.3 버전까지 'Notice::install_activate_plugin' 함수에서 권한 검사 누락으로 인해 인증된 공격자가 임의의 플러그인을 설치할 수 있는 취약점을 가지고 있습니다. 구독자 레벨 이상의 권한을 가진 공격자도 악용 가능하며, 원격 코드 실행으로 이어질 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0.00214,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "wpxpo",
+        "product": "WowRevenue – Product Bundles & Bulk Discounts",
+        "versions": "* 부터 2.1.3 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/9",
+    "date": "2026-02-17T15:43:01.424827+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-2615",
+    "title": "Wavlink WL-NU516U1 방화벽 .cgi singlePortForwardDelete 명령어 삽입 취약점",
+    "description": "Wavlink WL-NU516U1 펌웨어(20251208까지)의 /cgi-bin/firewall.cgi 파일 내 singlePortForwardDelete 함수에서 del_flag 인자 조작을 통해 명령어 삽입 취약점이 발견되었습니다. 원격에서 공격이 가능하며, 관련 익스플로잇이 공개되어 악용될 수 있습니다. 제조사에 해당 내용을 통보했으나 응답이 없습니다.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-77",
+      "CWE-74"
+    ],
+    "affected": [
+      {
+        "vendor": "Wavlink",
+        "product": "WL-NU516U1",
+        "versions": "20251208 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/8",
+    "date": "2026-02-17T15:42:17.496963+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1216",
+    "title": "RSS Aggregator <= 5.0.10 - 'template' 파라미터의 반사형 XSS 취약점",
+    "description": "WordPress RSS Aggregator 플러그인은 버전 5.0.10 이하에서 사용자 제공 속성에 대한 입력값 검증 및 출력 이스케이핑이 미흡하여 반사형 XSS 취약점에 노출됩니다. 인증되지 않은 공격자가 사용자를 속여 링크 클릭 등의 행위를 유도할 경우 임의의 웹 스크립트를 삽입하여 실행할 수 있습니다.",
+    "cvss": 7.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "rebelcode",
+        "product": "RSS Aggregator – RSS Import, News Feeds, Feed to Post, and Autoblogging",
+        "versions": "* 부터 5.0.10 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2",
+    "date": "2026-02-17T11:15:14.318362+00:00",
+    "severity": "High"
+  },
+  {
     "id": "CVE-2024-1394",
     "title": "Golang-fips/openssl: RSA 페이로드 암호화/복호화 코드의 메모리 누수",
     "description": "Golang의 RSA 암호화/복호화 코드에서 메모리 누수 취약점이 발견되었습니다. 공격자가 제어하는 입력을 통해 리소스 고갈을 유발할 수 있습니다. 누수는 github.com/golang-fips/openssl/openssl/rsa.go#L113에서 발생하며, `pkey` 및 `ctx` 객체가 누수됩니다.",
@@ -28,27 +261,6 @@
     ],
     "report_url": null,
     "date": "2026-02-26T12:07:15.063365+00:00",
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-1198",
-    "title": "SIMPLE.ERP SQL Injection 취약점",
-    "description": "SIMPLE.ERP의 \"Obroty na kontach\" 창 검색 기능에서 SQL Injection 취약점이 발견되었습니다. 입력값 검증 부족으로 인증된 공격자가 데이터베이스에 악성 쿼리를 실행할 수 있습니다. 해당 문제는 6.30@A04.4_u06 버전에서 수정되었습니다.",
-    "cvss": 8.6,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "Simple SA",
-        "product": "Simple.ERP",
-        "versions": "6.30@A04.4_u06 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/TEST/issues/45",
-    "date": "2026-02-26T12:06:53.60305+00:00",
     "severity": "High"
   },
   {
@@ -21005,226 +21217,6 @@
     ],
     "report_url": null,
     "date": "2026-02-18T00:02:17.023952+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-5586",
-    "title": "N/A",
-    "description": "The Services module 6.x-3.x before 6.x-3.3 and 7.x-3.x before 7.x-3.3 for Drupal allows remote authenticated users with the \"access user profiles\" permission to access arbitrary users' emails via vect",
-    "cvss": 0,
-    "epss": 0.00251,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:02:16.860199+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-2740",
-    "title": "phpList 2.10.18 이전 버전의 SQL Injection 취약점",
-    "description": "phpList 2.10.18 이전 버전에서 public_html/lists/admin 경로의 SQL Injection 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0.06067,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:02:15.894702+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-5290",
-    "title": "EasyWebRealEstate SQL 삽입 취약점",
-    "description": "EasyWebRealEstate에서 listings.php의 lstid 파라미터 또는 index.php의 infoid 파라미터를 통해 원격 공격자가 임의의 SQL 명령을 실행할 수 있는 다수의 SQL 삽입 취약점이 발견되었습니다. 이를 악용하여 데이터베이스를 조작하거나 시스템을 손상시킬 수 있습니다.",
-    "cvss": 0,
-    "epss": 0.00294,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:02:13.744984+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-3807",
-    "title": "Samsung Kies 2.5.0.12094_27_11 이전 버전의 임의 파일 실행 취약점",
-    "description": "Samsung Kies 2.5.0.12094_27_11 이전 버전에서 임의 파일 실행이 가능한 보안 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0.3486,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:02:13.622398+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-21245",
-    "title": "Windows 커널 권한 상승 취약점",
-    "description": "Windows 커널의 권한 상승 취약점이 발견되었습니다.",
-    "cvss": 7.8,
-    "epss": 0.00022,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 11 Version 24H2",
-        "versions": "10.0.26100.0 부터 10.0.26100.7840 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 11 Version 25H2",
-        "versions": "10.0.26200.0 부터 10.0.26200.7840 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 11 version 26H1",
-        "versions": "10.0.28000.0 부터 10.0.28000.1575 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:02:12.583366+00:00",
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2012-2551",
-    "title": "Microsoft Windows Kerberos 서비스 DoS 취약점",
-    "description": "Microsoft Windows Server 2008 R2 및 Windows 7에서 조작된 세션 요청을 통해 서비스 거부(NULL 포인터 역참조 및 재부팅)를 유발할 수 있는 Kerberos 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0.61326,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:02:10.639929+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-3808",
-    "title": "Samsung Kies 2.5.0.12094_27_11 이전 버전의 임의 파일 수정 취약점",
-    "description": "Samsung Kies 2.5.0.12094_27_11 이전 버전에서 임의 파일 수정 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0.25873,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:02:10.128359+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-2597",
-    "title": "지멘스 WinCC 7.0 SP3 Update 2 이전 버전의 디렉터리 탐색 취약점",
-    "description": "지멘스 WinCC 7.0 SP3 Update 2 이전 버전에서 인증된 원격 사용자가 URL 파라미터를 조작하여 임의의 파일을 읽을 수 있는 다수의 디렉터리 탐색 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0.0012,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:02:07.098013+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-5381",
-    "title": "PHP 5.3.17 설치 기능의 신뢰할 수 없는 검색 경로 취약점",
-    "description": "PHP 5.3.17을 C:\\ 디렉토리에 설치할 경우, 관리자가 PATH 환경 변수에 추가할 수 있는 C:\\PHP 디렉토리 내 트로이 목마 DLL을 통해 로컬 사용자가 권한을 획득할 수 있는 취약점이 존재합니다. 이는 Windows Vista SP1, Server 2008 SP2, 7 SP1, 8 Release Preview에서 \"IKE 및 AuthIP IPsec 키링 모듈\" 시스템 서비스의 wlbsctrl.dll 파일과 같은 사례에서 발생할 수 있습니다. 다만, CVE는 PHP 설치의 기본 과정이 아닌 별도의 관리자 작업으로 인해 PATH가 설정된다는 점을 들어 해당 문제를 인정하지 않습니다.",
-    "cvss": 0,
-    "epss": 0.00402,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:02:06.86328+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-2629",
-    "title": "Axous 1.1.1 및 이전 버전의 CSRF 및 XSS 취약점",
-    "description": "Axous 1.1.1 및 이전 버전에서 관리자 인증을 탈취할 수 있는 다수의 CSRF 및 XSS 취약점이 발견되었습니다. 공격자는 관리자 계정 추가 기능(admin/administrators_add.php) 또는 다양한 페이지의 파라미터를 통해 XSS 공격을 수행할 수 있습니다. 특히 설정 관련 페이지에서 광범위한 파라미터가 취약점에 노출되어 있습니다.",
-    "cvss": 0,
-    "epss": 0.0069,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:02:04.095997+00:00",
     "severity": "None"
   }
 ]
