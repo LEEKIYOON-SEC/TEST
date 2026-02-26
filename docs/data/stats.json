@@ -1,0 +1,90 @@
+{
+  "generated_at": "2026-02-26T12:07:19.658988+00:00",
+  "cve": {
+    "total": 1000,
+    "recent_24h": 3,
+    "kev_count": 9,
+    "severity": {
+      "High": 58,
+      "Critical": 10,
+      "None": 873,
+      "Medium": 56,
+      "Low": 3
+    },
+    "daily_trend": [
+      {
+        "date": "2026-02-17",
+        "count": 13
+      },
+      {
+        "date": "2026-02-18",
+        "count": 984
+      },
+      {
+        "date": "2026-02-26",
+        "count": 3
+      }
+    ],
+    "top_vendors": [
+      {
+        "vendor": "n/a",
+        "count": 834
+      },
+      {
+        "vendor": "Microsoft",
+        "count": 46
+      },
+      {
+        "vendor": "Linux",
+        "count": 26
+      },
+      {
+        "vendor": "NVIDIA",
+        "count": 12
+      },
+      {
+        "vendor": "Graylog",
+        "count": 7
+      },
+      {
+        "vendor": "Red Hat",
+        "count": 6
+      },
+      {
+        "vendor": "Dassault Systèmes",
+        "count": 5
+      },
+      {
+        "vendor": "Bosch Rexroth",
+        "count": 5
+      },
+      {
+        "vendor": "piwik",
+        "count": 3
+      },
+      {
+        "vendor": "Grandstream",
+        "count": 3
+      }
+    ]
+  },
+  "blacklist": {
+    "total": 500,
+    "risk": {
+      "Critical": 500
+    },
+    "categories": {
+      "abuse.ch Feodo C2": 3,
+      "ET Block-IPs": 1,
+      "Spamhaus DROP (CIDR)": 496
+    },
+    "daily_trend": [
+      {
+        "date": "2026-02-26",
+        "total": 28852,
+        "new": 28852,
+        "removed": 0
+      }
+    ]
+  }
+}
