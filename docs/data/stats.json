@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-02-26T18:12:31.926142+00:00",
+  "generated_at": "2026-02-26T21:50:17.471193+00:00",
   "cve": {
     "total": 1000,
-    "recent_24h": 88,
-    "kev_count": 7,
+    "recent_24h": 136,
+    "kev_count": 6,
     "severity": {
-      "None": 837,
-      "High": 71,
-      "Medium": 72,
-      "Critical": 12,
-      "Low": 8
+      "None": 813,
+      "High": 75,
+      "Medium": 89,
+      "Low": 11,
+      "Critical": 12
     },
     "daily_trend": [
       {
@@ -18,29 +18,33 @@
       },
       {
         "date": "2026-02-18",
-        "count": 887
+        "count": 839
       },
       {
         "date": "2026-02-26",
-        "count": 88
+        "count": 136
       }
     ],
     "top_vendors": [
       {
         "vendor": "n/a",
-        "count": 797
+        "count": 773
       },
       {
         "vendor": "Linux",
         "count": 26
       },
       {
-        "vendor": "Microsoft",
-        "count": 24
-      },
-      {
         "vendor": "NVIDIA",
         "count": 12
+      },
+      {
+        "vendor": "Microsoft",
+        "count": 12
+      },
+      {
+        "vendor": "ImageMagick",
+        "count": 7
       },
       {
         "vendor": "arcinfo",
@@ -51,20 +55,16 @@
         "count": 7
       },
       {
-        "vendor": "Dassault Systèmes",
+        "vendor": "Red Hat",
         "count": 6
       },
       {
-        "vendor": "Red Hat",
+        "vendor": "Dassault Systèmes",
         "count": 6
       },
       {
         "vendor": "free5gc",
         "count": 6
-      },
-      {
-        "vendor": "Bosch Rexroth",
-        "count": 5
       }
     ]
   },
