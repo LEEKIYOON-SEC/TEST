@@ -576,8 +576,7 @@ def check_for_official_rules() -> None:
                 has_official = any([
                     rules.get('sigma') and rules['sigma'].get('verified'),
                     any(r.get('verified') for r in rules.get('network', [])),
-                    rules.get('yara') and rules['yara'].get('verified'),
-                    rules.get('nuclei') and rules['nuclei'].get('verified')
+                    rules.get('yara') and rules['yara'].get('verified')
                 ])
                 
                 now_iso = datetime.datetime.now(KST).isoformat()

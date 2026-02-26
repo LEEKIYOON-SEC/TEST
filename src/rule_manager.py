@@ -18,6 +18,9 @@ class RuleManagerError(Exception):
 class RuleManager:
     # GitHub Code Search API 차단 상태 (클래스 수준 - 모든 인스턴스 공유)
     _code_search_blocked = False
+    # SigmaHQ/Yara-Rules tarball 캐시 (클래스 수준 - 한 번 다운로드 후 재사용)
+    _sigma_files: Dict[str, str] = {}
+    _yara_files: Dict[str, str] = {}
 
     def __init__(self):
         self.gh_token = os.environ.get("GH_TOKEN")
@@ -201,7 +204,99 @@ class RuleManager:
         
         else:
             return "unknown"
-    
+
+    # ====================================================================
+    # [1-2] SigmaHQ / Yara-Rules tarball 로컬 검색
+    # ====================================================================
+
+    def _download_sigma_repo(self):
+        """SigmaHQ/sigma tarball 다운로드 후 rules/*.yml 파일 캐시"""
+        if RuleManager._sigma_files:
+            return
+
+        logger.info("📥 SigmaHQ 룰셋 다운로드 중...")
+        headers = {"Authorization": f"token {self.gh_token}"} if self.gh_token else {}
+
+        try:
+            response = requests.get(
+                "https://api.github.com/repos/SigmaHQ/sigma/tarball",
+                headers=headers, timeout=60
+            )
+            response.raise_for_status()
+
+            count = 0
+            with tarfile.open(fileobj=io.BytesIO(response.content), mode="r:gz") as tar:
+                for member in tar.getmembers():
+                    if member.isfile() and member.name.endswith('.yml') and '/rules' in member.name:
+                        f = tar.extractfile(member)
+                        if f:
+                            content = f.read().decode('utf-8', errors='ignore')
+                            RuleManager._sigma_files[member.name] = content
+                            count += 1
+
+            logger.info(f"  ✅ SigmaHQ 로드 완료 ({count}개 룰)")
+        except Exception as e:
+            logger.warning(f"  ⚠️ SigmaHQ 다운로드 실패: {e}")
+
+    def _download_yara_repo(self):
+        """Yara-Rules/rules tarball 다운로드 후 *.yar 파일 캐시"""
+        if RuleManager._yara_files:
+            return
+
+        logger.info("📥 Yara-Rules 룰셋 다운로드 중...")
+        headers = {"Authorization": f"token {self.gh_token}"} if self.gh_token else {}
+
+        try:
+            response = requests.get(
+                "https://api.github.com/repos/Yara-Rules/rules/tarball",
+                headers=headers, timeout=60
+            )
+            response.raise_for_status()
+
+            count = 0
+            with tarfile.open(fileobj=io.BytesIO(response.content), mode="r:gz") as tar:
+                for member in tar.getmembers():
+                    if member.isfile() and (member.name.endswith('.yar') or member.name.endswith('.yara')):
+                        f = tar.extractfile(member)
+                        if f:
+                            content = f.read().decode('utf-8', errors='ignore')
+                            RuleManager._yara_files[member.name] = content
+                            count += 1
+
+            logger.info(f"  ✅ Yara-Rules 로드 완료 ({count}개 룰)")
+        except Exception as e:
+            logger.warning(f"  ⚠️ Yara-Rules 다운로드 실패: {e}")
+
+    def _search_local_sigma(self, cve_id: str) -> Optional[str]:
+        """SigmaHQ 로컬 캐시에서 CVE ID 검색"""
+        if not RuleManager._sigma_files:
+            self._download_sigma_repo()
+
+        cve_lower = cve_id.lower()
+        for filepath, content in RuleManager._sigma_files.items():
+            if cve_lower in content.lower():
+                filename = filepath.split('/')[-1]
+                logger.info(f"✅ SigmaHQ 로컬에서 발견: {filename}")
+                return content
+
+        logger.debug(f"❌ SigmaHQ 로컬: {cve_id} 없음")
+        return None
+
+    def _search_local_yara(self, cve_id: str) -> Optional[str]:
+        """Yara-Rules 로컬 캐시에서 CVE ID 검색"""
+        if not RuleManager._yara_files:
+            self._download_yara_repo()
+
+        cve_lower = cve_id.lower()
+        for filepath, content in RuleManager._yara_files.items():
+            if cve_lower in content.lower():
+                filename = filepath.split('/')[-1]
+                logger.info(f"✅ Yara-Rules 로컬에서 발견: {filename}")
+                return content
+
+        logger.debug(f"❌ Yara-Rules 로컬: {cve_id} 없음")
+        return None
+
     # ====================================================================
     # [2] 룰 검증 (정규식 기반)
     # ====================================================================
@@ -503,7 +598,21 @@ class RuleManager:
 Root Cause: {root_cause}
 Attack Scenario: {attack_scenario}
 """
-        
+
+        # Exploit-DB 참고 코드
+        exploit_section = ""
+        if cve_data.get('_exploit_db_snippet'):
+            exploit_section = f"""
+[Exploit Code (Exploit-DB)]
+Public exploit/PoC snippet. Extract concrete indicators from this:
+- HTTP paths, parameters, headers, methods
+- Specific payload strings or byte sequences
+- File paths, registry keys, command lines
+- Network ports, protocols
+
+{cve_data['_exploit_db_snippet']}
+"""
+
         base_prompt = f"""
 You are a Senior Detection Engineer specializing in {rule_type} rules.
 Write a valid {rule_type} detection rule for {cve_data['id']}.
@@ -519,17 +628,17 @@ CWE: {', '.join(cve_data.get('cwe', []))}
 
 [References]
 {references_str}
-{analysis_section}
+{analysis_section}{exploit_section}
 [CRITICAL REQUIREMENTS]
-1. **Observable Gate**: If no concrete indicator exists, return exactly: SKIP
-2. **No Hallucination**: Use ONLY what's in the description, references, and analysis
+1. **Observable Gate**: If no concrete indicator exists in ANY of the above sources, return exactly: SKIP
+2. **No Hallucination**: Use ONLY what's in the description, references, analysis, and exploit code
 3. **Syntax**: Follow standard {rule_type} syntax strictly
 4. **Product-Specific**: If affected products are known, tailor the rule
-5. **Conservative**: When uncertain, return SKIP
+5. **Exploit-Informed**: If exploit code is provided, extract concrete indicators (URLs, payloads, paths, parameters) from it
 
 [Output Format]
 - Return ONLY the raw rule code (no markdown, no explanation)
-- If insufficient information, return exactly: SKIP
+- If insufficient information across ALL sources, return exactly: SKIP
 """
         
         if rule_type in ["Snort", "Suricata", "snort", "suricata"]:
@@ -584,19 +693,26 @@ level: high
     # ====================================================================
     
     def get_rules(self, cve_data: Dict, feasibility: bool, analysis: Optional[Dict] = None) -> Dict:
-        rules = {"sigma": None, "network": [], "yara": None, "nuclei": None, "skip_reasons": {}}
+        rules = {"sigma": None, "network": [], "yara": None, "skip_reasons": {}}
         cve_id = cve_data['id']
-        
+
         logger.info(f"룰 수집 시작: {cve_id}")
-        
-        # ===== Sigma =====
-        public_sigma = self._search_github("SigmaHQ/sigma", f"{cve_id} filename:.yml")
+
+        # ===== Exploit-DB 참고 데이터 (AI 룰 생성 품질 향상용) =====
+        # AI 룰 생성 전에 먼저 수집하여 프롬프트에 포함
+        exploit_code = self._search_github("offensive-security/exploitdb", f"{cve_id}")
+        if exploit_code:
+            cve_data['_exploit_db_snippet'] = exploit_code[:3000]
+            logger.info(f"  📄 Exploit-DB PoC 발견: {cve_id}")
+
+        # ===== Sigma (tarball 로컬 검색) =====
+        public_sigma = self._search_local_sigma(cve_id)
         if public_sigma:
             rules['sigma'] = {
                 "code": public_sigma,
                 "source": "Public (SigmaHQ)",
                 "verified": True,
-                "indicators": None  # 공개 룰은 지표 정보 없음
+                "indicators": None
             }
         else:
             ai_result = self._generate_ai_rule("Sigma", cve_data, analysis)
@@ -606,26 +722,24 @@ level: high
                     "code": f"# ⚠️ AI-Generated - Review Required\n{ai_sigma}",
                     "source": "AI Generated (Validated)",
                     "verified": False,
-                    "indicators": indicators  # 지표 정보 포함
+                    "indicators": indicators
                 }
             else:
                 rules['skip_reasons']['sigma'] = self._get_skip_reason("Sigma", cve_data)
-        
+
         # ===== 네트워크 룰 (Snort + Suricata) =====
         network_rules = self._fetch_network_rules(cve_id)
-        
+
         if network_rules:
-            # 공개 룰이 하나라도 있으면 모두 추가
             for rule_info in network_rules:
                 rules['network'].append({
                     "code": rule_info["code"],
                     "source": f"Public ({rule_info['source']})",
                     "engine": rule_info["engine"],
                     "verified": True,
-                    "indicators": None  # 공개 룰은 지표 정보 없음
+                    "indicators": None
                 })
         else:
-            # 공개 룰이 없으면 항상 AI 생성 시도 (feasibility 무관)
             ai_result = self._generate_ai_rule("Snort", cve_data, analysis)
             if ai_result:
                 ai_network, indicators = ai_result
@@ -634,13 +748,13 @@ level: high
                     "source": "AI Generated (Regex Validated)",
                     "engine": "generic",
                     "verified": False,
-                    "indicators": indicators  # 지표 정보 포함
+                    "indicators": indicators
                 })
             else:
                 rules['skip_reasons']['network'] = self._get_skip_reason("Snort", cve_data)
-        
-        # ===== Yara =====
-        public_yara = self._search_github("Yara-Rules/rules", f"{cve_id} filename:.yar")
+
+        # ===== Yara (tarball 로컬 검색) =====
+        public_yara = self._search_local_yara(cve_id)
         if public_yara:
             rules['yara'] = {
                 "code": public_yara,
@@ -660,45 +774,25 @@ level: high
                 }
             else:
                 rules['skip_reasons']['yara'] = self._get_skip_reason("Yara", cve_data)
-        
-        # ===== Nuclei Template =====
-        nuclei_template = self._search_github(
-            "projectdiscovery/nuclei-templates", f"{cve_id} filename:.yaml"
-        )
-        if nuclei_template:
-            rules['nuclei'] = {
-                "code": nuclei_template,
-                "source": "Public (Nuclei Templates)",
-                "verified": True,
-                "indicators": None
-            }
-        
-        # ===== Exploit-DB (AI 룰 생성 참고용) =====
-        exploit_code = self._search_github(
-            "offensive-security/exploitdb", f"{cve_id}"
-        )
-        if exploit_code:
-            cve_data['_exploit_db_snippet'] = exploit_code[:2000]
-            logger.info(f"  📄 Exploit-DB 코드 발견: {cve_id}")
-        
+
         # 결과 요약
         sigma_found = "✅" if rules['sigma'] else "❌"
         network_count = len(rules['network'])
         network_found = f"✅ ({network_count}개)" if network_count > 0 else "❌"
         yara_found = "✅" if rules['yara'] else "❌"
-        nuclei_found = "✅" if rules['nuclei'] else "-"
-        
-        logger.info(f"룰 수집 완료: Sigma {sigma_found}, Snort/Suricata {network_found}, Yara {yara_found}, Nuclei {nuclei_found}")
-        
+        exploit_found = "✅" if cve_data.get('_exploit_db_snippet') else "❌"
+
+        logger.info(f"룰 수집 완료: Sigma {sigma_found}, Snort/Suricata {network_found}, Yara {yara_found}, ExploitDB {exploit_found}")
+
         return rules
     
     def search_public_only(self, cve_id: str) -> Dict:
-        rules = {"sigma": None, "network": [], "yara": None, "nuclei": None}
-        
+        rules = {"sigma": None, "network": [], "yara": None}
+
         logger.info(f"공개 룰 검색 (AI 미사용): {cve_id}")
-        
-        # Sigma
-        public_sigma = self._search_github("SigmaHQ/sigma", f"{cve_id} filename:.yml")
+
+        # Sigma (tarball 로컬 검색 - Code Search API 사용 안 함)
+        public_sigma = self._search_local_sigma(cve_id)
         if public_sigma:
             rules['sigma'] = {
                 "code": public_sigma,
@@ -706,8 +800,8 @@ level: high
                 "verified": True,
                 "indicators": None
             }
-        
-        # Snort/Suricata
+
+        # Snort/Suricata (기존 tarball 방식 유지)
         network_rules = self._fetch_network_rules(cve_id)
         if network_rules:
             for rule_info in network_rules:
@@ -718,9 +812,9 @@ level: high
                     "verified": True,
                     "indicators": None
                 })
-        
-        # Yara
-        public_yara = self._search_github("Yara-Rules/rules", f"{cve_id} filename:.yar")
+
+        # Yara (tarball 로컬 검색 - Code Search API 사용 안 함)
+        public_yara = self._search_local_yara(cve_id)
         if public_yara:
             rules['yara'] = {
                 "code": public_yara,
@@ -728,31 +822,18 @@ level: high
                 "verified": True,
                 "indicators": None
             }
-        
-        # Nuclei
-        nuclei_template = self._search_github(
-            "projectdiscovery/nuclei-templates", f"{cve_id} filename:.yaml"
-        )
-        if nuclei_template:
-            rules['nuclei'] = {
-                "code": nuclei_template,
-                "source": "Public (Nuclei Templates)",
-                "verified": True,
-                "indicators": None
-            }
-        
+
         # 결과 요약
         found = []
         if rules['sigma']: found.append("Sigma")
         if rules['network']: found.append(f"Network({len(rules['network'])})")
         if rules['yara']: found.append("Yara")
-        if rules['nuclei']: found.append("Nuclei")
-        
+
         if found:
             logger.info(f"  ✅ 공개 룰 발견: {', '.join(found)}")
         else:
             logger.debug(f"  공개 룰 없음: {cve_id}")
-        
+
         return rules
     
     def _get_skip_reason(self, rule_type: str, cve_data: Dict) -> str:
