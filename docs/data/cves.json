@@ -1,5 +1,1118 @@
 [
   {
+    "id": "CVE-2004-0444",
+    "title": "Symantec Norton 제품의 SYMDNS.SYS 취약점",
+    "description": "Symantec Norton Internet Security, Personal Firewall, AntiSpam, Client Firewall 및 Client Security 제품의 SYMDNS.SYS에서 NetBIOS Name Service (NBNS) 관련 여러 취약점이 발견되었습니다. 공격자는 조작된 NBNS 패킷을 통해 서비스 거부(DoS) 공격을 유발하거나 임의 코드를 실행할 수 있습니다. 또한, DNS 응답 처리 과정에서의 힙 손상 및 긴 CNAME 필드로 인한 스택 버퍼 오버플로우 문제도 존재합니다.",
+    "cvss": 0,
+    "epss": 0.6285,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:12:25.715298+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0445",
+    "title": "Symantec Norton 제품의 서비스 거부 취약점",
+    "description": "Symantec Norton Internet Security, Personal Firewall, AntiSpam 및 Client Security 제품의 SYMDNS.SYS 드라이버에서 서비스 거부(CPU 과부하)를 유발할 수 있는 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0.34322,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:12:25.566102+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0437",
+    "title": "Titan FTP 서버 서비스 거부 취약점 (버전 3.01 build 163 및 이전)",
+    "description": "Titan FTP 서버 3.01 build 163 버전 및 그 이전 빌드(169 이전)에서 인증된 원격 사용자가 \"LIST -L\" 명령 실행 중 시스템 연결을 끊으면, 유효하지 않은 소켓에 접근하여 서비스 거부(크래시)를 유발할 수 있습니다.",
+    "cvss": 0,
+    "epss": 0.00626,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:12:22.944548+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0435",
+    "title": "FreeBSD msync 시스템 호출의 캐시 일관성 문제",
+    "description": "FreeBSD 5.2.1 및 이전 버전, 4.10 및 이전 버전의 msync 시스템 호출에서 특정 프로그래밍 오류로 인해 MS_INVALIDATE 작업이 제대로 처리되지 않습니다. 이로 인해 로컬 사용자가 파일 변경 사항이 디스크에 기록되는 것을 방지하는 캐시 일관성 문제가 발생할 수 있습니다.",
+    "cvss": 0,
+    "epss": 0.00081,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:12:19.008989+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0434",
+    "title": "Heimdal k5admind 서비스 취약점",
+    "description": "Heimdal의 k5admind (kadmind) 서비스에서 Kerberos 4 호환 관리 요청 처리 시 프레임 길이를 제대로 검증하지 않아 힙 기반 버퍼 오버플로우가 발생할 수 있습니다. 이를 통해 원격 공격자가 임의 코드를 실행할 수 있습니다. 프레임 길이가 2보다 작은 요청에서 취약점이 발생합니다.",
+    "cvss": 0,
+    "epss": 0.22372,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:12:16.971753+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0433",
+    "title": "MPlayer 및 xine 라이브러리의 RTSP 클라이언트 버퍼 오버플로우 취약점",
+    "description": "MPlayer 1.0pre4 이전 버전 및 xine-lib 1-rc4 이전 버전의 RTSP 클라이언트에서 Real RTSP 스트림 재생 시 버퍼 오버플로우 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0.03088,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:12:16.532759+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0432",
+    "title": "ProFTPD 1.2.9 접근 제어 우회 가능성",
+    "description": "ProFTPD 1.2.9 버전에서 CIDR 기반 ACL 항목의 Allow 및 Deny 지시어가 AllowAll로 처리되어, FTP 클라이언트가 의도된 접근 제한을 우회할 수 있습니다.",
+    "cvss": 0,
+    "epss": 0.01235,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:12:11.602858+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0430",
+    "title": "AppleFileServer 스택 기반 버퍼 오버플로우 취약점",
+    "description": "Mac OS X 10.3.3 및 이전 버전의 AppleFileServer에서 발견된 스택 기반 버퍼 오버플로우 취약점을 통해 원격 공격자가 임의 코드를 실행할 수 있습니다. 이는 Cleartext Password UAM 요청의 LoginExt 패킷 내 AFPName 타입 문자열의 길이가 해당 길이 필드보다 길 때 발생합니다. 취약점을 악용하여 시스템 제어를 탈취할 수 있습니다.",
+    "cvss": 0,
+    "epss": 0.82413,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:12:09.937322+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0431",
+    "title": "Apple QuickTime 정수 오버플로우 취약점 (QuickTime.qts)",
+    "description": "Apple QuickTime 6.5.1 이전 버전에서 .mov 파일의 샘플-청크 테이블 데이터 내 \"엔트리 수\" 필드 값이 과도하게 클 경우, 정수 오버플로우를 통해 힙 기반 버퍼 오버플로우가 발생할 수 있습니다. 이를 악용하여 공격자가 임의 코드를 실행할 수 있습니다.",
+    "cvss": 0,
+    "epss": 0.00773,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:12:08.732866+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0429",
+    "title": "RAdmin (Mac OS X) 대용량 요청 처리 관련 취약점",
+    "description": "RAdmin (Apple Mac OS X 10.3.3 및 10.2.8용)의 대용량 요청 처리 방식과 관련된 알려지지 않은 취약점이 존재합니다.",
+    "cvss": 0,
+    "epss": 0.0064,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:12:04.284908+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0428",
+    "title": "CoreFoundation 취약점 (Mac OS X 10.3.3 및 10.3.3 Server)",
+    "description": "Mac OS X 10.3.3 및 10.3.3 Server의 CoreFoundation에서 환경 변수 처리와 관련된 알 수 없는 취약점이 발견되었습니다. 공격 벡터 및 영향은 아직 파악되지 않았습니다. 추가 정보가 필요합니다.",
+    "cvss": 0,
+    "epss": 0.00666,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:12:02.074226+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0427",
+    "title": "리눅스 do_fork 함수 메모리 누수 취약점",
+    "description": "리눅스 2.4.x (2.4.26 이전) 및 2.6.x (2.6.6 이전) 버전의 do_fork 함수에서 자식 프로세스 mm_struct 활성화 후 오류 발생 시 mm_count 카운터 감소를 제대로 처리하지 않아 메모리 누수가 발생합니다.",
+    "cvss": 0,
+    "epss": 0.00164,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:11:58.460758+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0426",
+    "title": "rsync 2.6.1 이전 버전의 경로 탐색 취약점",
+    "description": "rsync 2.6.1 이전 버전은 chroot를 사용하지 않고 읽기/쓰기 데몬을 실행할 때 경로를 제대로 소독하지 않아 원격 공격자가 모듈 경로 외부에 파일을 쓸 수 있는 취약점이 존재합니다.",
+    "cvss": 0,
+    "epss": 0.03446,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:11:56.9604+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0425",
+    "title": "SiteMinder Affiliate Agent 4.x 힙 기반 버퍼 오버플로우 취약점",
+    "description": "SiteMinder Affiliate Agent 4.x 버전에서 대용량 SMPROFILE 쿠키를 통해 원격 공격자가 임의 코드를 실행할 수 있는 힙 기반 버퍼 오버플로우 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0.0532,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:11:55.444218+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0424",
+    "title": "리눅스 커널 ip_setsockopt 함수 정수 오버플로우 취약점",
+    "description": "리눅스 커널 2.4.22~2.4.25 및 2.6.1~2.6.3 버전의 ip_setsockopt 함수에서 정수 오버플로우 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0.00243,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:11:52.626435+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0423",
+    "title": "ssmtp 2.50.6 및 이전 버전의 임의 파일 덮어쓰기 취약점",
+    "description": "ssmtp 2.50.6 이하 버전의 `log_event` 함수에서 심볼릭 링크 공격을 통해 임시 로그 파일(ssmtp.log)을 덮어써 임의 파일 덮어쓰기가 가능합니다. 로컬 사용자가 악용할 수 있는 취약점입니다.",
+    "cvss": 0,
+    "epss": 0.00112,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:11:47.973511+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0422",
+    "title": "1.14.3 이전 버전의 Emacs 임시 파일 보안 취약점",
+    "description": "1.14.3 이전 Emacs 버전은 임시 파일을 안전하지 않게 생성하여, 로컬 사용자가 심볼릭 링크 공격을 통해 Emacs 사용자 계정의 임의 파일을 덮어쓸 수 있는 취약점이 존재합니다.",
+    "cvss": 0,
+    "epss": 0.00121,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:11:47.573125+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0421",
+    "title": "libpng 1.0.15 및 이전 버전의 서비스 거부 취약점",
+    "description": "libpng 1.0.15 및 이전 버전에서 조작된 PNG 이미지 파일을 통해 오류 메시지 생성 시 경계 외 읽기 오류를 발생시켜 서비스 거부(크래시)를 유발할 수 있는 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0.03307,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:11:42.671609+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0420",
+    "title": "Windows Shell 파일 유형 스푸핑 취약점",
+    "description": "Windows 98, ME, NT 4.0, 2000, XP, Server 2003의 Windows Shell 애플리케이션에서 파일명 내 CLSID 지정자를 이용한 파일 유형 스푸핑을 통해 원격 공격자가 임의 코드를 실행할 수 있습니다.",
+    "cvss": 0,
+    "epss": 0.4754,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:11:40.529399+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0418",
+    "title": "CVS 1.12.x 및 1.11.x serve_notify 취약점",
+    "description": "CVS 1.12.8 이하 및 1.11.16 이하 버전에서 빈 데이터 라인을 제대로 처리하지 못하는 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0.14279,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:11:40.156531+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0419",
+    "title": "XFree86의 XDM 포트 관련 취약점",
+    "description": "XFree86의 XDM은 DisplayManager.requestPort가 0일 때에도 chooserFd TCP 소켓을 열어,",
+    "cvss": 0,
+    "epss": 0.02796,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:11:36.495946+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0417",
+    "title": "CVS Max-dotdot 프로토콜 명령어 정수 오버플로우 취약점",
+    "description": "CVS 1.12.x (1.12.8 이하) 및 1.11.x (1.11.16 이하) 버전의 \"Max-dotdot\" 프로토콜 명령어(serve_max_dotdot)에서 정수 오버플로우 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0.04491,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:11:32.994079+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0416",
+    "title": "CVS 1.12.x 및 1.11.x 버전의 이중 해제 취약점",
+    "description": "CVS 1.12.8 및 1.11.16 이하 버전에서 `error_prog_name` 문자열 관련 이중 해제 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0.40607,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:11:28.233212+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0415",
+    "title": "리눅스 커널 64비트 파일 오프셋 처리 취약점",
+    "description": "리눅스 커널이 64비트 파일 오프셋 포인터를 32비트로 변환하는 과정에서 오류가 발생합니다.",
+    "cvss": 0,
+    "epss": 0.00299,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:11:28.002371+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0411",
+    "title": "KDE 3.2.2 이하 Konqueror URI 핸들러 취약점",
+    "description": "KDE 3.2.2 이하 버전의 Konqueror에서 telnet, rlogin, ssh, mailto URI의 호스트 이름 시작 부분의 \"-\" 문자를 제대로 필터링하지 못합니다.",
+    "cvss": 0,
+    "epss": 0.06491,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:11:25.245094+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0413",
+    "title": "Subversion 1.0.4의 libsvn_ra_svn 취약점",
+    "description": "Subversion 1.0.4의 libsvn_ra_svn 라이브러리가 svn://, svn+ssh:// 등 SVN 프로토콜 URL 문자열의 길이 필드를 신뢰하여, 정수 오버플로우를 통한 힙 기반 버퍼 오버플로우를 발생시킬 수 있습니다. 이는 서비스 거부(메모리 소모) 및 잠재적인 임의 코드 실행으로 이어질 수 있습니다.",
+    "cvss": 0,
+    "epss": 0.10823,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:11:21.827763+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0414",
+    "title": "CVS 1.12.x 및 1.11.x 취약점",
+    "description": "CVS 1.12.x (1.12.8 이하) 및 1.11.x (1.11.16 이하) 버전에서 잘못된 형식의 \"Entry\" 라인을 처리하지 못하는 문제가 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0.05252,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:11:21.538027+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0412",
+    "title": "Mailman 2.1.5 이전 버전의 사용자 비밀번호 탈취 가능성",
+    "description": "Mailman 2.1.5 이전 버전에서, 공격자가 조작된 이메일 요청을 Mailman 서버에 보내 사용자 비밀번호를 획득할 수 있는 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0.03733,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:11:16.529269+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0409",
+    "title": "XChat Socks-5 프록시 코드 스택 기반 버퍼 오버플로우 취약점",
+    "description": "XChat 1.8.0부터 2.0.8 버전에서 Socks5 트래버설 기능 활성화 시, 스택 기반 버퍼 오버플로우 취약점을 통해 원격 공격자가 임의 코드를 실행할 수 있습니다. 이는 Socks-5 프록시 코드에 존재하는 문제입니다.",
+    "cvss": 0,
+    "epss": 0.30771,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:11:15.129183+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0408",
+    "title": "identd 데몬의 child_service 함수 버퍼 오버플로우 취약점",
+    "description": "ident2 ident 데몬의 child_service 함수에서 버퍼 오버플로우 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0.03422,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:11:13.315918+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0405",
+    "title": "CVS 1.11 이전 버전의 임의 파일 읽기 취약점",
+    "description": "CVS 클라이언트 요청 시 파일 이름에 \"..\" (점점) 시퀀스를 사용하여 임의 파일을 읽을 수 있는 취약점입니다. 이는 CVE-2004-0180과는 다른 문제입니다. CVS 1.11 이전 버전에 해당됩니다.",
+    "cvss": 0,
+    "epss": 0.01406,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:11:11.21778+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0407",
+    "title": "ColdFusion MX 6.1 HTML 폼 업로드 디스크 공간 고갈 취약점",
+    "description": "ColdFusion MX 6.1의 HTML 폼 업로드 기능은 업로드 중단 시 디스크 공간을 회수하지 않습니다.",
+    "cvss": 0,
+    "epss": 0.03852,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:11:10.687939+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0404",
+    "title": "logcheck 1.1.1 이전 버전의 임의 파일 덮어쓰기 취약점",
+    "description": "logcheck 1.1.1 이전 버전에서 /var/tmp의 임시 디렉토리에 대한 심볼릭 링크 공격을 통해 로컬 사용자가 임의 파일을 덮어쓸 수 있는 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0.00076,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:11:07.540086+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0402",
+    "title": "xpcd xpcd-svga 버퍼 오버플로우 취약점",
+    "description": "xpcd 2.08 이전 버전의 xpcd-svga에서 버퍼 오버플로우 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0.00098,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:11:04.251572+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0403",
+    "title": "Racoon ISAKMP 패킷 DoS 취약점",
+    "description": "20040408a 버전 이전의 Racoon에서 큰 길이 필드를 가진 ISAKMP 패킷을 통해 서비스 거부(메모리 소모)를 유발할 수 있는 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0.13257,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:11:04.112133+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0401",
+    "title": "libtasn1 DER 파싱 취약점",
+    "description": "libtasn1 0.1.x (0.1.2 미만) 및 0.2.x (0.2.7 미만) 버전에서 DER 파싱 함수 관련 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0.00864,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:11:01.201815+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0400",
+    "title": "Exim 4 헤더 검사 시 스택 기반 버퍼 오버플로우 취약점",
+    "description": "Exim 4 버전 4.33 이전 버전에서 `headers_check_syntax` 옵션이 활성화된 경우, 원격 공격자가 헤더 검사 과정에서 서비스 거부(DoS)를 유발하거나 임의 코드를 실행할 수 있는 스택 기반 버퍼 오버플로우 취약점이 존재합니다. 이 취약점을 악용하면 시스템 제어 권한을 획득할 가능성도 있습니다.",
+    "cvss": 0,
+    "epss": 0.06391,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:10:56.163265+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0398",
+    "title": "neon 라이브러리의 날짜 파싱 취약점",
+    "description": "neon 라이브러리(libneon) 0.24.5 이하 버전의 `ne_rfc1036_parse` 함수에서 힙 기반 버퍼 오버플로우 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0.04803,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:10:55.83501+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0399",
+    "title": "Exim 3.35 및 이전 버전의 스택 기반 버퍼 오버플로우 취약점",
+    "description": "sender_verify 옵션이 활성화된 Exim 3.35 및 4 이전 버전에서 원격 공격자가 발신자 확인 과정 중 서비스 거부(DoS)를 유발하거나 임의 코드를 실행할 수 있는 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. 이 취약점은 발신자 확인 과정에서 발생합니다.",
+    "cvss": 0,
+    "epss": 0.42079,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:10:54.124761+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0397",
+    "title": "Subversion 1.0.2 및 이전 버전의 apr_time_t 데이터 변환 중 스택 기반 버퍼 오버플로우",
+    "description": "Subversion 1.0.2 이하 버전에서 DAV2 REPORT 쿼리 또는 get-dated-rev svn-protocol 명령어를 통해 원격 공격자가 임의 코드를 실행할 수 있는 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. 이 취약점은 apr_time_t 데이터 변환 과정에서 발생합니다.",
+    "cvss": 0,
+    "epss": 0.86588,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:10:48.814138+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0395",
+    "title": "gatos 패키지의 xatitv 프로그램 권한 상승 취약점",
+    "description": "gatos 패키지의 xatitv 프로그램이 설정 파일이 존재하지 않을 경우 root 권한을 제대로 해제하지 못합니다.",
+    "cvss": 0,
+    "epss": 0.00063,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:10:45.791567+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0396",
+    "title": "CVS 1.11.x 및 1.12.x pserver 메커니즘 기반 힙 기반 버퍼 오버플로우 취약점",
+    "description": "CVS 1.11.15 이하 및 1.12.7 이하 버전에서 pserver 메커니즘을 사용할 때, Entry 라인을 통해 원격 공격자가 임의 코드를 실행할 수 있는 힙 기반 버퍼 오버플로우 취약점이 존재합니다.",
+    "cvss": 0,
+    "epss": 0.86593,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:10:45.609952+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0394",
+    "title": "Linux 2.4.x 패닉() 함수 잠재적 버퍼 오버플로우",
+    "description": "Linux 2.4.x 버전의 패닉() 함수에 버퍼 오버플로우 취약점이 존재할 가능성이 있습니다.",
+    "cvss": 0,
+    "epss": 0.00155,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:10:41.929691+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0393",
+    "title": "rlpr 데몬(rlprd) 2.0.4의 형식 문자열 취약점",
+    "description": "rlpr 데몬의 msg 함수에서 형식 문자열 지정자를 통해 임의 코드 실행이 가능한 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0.14629,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:10:39.712439+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0392",
+    "title": "racoon 취약점 (20040407b 이전 버전)",
+    "description": "20040407b 이전 버전의 racoon에서 악의적으로 조작된 IKE 메시지를 통해 서비스 거부(무한 루프 및 연결 끊김)를 유발할 수 있는 취약점이 발견되었습니다. 특히, Generic Payload Header 내의 잘못된 \"Security Association Next Payload\" 및 \"RESERVED\" 필드 값이 원인입니다. 원격 공격자가 이 취약점을 악용할 수 있습니다.",
+    "cvss": 0,
+    "epss": 0.00928,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:10:38.212255+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0390",
+    "title": "SCO OpenServer X 세션 무단 접근 취약점",
+    "description": "SCO OpenServer 5.0.5~5.0.7은 scologin을 통해 로그인하는 경우에만 Xauthority 방식의 접근 제어를 지원합니다.",
+    "cvss": 0,
+    "epss": 0.03359,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:10:36.313064+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0391",
+    "title": "시스코 무선 LAN 솔루션 엔진 및 호스팅 솔루션 엔진 보안 취약점",
+    "description": "시스코 WLSE 2.0~2.5 및 HSE 1.7~1.7.3에 하드코딩된 사용자 이름과 비밀번호가 존재합니다.",
+    "cvss": 0,
+    "epss": 0.00798,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:10:34.605359+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2004-0389",
+    "title": "RealNetworks Helix Universal Server 9.0.1/9.0.2 서비스 거부 취약점",
+    "description": "RealNetworks Helix Universal Server 9.0.1 및 9.0.2 버전에서 조작된 요청으로 인해 널 포인터 역참조가 발생하여 서비스 거부(크래시)를 유발할 수 있는 취약점이 발견되었습니다. GET_PARAMETER 또는 DESCRIBE 요청을 통해 공격이 가능합니다.",
+    "cvss": 0,
+    "epss": 0.08061,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T18:10:31.067023+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-1283",
+    "title": "SOLIDWORKS eDrawings EPRT 파일 읽기 절차 힙 기반 버퍼 오버플로우 취약점",
+    "description": "SOLIDWORKS eDrawings 2025 및 2026 버전에서 EPRT 파일 읽기 절차에 힙 기반 버퍼 오버플로우 취약점이 존재합니다. 악의적으로 조작된 EPRT 파일을 열 경우, 공격자가 임의 코드를 실행할 수 있습니다. 이 취약점을 악용하면 시스템 제어 권한을 탈취당할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 6e-05,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "Dassault Systèmes",
+        "product": "SOLIDWORKS eDrawings",
+        "versions": "Release SOLIDWORKS Desktop 2025 SP0 부터 Release SOLIDWORKS Desktop 2025 SP5 이하, Release SOLIDWORKS Desktop 2026 SP0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/29",
+    "date": "2026-02-18T06:45:34.872759+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1333",
+    "title": "SOLIDWORKS eDrawings EPRT 파일 읽기 절차의 초기화되지 않은 변수 사용 취약점",
+    "description": "SOLIDWORKS eDrawings 2025 및 2026 데스크톱 버전에서 EPRT 파일 읽기 절차의 초기화되지 않은 변수 사용 취약점이 발견되었습니다.",
+    "cvss": 7.8,
+    "epss": 0.00015,
+    "is_kev": false,
+    "cwe": [
+      "CWE-457"
+    ],
+    "affected": [
+      {
+        "vendor": "Dassault Systèmes",
+        "product": "SOLIDWORKS eDrawings",
+        "versions": "Release SOLIDWORKS Desktop 2025 SP0 부터 Release SOLIDWORKS Desktop 2025 SP5 이하, Release SOLIDWORKS Desktop 2026 SP0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/20",
+    "date": "2026-02-17T15:54:21.623142+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-60035",
+    "title": "Rexroth IndraWorks OPC.Testclient 원격 코드 실행 취약점",
+    "description": "Rexroth IndraWorks에 포함된 OPC.Testclient 유틸리티에서 악성 직렬화 데이터를 포함하는 조작된 파일을 파싱하여 임의 코드 실행이 가능한 취약점이 발견되었습니다. 사용자 상호 작용(특정 파일을 열기)을 통해 악성 데이터가 역직렬화되어 시스템을 완전히 손상시킬 수 있습니다. 15V24 버전 이전의 모든 버전이 영향을 받습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "Bosch Rexroth",
+        "product": "IndraWorks",
+        "versions": "15V24 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/33",
+    "date": "2026-02-18T15:11:20.370989+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-26368",
+    "title": "JUNG eNet SMART HOME 서버 2.2.1/2.3.1 계정 탈취 취약점 (resetUserPassword)",
+    "description": "eNet SMART HOME 서버 2.2.1 및 2.3.1 버전에서 resetUserPassword JSON-RPC 메서드의 권한 확인 부재로 인해, 인증된 일반 사용자(UG_USER)가 관리자 계정(UG_ADMIN, UG_SUPER_ADMIN 포함)의 비밀번호를 현재 비밀번호 없이 재설정할 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0.00039,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "JUNG",
+        "product": "eNet SMART HOME server",
+        "versions": "2.3.1 (46841) (단일 버전), 2.2.1 (46056) (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/23",
+    "date": "2026-02-17T18:44:23.713131+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-24853",
+    "title": "Caido DNS 재바인딩 취약점을 통한 RCE 가능성",
+    "description": "Caido는 웹 보안 감사 도구입니다. 0.55.0 이전 버전에서 8080 포트를 통한 화이트리스트 외 도메인 접근을 차단하지만, X-Forwarded-Host 헤더 삽입을 통해 우회될 수 있습니다. 이 취약점은 0.55.0 버전에서 해결되었습니다.",
+    "cvss": 8.1,
+    "epss": 0.00041,
+    "is_kev": false,
+    "cwe": [
+      "CWE-290"
+    ],
+    "affected": [
+      {
+        "vendor": "caido",
+        "product": "caido",
+        "versions": "< 0.55.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/22",
+    "date": "2026-02-17T15:56:41.603843+00:00",
+    "severity": "High"
+  },
+  {
     "id": "CVE-2026-26965",
     "title": "FreeRDP의 경계 외 쓰기 취약점",
     "description": "FreeRDP는 원격 데스크톱 프로토콜의 무료 구현입니다. 3.23.0 버전 이전에서 RLE 평면 디코딩 경로에서 공격자가 제어하는 오프셋과 픽셀 데이터를 사용하여 FreeRDP 클라이언트의 힙에 경계 외 쓰기를 수행할 수 있습니다. 이 취약점은 함수 포인터 덮어쓰기를 통해 제어 흐름을 탈취할 수 있으며, 3.23.0 버전에서 수정되었습니다.",
@@ -14421,27 +15534,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2025-60035",
-    "title": "Rexroth IndraWorks OPC.Testclient 원격 코드 실행 취약점",
-    "description": "Rexroth IndraWorks에 포함된 OPC.Testclient 유틸리티에서 악성 직렬화 데이터를 포함하는 조작된 파일을 파싱하여 임의 코드 실행이 가능한 취약점이 발견되었습니다. 사용자 상호 작용(특정 파일을 열기)을 통해 악성 데이터가 역직렬화되어 시스템을 완전히 손상시킬 수 있습니다. 15V24 버전 이전의 모든 버전이 영향을 받습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-502"
-    ],
-    "affected": [
-      {
-        "vendor": "Bosch Rexroth",
-        "product": "IndraWorks",
-        "versions": "15V24 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/33",
-    "date": "2026-02-18T15:11:20.370989+00:00",
-    "severity": "High"
-  },
-  {
     "id": "CVE-2013-0139",
     "title": "Arecont Vision AV1355DN 카메라 서비스 거부 취약점",
     "description": "Arecont Vision AV1355DN MegaDome 카메라에서 UDP 포트 69로 전송되는 패킷을 통해 원격 공격자가 서비스 거부(비디오 캡처 중단)를 유발할 수 있습니다.",
@@ -16410,48 +17502,6 @@
     "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/30",
     "date": "2026-02-18T06:45:41.13979+00:00",
     "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-1283",
-    "title": "SOLIDWORKS eDrawings EPRT 파일 읽기 절차 힙 기반 버퍼 오버플로우 취약점",
-    "description": "SOLIDWORKS eDrawings 2025 및 2026 버전에서 EPRT 파일 읽기 절차에 힙 기반 버퍼 오버플로우 취약점이 존재합니다. 악의적으로 조작된 EPRT 파일을 열 경우, 공격자가 임의 코드를 실행할 수 있습니다. 이 취약점을 악용하면 시스템 제어 권한을 탈취당할 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 6e-05,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "Dassault Systèmes",
-        "product": "SOLIDWORKS eDrawings",
-        "versions": "Release SOLIDWORKS Desktop 2025 SP0 부터 Release SOLIDWORKS Desktop 2025 SP5 이하, Release SOLIDWORKS Desktop 2026 SP0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/29",
-    "date": "2026-02-18T06:45:34.872759+00:00",
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-1333",
-    "title": "SOLIDWORKS eDrawings EPRT 파일 읽기 절차의 초기화되지 않은 변수 사용 취약점",
-    "description": "SOLIDWORKS eDrawings 2025 및 2026 데스크톱 버전에서 EPRT 파일 읽기 절차의 초기화되지 않은 변수 사용 취약점이 발견되었습니다.",
-    "cvss": 7.8,
-    "epss": 0.00015,
-    "is_kev": false,
-    "cwe": [
-      "CWE-457"
-    ],
-    "affected": [
-      {
-        "vendor": "Dassault Systèmes",
-        "product": "SOLIDWORKS eDrawings",
-        "versions": "Release SOLIDWORKS Desktop 2025 SP0 부터 Release SOLIDWORKS Desktop 2025 SP5 이하, Release SOLIDWORKS Desktop 2026 SP0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/20",
-    "date": "2026-02-17T15:54:21.623142+00:00",
-    "severity": "High"
   },
   {
     "id": "CVE-2026-1602",
@@ -20153,1086 +21203,6 @@
     ],
     "report_url": null,
     "date": "2026-02-18T00:17:53.026261+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-5345",
-    "title": "IpTools 원격 명령 서버 버퍼 오버플로우 취약점",
-    "description": "IpTools 0.1.4 버전의 Rcmd.bat에서 긴 문자열을 TCP 23번 포트로 전송하여 서비스 거부(크래시)를 유발하는 버퍼 오버플로우 취약점이 발견되었습니다. 원격 공격자가 해당 취약점을 악용할 수 있습니다.",
-    "cvss": 0,
-    "epss": 0.09654,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:52.147806+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-4110",
-    "title": "Cisco UCS fabric-interconnect run-script 취약점",
-    "description": "Cisco Unified Computing System(UCS)의 fabric-interconnect 구성 요소 내 run-script 기능에서, 로컬 사용자가 특정 파라미터에 명령어를 삽입하여 권한을 획득할 수 있는 취약점(Bug ID CSCtq86560)이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0.0008,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:50.388527+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-3984",
-    "title": "Mozilla Firefox, Thunderbird, SeaMonkey 보안 취약점",
-    "description": "Mozilla Firefox 16.0 이전 버전, Thunderbird 16.0 이전 버전, SeaMonkey 2.13 이전 버전에서 SELECT 요소의 메뉴가 활성화된 웹 페이지에서 이탈 시 적절하게 처리하지 못하는 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0.01951,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:50.153403+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-3887",
-    "title": "AirDroid 1.0.7 베타 이전 버전의 보안 취약점",
-    "description": "AirDroid 1.0.7 베타 이전 버전은 데이터 전송 시 암호화되지 않은 base64 형식을 사용하여 \"암호화 전송\" 기능으로 오해를 줍니다.",
-    "cvss": 0,
-    "epss": 0.0025,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:49.114187+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-2671",
-    "title": "Rack::Cache 취약점 (0.3.0 ~ 1.1)",
-    "description": "Rack::Cache rubygem 0.3.0부터 1.1 버전까지에서 Set-Cookie 및 기타 민감한 헤더 정보를 캐싱하여 공격자가 캐시에 접근, 민감한 쿠키 정보를 탈취하거나 웹 세션을 가로챌 수 있는 취약점이 발견되었습니다. 이로 인해 다른 보안 문제가 발생할 가능성도 있습니다.",
-    "cvss": 0,
-    "epss": 0.00639,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:47.237023+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-5492",
-    "title": "Plone uid_catalog.py 취약점",
-    "description": "Plone 4.2.3 이전 버전 및 4.3 베타 1 이전 버전의 uid_catalog.py 파일에서, 조작된 URL을 통해 숨겨진 객체에 대한 메타데이터를 탈취할 수 있는 원격 공격 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0.00319,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:46.80801+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-4004",
-    "title": "Sleipnir Mobile 앱 XSS 취약점",
-    "description": "Sleipnir Mobile 및 Sleipnir Mobile Black Edition 앱 2.2.0 이하 버전에서 악성 앱을 통해 임의의 웹 스크립트 또는 HTML을 삽입할 수 있는 교차 사이트 스크립팅(XSS) 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0.00285,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:45.636676+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-3871",
-    "title": "Open Constructor 3.12.0 XSS 취약점",
-    "description": "Open Constructor 3.12.0의 data/hybrid/i_hybrid.php 파일에 인증된 원격 사용자가 헤더 파라미터를 통해 임의의 웹 스크립트 또는 HTML을 삽입할 수 있는 XSS 취약점이 존재합니다. 이를 악용하여 악성 스크립트 실행이 가능합니다.",
-    "cvss": 0,
-    "epss": 0.00224,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:43.916985+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-21517",
-    "title": "Mac용 Windows 앱 설치 관리자 권한 상승 취약점",
-    "description": "Mac용 Windows 앱 설치 관리자에서 권한 상승 취약점이 발견되었습니다.",
-    "cvss": 4.7,
-    "epss": 0.00025,
-    "is_kev": false,
-    "cwe": [
-      "CWE-59"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows App for Mac",
-        "versions": "11.0.0 부터 11.3.2 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:43.420091+00:00",
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2012-5333",
-    "title": "Pre Printing Press 페이지 PHP SQL 삽입 취약점",
-    "description": "Pre Printing Press의 page.php 파일에서 id 파라미터를 통해 임의의 SQL 명령 실행이 가능한 SQL 삽입 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0.0107,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:42.380278+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-21260",
-    "title": "Microsoft Outlook 스푸핑 취약점",
-    "description": "Microsoft Outlook에서 스푸핑이 가능한 취약점이 발견되었습니다.",
-    "cvss": 7.5,
-    "epss": 0.00059,
-    "is_kev": false,
-    "cwe": [
-      "CWE-200"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft 365 Apps for Enterprise",
-        "versions": "16.0.1 부터 https://aka.ms/OfficeSecurityReleases 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Office 2019",
-        "versions": "19.0.0 부터 https://aka.ms/OfficeSecurityReleases 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Office LTSC 2021",
-        "versions": "16.0.1 부터 https://aka.ms/OfficeSecurityReleases 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:40.472358+00:00",
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2012-5260",
-    "title": "Adobe Flash Player 및 AIR 취약점 (버퍼 오버플로우)",
-    "description": "Adobe Flash Player, AIR 및 AIR SDK에서 버퍼 오버플로우 취약점이 발견되었습니다. 공격자는 이 취약점을 이용하여 임의의 코드를 실행할 수 있습니다. Windows, Mac OS X, Linux, Android 등 다양한 운영체제 및 버전에서 영향을 받습니다.",
-    "cvss": 0,
-    "epss": 0.06407,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:40.437887+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-5323",
-    "title": "Xavi X7968 관리자 인증 탈취 가능성 (CSRF 취약점)",
-    "description": "Xavi X7968의 webconfig/admin_passwd/passwd.html/admin_passwd에서 CSRF 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0.00402,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:39.606997+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-5591",
-    "title": "Drupal Zero Point 모듈 XSS 취약점",
-    "description": "Drupal Zero Point 모듈 6.x-1.x (6.x-1.18 이전) 및 7.x-1.x (7.x-1.4 이전) 버전에서 교차 사이트 스크립팅(XSS) 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0.00285,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:37.59986+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-3848",
-    "title": "Plixer Scrutinizer 웹 콘솔의 다중 XSS 취약점",
-    "description": "Plixer Scrutinizer 9.5.0 이전 버전에 존재하는 다수의 교차 사이트 스크립팅(XSS) 취약점을 통해 원격 공격자가 악성 웹 스크립트 또는 HTML을 삽입할 수 있습니다. 취약점은 d4d/exporters.php의 쿼리 문자열, HTTP Referer 헤더, 그리고 d4d/contextMenu.php의 특정 입력에서 발생합니다. 이를 악용하면 임의의 스크립트 실행이 가능합니다.",
-    "cvss": 0,
-    "epss": 0.00566,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:36.246719+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-2836",
-    "title": "libexif 라이브러리 EXIF 태그 파싱 취약점",
-    "description": "libexif 0.6.21 이전 버전의 exif_data_load_data 함수에서 조작된 EXIF 태그를 포함하는 이미지를 통해 서비스 거부(경계 외 읽기) 또는 민감한 정보 유출이 발생할 수 있습니다. 이는 원격 공격자가 악용 가능합니다.",
-    "cvss": 0,
-    "epss": 0.02368,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:34.203698+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-2799",
-    "title": "FFmpeg wmalosslessdec.c 취약점 (CVE 미정)",
-    "description": "FFmpeg 0.11 이전 버전의 libavcodec/wmalosslessdec.c 파일에서 발견된 취약점으로, \"num_saved_bits가 재설정될 때 비트 버퍼를 배치\"하는 과정과 관련이 있습니다. 영향 및 공격 벡터는 아직 알려지지 않았습니다. 즉각적인 조치가 필요할 수 있습니다.",
-    "cvss": 0,
-    "epss": 0.00759,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:32.231972+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-3990",
-    "title": "Mozilla Firefox 및 관련 제품의 use-after-free 취약점",
-    "description": "Mozilla Firefox 16.0 이전 버전, Firefox ESR 10.x 10.0.8 이전 버전, Thunderbird 16.0 이전 버전, Thunderbird ESR 10.x 10.0.8 이전 버전, SeaMonkey 2.13 이전 버전에서 use-after-free 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0.06071,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:31.157536+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-4034",
-    "title": "PBBoard 2.1.4의 다중 SQL 삽입 취약점",
-    "description": "PBBoard 2.1.4에서 발견된 다수의 SQL 삽입 취약점을 통해 원격 공격자가 임의의 SQL 명령을 실행할 수 있습니다. 취약점은 send 페이지의 사용자 이름, forget 페이지의 이메일, forum_archive 페이지의 비밀번호 등 여러 파라미터를 통해 악용 가능합니다. index.php로 연결되는 다양한 페이지에서 발생합니다.",
-    "cvss": 0,
-    "epss": 0.00311,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:29.087856+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-5356",
-    "title": "Ubuntu Software Properties의 PPA GPG 키 검증 문제",
-    "description": "Ubuntu Software Properties 0.75.x 미만 버전에서 PPA GPG 키를 keyserver로부터 제대로 검증하지 않아, 중간자 공격(MITM)을 통해 임의의 패키지 저장소 GPG 키가 설치될 수 있는 취약점이 발견되었습니다. 0.75.10.3, 0.80.9.2, 0.81.13.5, 0.82.7.3, 0.92.8 이전 버전에서 발생합니다.",
-    "cvss": 0,
-    "epss": 0.00666,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:27.32178+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-2769",
-    "title": "Best Practical Solutions RT XSS 취약점",
-    "description": "Best Practical Solutions RT 3.8.x 및 4.0.6 이전 버전에 존재하는 여러 개의 교차 사이트 스크립팅(XSS) 취약점을 통해 원격 공격자가 임의의 웹 스크립트 또는 HTML을 삽입할 수 있습니다. Extension::MobileUI 확장 프로그램 1.02 이전 버전에서도 해당 취약점이 발견되었습니다. 특정 벡터를 통해 공격이 가능합니다.",
-    "cvss": 0,
-    "epss": 0.00309,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:25.600123+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-21513",
-    "title": "MSHTML 프레임워크 보안 기능 우회 취약점",
-    "description": "MSHTML 프레임워크의 보안 기능 우회 취약점이 발견되었습니다.",
-    "cvss": 8.8,
-    "epss": 0.02988,
-    "is_kev": true,
-    "cwe": [
-      "CWE-693"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.8868 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.8389 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.6937 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:23.538975+00:00",
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2012-3823",
-    "title": "Arial Campaign Enterprise 비밀번호 저장 취약점",
-    "description": "11.0.551 버전 이전의 Arial Campaign Enterprise는 비밀번호를 암호화되지 않은 텍스트로 저장합니다.",
-    "cvss": 0,
-    "epss": 0.00276,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:22.275734+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-5256",
-    "title": "Adobe Flash Player 및 AIR 취약점",
-    "description": "Adobe Flash Player, AIR 및 AIR SDK의 특정 버전에서 공격자가 임의 코드를 실행하거나 서비스 거부(메모리 손상)를 유발할 수 있는 취약점이 발견되었습니다. Windows, Mac, Linux, Android 등 다양한 운영체제에 영향을 미치며, APSB12-22에 언급된 다른 Flash Player 메모리 손상 CVE와는 별개의 문제입니다. 최신 버전으로 업데이트하여 해결해야 합니다.",
-    "cvss": 0,
-    "epss": 0.06135,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:19.604601+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-4060",
-    "title": "ASP-DEv XM Forums RC3의 다중 SQL 삽입 취약점",
-    "description": "ASP-DEv XM Forums RC3에서 id 파라미터를 통해 임의의 SQL 명령 실행이 가능한 다중 SQL 삽입 취약점이 발견되었습니다. profile.asp, forum.asp, topic.asp 페이지에서 발생하며, 원격 공격자가 악용할 수 있습니다.",
-    "cvss": 0,
-    "epss": 0.00926,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:16.132555+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-5460",
-    "title": "Juniper Secure Access IVE OS XSS 취약점",
-    "description": "Juniper Secure Access (SA) IVE OS 7.1r13 이전, 7.2.x 버전 7.2r7 이전, 7.3.x 버전 7.3r2 이전 버전에서 발견된 크로스 사이트 스크립팅(XSS) 취약점입니다. 공격자는 WWHSearchWordsText 파라미터를 통해 임의의 웹 스크립트 또는 HTML을 삽입할 수 있습니다. 원격 공격자가 악용 가능합니다.",
-    "cvss": 0,
-    "epss": 0.00263,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:12.919244+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-5468",
-    "title": "Bogofilter 1.2.3 이전 버전의 iconvert.c 기반 버퍼 오버플로우 취약점",
-    "description": "Bogofilter 1.2.3 이전 버전에서 bogolexer 컴포넌트의 iconvert.c 파일에 힙 기반 버퍼 오버플로우 취약점이 존재합니다.",
-    "cvss": 0,
-    "epss": 0.0608,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:09.173128+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-5377",
-    "title": "ActivePerl 5.16.1.1601 설치 시 신뢰할 수 없는 검색 경로 취약점",
-    "description": "ActivePerl 5.16.1.1601을 C:\\ 디렉토리에 설치할 때, C:\\Perl\\Site\\bin 디렉토리가 PATH 환경 변수에 추가되어 악성 DLL을 통한 권한 상승이 가능합니다. 특히 Windows Vista SP1, Server 2008 SP2, 7 SP1, 8 Release Preview에서 \"IKE 및 AuthIP IPsec 키 교환 모듈\" 시스템 서비스의 wlbsctrl.dll 파일이 악용될 수 있습니다.",
-    "cvss": 0,
-    "epss": 0.00392,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:05.277676+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-4012",
-    "title": "Cybozu KUNAI Android 앱 WebView 취약점",
-    "description": "Cybozu KUNAI Android 앱 2.0.6 이전 버전에서 악성 앱을 통해 조작된 JavaScript 코드를 실행하여 민감한 정보를 탈취할 수 있는 취약점이 발견되었습니다. 파일 URL과 연결된 로컬 파일에 코드를 삽입하는 방식으로 공격이 가능합니다. 원격 공격자가 임의의 JavaScript 코드를 실행할 수 있습니다.",
-    "cvss": 0,
-    "epss": 0.0026,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:17:01.245141+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-2602",
-    "title": "SolarWinds Orion NPM CSRF 취약점",
-    "description": "SolarWinds Orion Network Performance Monitor 10.3.1 이전 버전에 관리자 인증을 탈취할 수 있는 다수의 CSRF 취약점이 존재합니다. 공격자는 이를 통해 관리자 계정 생성(CreateUserStepContainer) 또는 계정 권한 수정(ynAdminRights) 요청을 위조할 수 있습니다. 해당 취약점은 Admin/Accounts/Add/OrionAccount.aspx 및 Admin/Accounts/EditAccount.aspx 페이지에서 발생합니다.",
-    "cvss": 0,
-    "epss": 0.07935,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:16:58.033419+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-5543",
-    "title": "Drupal Feeds 모듈 권한 확인 미흡으로 인한 임의 노드 생성 가능성",
-    "description": "Drupal 7.x-2.x 버전 Feeds 모듈 7.x-2.0-alpha6 이전 버전에서, 작성자 필드 매핑 시 권한 검사가 제대로 이루어지지 않습니다.",
-    "cvss": 0,
-    "epss": 0.00208,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:16:54.53194+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-2579",
-    "title": "WP SimpleMail 플러그인 XSS 취약점",
-    "description": "WP SimpleMail 플러그인 1.0.6 버전에서 여러 개의 교차 사이트 스크립팅(XSS) 취약점이 발견되었습니다. 공격자는 이 취약점을 이용하여 이메일의 '받는 사람', '보내는 사람', '날짜', '제목' 필드에 악성 스크립트 또는 HTML 코드를 삽입할 수 있습니다. 원격 공격자가 임의의 웹 스크립트를 실행할 수 있는 위험이 있습니다.",
-    "cvss": 0,
-    "epss": 0.01613,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:15:57.305731+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-2728",
-    "title": "Drupal Node Hierarchy 모듈의 다중 CSRF 취약점",
-    "description": "Drupal Node Hierarchy 모듈 6.x-1.x 버전 6.x-1.5 이전 버전에서 발견된 다수의 교차 사이트 요청 위조(CSRF) 취약점을 통해 원격 공격자가 관리자의 인증을 탈취하여 노드 계층 구조의 위치를 변경할 수 있습니다. 이는 '위로 이동' 또는 '아래로 이동' 동작을 통해 발생합니다.",
-    "cvss": 0,
-    "epss": 0.00254,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:15:53.448847+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-5375",
-    "title": "리눅스 커널 Btrfs 구현의 CRC32C 취약점",
-    "description": "리눅스 커널 3.8-rc1 이전 버전의 Btrfs 구현에서 CRC32C 기능 관련 취약점이 발견되었습니다. 로컬 사용자가 피해자의 중요한 디렉터리에 특정 CRC32C 해시 값을 갖는 이름의 파일을 생성하여 서비스 거부(파일 생성 방지)를 유발할 수 있습니다. 파일 이름 조작을 통해 공격이 가능합니다.",
-    "cvss": 0,
-    "epss": 0.00108,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:14:57.045664+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-2567",
-    "title": "Xelex MobileTrack Android 앱 인증 정보 유출 취약점",
-    "description": "Xelex MobileTrack Android 앱 2.3.7 버전 이하에서 하드코딩된 인증 정보가 사용되어, 암호화되지 않은 FTP 또는 HTTP 세션을 통해 원격 공격자가 민감한 정보를 탈취할 수 있는 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0.01477,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:14:53.660836+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-5509",
-    "title": "Aeolus 설정 서버 임시 파일 권한 문제",
-    "description": "Red Hat CloudForms Cloud Engine 1.1.2 이전 버전의 Aeolus 설정 서버에서 /tmp에 생성되는 임시 파일에 전 세계적으로 읽기 가능한 권한이 설정됩니다.",
-    "cvss": 0,
-    "epss": 0.00099,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:14:52.509535+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-21519",
-    "title": "데스크톱 창 관리자 권한 상승 취약점",
-    "description": "데스크톱 창 관리자에서 권한 상승 취약점이 발견되었습니다.",
-    "cvss": 7.8,
-    "epss": 0.02645,
-    "is_kev": true,
-    "cwe": [
-      "CWE-843"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.8868 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.8389 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.6937 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:14:49.244628+00:00",
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2012-4071",
-    "title": "RSGallery2 댓글 모듈 XSS 취약점",
-    "description": "Joomla! 1.5.x 및 2.5.x용 RSGallery2 (com_rsgallery2) 컴포넌트의 댓글 모듈에서 발견된 크로스 사이트 스크립팅(XSS) 취약점입니다. 악의적인 BBCode 마크업을 포함한 댓글을 통해 임의의 웹 스크립트 또는 HTML을 삽입할 수 있습니다. 2.3.0 이전 버전(Joomla! 1.5.x) 및 3.2.0 이전 버전(Joomla! 2.5.x)에 해당됩니다.",
-    "cvss": 0,
-    "epss": 0.00329,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:13:55.322037+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-3952",
-    "title": "phpList 관리자 페이지 XSS 취약점",
-    "description": "phpList 2.10.19 이전 버전의 admin/index.php에서 발견된 교차 사이트 스크립팅(XSS) 취약점을 통해 원격 공격자가 사용자 페이지의 unconfirmed 파라미터를 이용하여 임의의 웹 스크립트 또는 HTML을 삽입할 수 있습니다. 이를 악용하여 악성 스크립트 실행이 가능합니다.",
-    "cvss": 0,
-    "epss": 0.0661,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:13:51.270174+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-3832",
-    "title": "Decoda PHP XSS 취약점",
-    "description": "Decoda 3.2 이전 버전의 Decoda.php 파일에 크로스 사이트 스크립팅(XSS) 취약점이 존재합니다.",
-    "cvss": 0,
-    "epss": 0.00225,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:12:53.677485+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-3954",
-    "title": "ISC DHCP 4.1.x 및 4.2.x 메모리 누수 취약점",
-    "description": "ISC DHCP 4.1.x 및 4.2.x 버전에서 발견된 다수의 메모리 누수 취약점을 이용해 원격 공격자가 많은 요청을 보내 서비스 거부(메모리 고갈)를 유발할 수 있습니다. 4.2.4-P1 이전 버전 및 4.1-ESV-R6 이전 버전에서 해당 문제가 발생합니다. 패치를 통해 해결할 수 있습니다.",
-    "cvss": 0,
-    "epss": 0.04225,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:12:50.372917+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-5532",
-    "title": "Linux 커널 hypervkvpd의 서비스 거부 취약점",
-    "description": "Linux 커널 3.8-rc1 이전 버전의 hypervkvpd 내 tools/hv/hv_kvp_daemon.c의 주요 함수에서, 조작된 애플리케이션이 Netlink 메시지를 전송하여 로컬 사용자에게 서비스 거부(데몬 종료)를 유발할 수 있습니다. 이는 CVE-2012-2669에 대한 잘못된 수정으로 인해 발생한 취약점입니다.",
-    "cvss": 0,
-    "epss": 0.00063,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:11:54.063193+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-5608",
-    "title": "ownCloud XSS 취약점 (4.5.x < 4.5.2)",
-    "description": "ownCloud 4.5.x 버전 4.5.2 이전 버전의 apps/user_webdavauth/settings.php 파일에 크로스 사이트 스크립팅(XSS) 취약점이 존재합니다.",
-    "cvss": 0,
-    "epss": 0.00295,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:11:50.605241+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-5346",
-    "title": "WP Live.php 모듈 XSS 취약점",
-    "description": "WordPress용 WP Live.php 모듈 1.2.1의 wp-live.php 파일에 크로스 사이트 스크립팅(XSS) 취약점이 존재합니다. 원격 공격자는 's' 파라미터를 통해 임의의 웹 스크립트 또는 HTML을 삽입할 수 있습니다. 해당 정보는 외부 출처에서 얻었습니다.",
-    "cvss": 0,
-    "epss": 0.00942,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:11:48.746551+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-5607",
-    "title": "ownCloud 비밀번호 재설정 기능의 보안 취약점",
-    "description": "ownCloud 4.0.9 및 4.5.0 이전 버전의 \"비밀번호 찾기\" 기능이 보안 토큰을 제대로 검증하지 않아, 원격 공격자가 \"원격 타이밍 공격\"과 관련된 경로를 통해 계정의 비밀번호를 변경할 수 있는 취약점이 존재합니다.",
-    "cvss": 0,
-    "epss": 0.00377,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:11:47.02022+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-5480",
-    "title": "무들 Database 활동 모듈의 보안 취약점",
-    "description": "무들 2.1.x (2.1.9 이전), 2.2.x (2.2.6 이전), 2.3.x (2.3.3 이전) 버전의 Database 활동 모듈에서 고급 검색 기능을 이용해 다른 사용자의 참여 기록을 무단으로 열람할 수 있는 보안 취약점이 발견되었습니다. 원격 공격자가 해당 취약점을 악용할 수 있습니다.",
-    "cvss": 0,
-    "epss": 0.00295,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:11:45.543318+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-2641",
-    "title": "Zenphoto XSS 취약점 (1.4.3 이전 버전)",
-    "description": "Zenphoto 1.4.3 이전 버전에서 발견된 크로스 사이트 스크립팅(XSS) 취약점을 통해 원격 공격자가 특정 라이브러리와의 부적절한 상호작용을 유발하여 임의의 웹 스크립트 또는 HTML을 삽입할 수 있습니다. 이로 인해 공격자가 악성 코드를 실행할 가능성이 있습니다.",
-    "cvss": 0,
-    "epss": 0.00254,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:11:43.815944+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-3960",
-    "title": "Mozilla Firefox, Thunderbird, SeaMonkey 사용 후 해제 취약점",
-    "description": "Mozilla Firefox 15.0 이전, Firefox ESR 10.x 10.0.7 이전, Thunderbird 15.0 이전, Thunderbird ESR 10.x 10.0.7 이전, SeaMonkey 2.12 이전 버전에서 `mozSpellChecker::SetCurrentDictionary` 함수 내 사용 후 해제 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0.02314,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:11:42.028383+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-2823",
-    "title": "Google Chrome SVG 리소스 사용 후 해제 취약점",
-    "description": "Google Chrome 20.0.1132.43 이전 버전에서 SVG 리소스 관련 벡터를 통해 사용 후 해제 취약점이 발생합니다.",
-    "cvss": 0,
-    "epss": 0.00703,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:11:40.397428+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-2676",
-    "title": "Hoard 3.9 이전 버전의 malloc 및 calloc 함수에서 발생하는 다중 정수 오버플로우 취약점",
-    "description": "Hoard 3.9 이전 버전의 malloc 및 calloc 함수에서 큰 크기 값을 사용할 경우, 예상보다 적은 메모리가 할당되는 다중 정수 오버플로우 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0.00338,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:11:38.03266+00:00",
     "severity": "None"
   }
 ]

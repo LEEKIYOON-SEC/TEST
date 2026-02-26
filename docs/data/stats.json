@@ -1,42 +1,42 @@
 {
-  "generated_at": "2026-02-26T14:45:25.133926+00:00",
+  "generated_at": "2026-02-26T18:12:31.926142+00:00",
   "cve": {
     "total": 1000,
-    "recent_24h": 40,
-    "kev_count": 9,
+    "recent_24h": 88,
+    "kev_count": 7,
     "severity": {
-      "High": 72,
-      "Medium": 73,
+      "None": 837,
+      "High": 71,
+      "Medium": 72,
       "Critical": 12,
-      "None": 835,
       "Low": 8
     },
     "daily_trend": [
       {
         "date": "2026-02-17",
-        "count": 23
+        "count": 25
       },
       {
         "date": "2026-02-18",
-        "count": 937
+        "count": 887
       },
       {
         "date": "2026-02-26",
-        "count": 40
+        "count": 88
       }
     ],
     "top_vendors": [
       {
         "vendor": "n/a",
-        "count": 795
-      },
-      {
-        "vendor": "Microsoft",
-        "count": 34
+        "count": 797
       },
       {
         "vendor": "Linux",
         "count": 26
+      },
+      {
+        "vendor": "Microsoft",
+        "count": 24
       },
       {
         "vendor": "NVIDIA",
@@ -51,6 +51,10 @@
         "count": 7
       },
       {
+        "vendor": "Dassault Systèmes",
+        "count": 6
+      },
+      {
         "vendor": "Red Hat",
         "count": 6
       },
@@ -59,11 +63,7 @@
         "count": 6
       },
       {
-        "vendor": "Dassault Systèmes",
-        "count": 6
-      },
-      {
-        "vendor": "Dell",
+        "vendor": "Bosch Rexroth",
         "count": 5
       }
     ]
