@@ -556,9 +556,15 @@ def check_for_official_rules() -> None:
         if not ai_cves:
             logger.info("재확인 대상 없음")
             return
-        
-        logger.info(f"재확인 대상: {len(ai_cves)}건")
-        
+
+        # 배치 제한: 한 실행당 최대 5건만 재확인 (API 할당량 보호)
+        max_recheck = 5
+        if len(ai_cves) > max_recheck:
+            logger.info(f"재확인 대상: {len(ai_cves)}건 중 {max_recheck}건만 처리 (할당량 보호)")
+            ai_cves = ai_cves[:max_recheck]
+        else:
+            logger.info(f"재확인 대상: {len(ai_cves)}건")
+
         for record in ai_cves:
             cve_id = record['id']
             
@@ -614,6 +620,15 @@ def check_for_official_rules() -> None:
                 
             except Exception as e:
                 logger.error(f"{cve_id} 공식 룰 체크 실패: {e}")
+                # 실패해도 last_rule_check_at 갱신 (다음 7일간 재시도 방지)
+                try:
+                    db.upsert_cve({
+                        "id": cve_id,
+                        "last_rule_check_at": datetime.datetime.now(KST).isoformat(),
+                        "updated_at": datetime.datetime.now(KST).isoformat()
+                    })
+                except Exception:
+                    pass
                 continue
         
         logger.info("=== 공식 룰 재발견 체크 완료 ===")
