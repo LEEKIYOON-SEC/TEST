@@ -23,7 +23,7 @@ def _get_client():
     url = os.environ.get("SUPABASE_URL", "").strip()
     key = os.environ.get("SUPABASE_KEY", "").strip()
     if not url or not key:
-        raise RuntimeError("SUPABASE_URL and SUPABASE_KEY are required")
+        return None
     return create_client(url, key)
 
 
@@ -207,6 +207,21 @@ def export_stats(cve_data: list, blacklist_data: dict) -> dict:
     }
 
 
+def _generate_sample_data(data_dir: str):
+    """Supabase 자격증명 없을 때 빈 샘플 데이터 생성 (대시보드가 에러 없이 로드되도록)"""
+    print("  [!] SUPABASE_URL/SUPABASE_KEY 미설정 → 빈 샘플 데이터 생성", flush=True)
+
+    cve_data = []
+    bl_data = {"date": dt.date.today().isoformat(), "snapshots": [], "indicators": []}
+    stats = export_stats(cve_data, bl_data)
+
+    for filename, data in [("cves.json", cve_data), ("blacklist.json", bl_data), ("stats.json", stats)]:
+        path = os.path.join(data_dir, filename)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        print(f"  {filename} → {path}", flush=True)
+
+
 def main():
     print("=== Dashboard Data Export ===", flush=True)
     client = _get_client()
@@ -214,6 +229,12 @@ def main():
     # docs/data 디렉토리 확인
     data_dir = os.path.join(os.path.dirname(_THIS_DIR), "docs", "data")
     os.makedirs(data_dir, exist_ok=True)
+
+    # Supabase 자격증명 없으면 샘플 데이터 생성
+    if client is None:
+        _generate_sample_data(data_dir)
+        print("=== Export 완료 (샘플 데이터) ===", flush=True)
+        return
 
     # CVE 데이터
     print("[1/3] CVE 데이터 export...", flush=True)
