@@ -1,9 +1,108 @@
 [
   {
-    "id": "CVE-2025-14343",
-    "title": "Dokuzsoft Technology E-Commerce 제품의 반사형 XSS 취약점",
-    "description": "Dokuzsoft Technology Ltd.의 E-Commerce 제품에서 웹 페이지 생성 시 입력값 검증 미흡으로 반사형 XSS 취약점이 발견되었습니다. 이 문제는 E-Commerce 제품 버전 10122025까지 영향을 미칩니다. 공격자는 악성 스크립트를 삽입하여 사용자에게 피해를 줄 수 있습니다.",
-    "cvss": 7.6,
+    "id": "CVE-2026-26965",
+    "title": "FreeRDP의 경계 외 쓰기 취약점",
+    "description": "FreeRDP는 원격 데스크톱 프로토콜의 무료 구현입니다. 3.23.0 버전 이전에서 RLE 평면 디코딩 경로에서 공격자가 제어하는 오프셋과 픽셀 데이터를 사용하여 FreeRDP 클라이언트의 힙에 경계 외 쓰기를 수행할 수 있습니다. 이 취약점은 함수 포인터 덮어쓰기를 통해 제어 흐름을 탈취할 수 있으며, 3.23.0 버전에서 수정되었습니다.",
+    "cvss": 8.8,
+    "epss": 0.00039,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "FreeRDP",
+        "product": "FreeRDP",
+        "versions": "< 3.23.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/TEST/issues/56",
+    "date": "2026-02-26T14:45:20.571406+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-36588",
+    "title": "Dell Unisphere for PowerMax SQL Injection 취약점",
+    "description": "Dell Unisphere for PowerMax 버전 10.2.0.x에서 SQL Injection 취약점이 발견되었습니다. 원격으로 접근 가능한 낮은 권한의 공격자가 이 취약점을 악용하여 명령 실행을 유발할 수 있습니다. 보안 업데이트 적용이 필요합니다.",
+    "cvss": 8.8,
+    "epss": 0.00072,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Dell",
+        "product": "Unisphere for PowerMax",
+        "versions": "N/A 부터 9.2.4.19 이전"
+      },
+      {
+        "vendor": "Dell",
+        "product": "Unisphere for PowerMax Virtual Appliance",
+        "versions": "N/A 부터 9.2.4.19 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/TEST/issues/55",
+    "date": "2026-02-26T14:44:31.023207+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-2244",
+    "title": "Google Cloud Vertex AI Workbench의 민감한 데이터 유출",
+    "description": "Google Cloud Vertex AI Workbench의 취약점(2025년 7월 21일 ~ 2026년 1월 30일)을 통해 공격자가 내장된 시작 스크립트 악용으로 다른 사용자의 유효한 Google Cloud 액세스 토큰을 유출할 수 있습니다.",
+    "cvss": 8.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200"
+    ],
+    "affected": [
+      {
+        "vendor": "Google Cloud",
+        "product": "Vertex AI Workbench",
+        "versions": "7/21/2025 부터 01/30/2026 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/TEST/issues/54",
+    "date": "2026-02-26T14:43:58.525386+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-7195",
+    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
+    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
+    "cvss": 5.2,
+    "epss": 9e-05,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276"
+    ],
+    "affected": [
+      {
+        "vendor": "operator-framework",
+        "product": "operator-sdk",
+        "versions": "0.15.2 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.17",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.18",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-17T07:33:15.541842+00:00",
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-2680",
+    "title": "A3factura 소프트웨어의 다중 취약점",
+    "description": "A3factura 웹 플랫폼의 'a3factura-app.wolterskluwer.es/#/incomes/salesDeliveryNotes' 엔드포인트 내 'customerVATNumber' 파라미터에서 반사형 XSS 취약점이 발견되었습니다. 이를 통해 공격자는 피해자의 브라우저에서 임의 코드를 실행할 수 있습니다.",
+    "cvss": 4.8,
     "epss": 0,
     "is_kev": false,
     "cwe": [
@@ -11,14 +110,14 @@
     ],
     "affected": [
       {
-        "vendor": "Dokuzsoft Technology Ltd.",
-        "product": "E-Commerce Product",
-        "versions": "10122025 이하"
+        "vendor": "A3factura",
+        "product": "A3factura",
+        "versions": "4.111.2-rev.1 (단일 버전)"
       }
     ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/TEST/issues/46",
-    "date": "2026-02-26T12:35:23.333464+00:00",
-    "severity": "High"
+    "report_url": null,
+    "date": "2026-02-26T12:35:13.609668+00:00",
+    "severity": "Medium"
   },
   {
     "id": "CVE-2026-2679",
@@ -42,30 +141,9 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-1198",
-    "title": "SIMPLE.ERP SQL Injection 취약점",
-    "description": "SIMPLE.ERP의 \"Obroty na kontach\" 창 검색 기능에서 SQL Injection 취약점이 발견되었습니다. 입력값 검증 부족으로 인증된 공격자가 데이터베이스에 악성 쿼리를 실행할 수 있습니다. 해당 문제는 6.30@A04.4_u06 버전에서 수정되었습니다.",
-    "cvss": 8.6,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "Simple SA",
-        "product": "Simple.ERP",
-        "versions": "6.30@A04.4_u06 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/TEST/issues/45",
-    "date": "2026-02-26T12:06:53.60305+00:00",
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-2680",
+    "id": "CVE-2026-2678",
     "title": "A3factura 소프트웨어의 다중 취약점",
-    "description": "A3factura 웹 플랫폼의 'a3factura-app.wolterskluwer.es/#/incomes/salesDeliveryNotes' 엔드포인트 내 'customerVATNumber' 파라미터에서 반사형 XSS 취약점이 발견되었습니다. 이를 통해 공격자는 피해자의 브라우저에서 임의 코드를 실행할 수 있습니다.",
+    "description": "A3factura 웹 플랫폼의 'name' 파라미터에서 반사형 XSS 취약점이 발견되었습니다. 'a3factura-app.wolterskluwer.es/#/incomes/customers' 엔드포인트에서 공격자가 피해자의 브라우저에서 임의 코드를 실행할 수 있습니다.",
     "cvss": 4.8,
     "epss": 0,
     "is_kev": false,
@@ -80,7 +158,7 @@
       }
     ],
     "report_url": null,
-    "date": "2026-02-26T12:35:13.609668+00:00",
+    "date": "2026-02-26T12:35:09.869332+00:00",
     "severity": "Medium"
   },
   {
@@ -105,10 +183,674 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-2678",
-    "title": "A3factura 소프트웨어의 다중 취약점",
-    "description": "A3factura 웹 플랫폼의 'name' 파라미터에서 반사형 XSS 취약점이 발견되었습니다. 'a3factura-app.wolterskluwer.es/#/incomes/customers' 엔드포인트에서 공격자가 피해자의 브라우저에서 임의 코드를 실행할 수 있습니다.",
-    "cvss": 4.8,
+    "id": "CVE-2026-0752",
+    "title": "GitLab 웹 페이지 생성 시 입력값 중성화 오류('크로스 사이트 스크립팅')",
+    "description": "GitLab은 16.2 버전 이전, 18.8.5 이전, 18.9.1 이전 버전을 포함한 모든 CE/EE 버전에 영향을 미치는 문제를 해결했습니다. 특정 상황에서 인증되지 않은 사용자가 Mermaid 샌드박스 UI에 임의의 스크립트를 삽입할 수 있었습니다.",
+    "cvss": 8,
+    "epss": 0.00044,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "GitLab",
+        "product": "GitLab",
+        "versions": "16.2 부터 18.7.5 이전, 18.8 부터 18.8.5 이전, 18.9 부터 18.9.1 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/TEST/issues/53",
+    "date": "2026-02-26T14:43:47.081081+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-22721",
+    "title": "VMware Aria Operations 권한 상승 취약점",
+    "description": "VMware Aria Operations에 권한 상승 취약점이 존재합니다. vCenter 접근 권한을 가진 공격자가 이 취약점을 악용하여 VMware Aria Operations에서 관리자 권한을 획득할 수 있습니다. CVE-2026-22721 해결을 위해 VMSA-2026-0001(https://support.broadcom.com/web/ecx/support-content-notification/-/external/content/SecurityAdvisories/0/36947)의 ‘Response Matrix’에 명시된 패치를 적용하십시오.",
+    "cvss": 6.2,
+    "epss": 0.00051,
+    "is_kev": false,
+    "cwe": [
+      "CWE-269"
+    ],
+    "affected": [
+      {
+        "vendor": "VMware",
+        "product": "VMware Aria Operations",
+        "versions": "8.18.0 부터 8.18.6 이전"
+      },
+      {
+        "vendor": "VMware",
+        "product": "VMware Cloud Foundation",
+        "versions": "4.0 부터 5.2.3 이전, 9.0 부터 9.0.2 이전"
+      },
+      {
+        "vendor": "VMware",
+        "product": "VMware Telco Cloud Platform",
+        "versions": "4.0 부터 5.2.3 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T14:43:10.24708+00:00",
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-27966",
+    "title": "Langflow CSV 에이전트의 원격 코드 실행 취약점",
+    "description": "Langflow는 AI 기반 에이전트 및 워크플로우 구축 도구입니다. 1.8.0 버전 이전의 CSV 에이전트 노드는 `allow_dangerous_code=True`를 하드코딩하여 LangChain의 Python REPL 도구를 노출합니다. 이를 통해 공격자는 프롬프트 인젝션을 통해 서버에서 임의의 Python 및 OS 명령을 실행하여 원격 코드 실행(RCE)을 유발할 수 있습니다. 1.8.0 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 9.8,
+    "epss": 0.00287,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "langflow-ai",
+        "product": "langflow",
+        "versions": "< 1.8.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/TEST/issues/52",
+    "date": "2026-02-26T14:42:59.24324+00:00",
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-27975",
+    "title": "Ajenti의 잠재적 원격 코드 실행 취약점",
+    "description": "Ajenti는 Linux 및 BSD 기반의 모듈식 서버 관리 패널입니다. 2.2.13 버전 이전에는 인증되지 않은 사용자가 서버에 접근하여 임의의 코드를 실행할 수 있었습니다. 해당 문제는 2.2.13 버전에서 해결되었습니다.",
+    "cvss": 8.1,
+    "epss": 0.00081,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284"
+    ],
+    "affected": [
+      {
+        "vendor": "ajenti",
+        "product": "ajenti",
+        "versions": "< 2.2.13 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/TEST/issues/51",
+    "date": "2026-02-26T14:42:51.935717+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28138",
+    "title": "WordPress uListing 플러그인 <= 2.2.0 - PHP 객체 주입 취약점",
+    "description": "Stylemix uListing 플러그인의 데이터 역직렬화 과정에서 객체 주입 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0.00024,
+    "is_kev": false,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "Stylemix",
+        "product": "uListing",
+        "versions": "<= 2.2.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T14:42:31.140761+00:00",
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-27887",
+    "title": "Spin has memory leaks in various WIT interfaces",
+    "description": "Spin is an open source developer tool for building and running serverless applications powered by WebAssembly. When Spin is configured to allow connections to a database or web server which could retu",
+    "cvss": 6.9,
+    "epss": 0.00042,
+    "is_kev": false,
+    "cwe": [
+      "CWE-770",
+      "CWE-774",
+      "CWE-789"
+    ],
+    "affected": [
+      {
+        "vendor": "spinframework",
+        "product": "spin",
+        "versions": "< 3.6.1 (단일 버전)"
+      },
+      {
+        "vendor": "spinframework",
+        "product": "SpinKube",
+        "versions": "< 0.6.2 (단일 버전)"
+      },
+      {
+        "vendor": "spinframework",
+        "product": "containerd-shim-spin",
+        "versions": "< 0.22.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T14:42:23.839987+00:00",
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-27901",
+    "title": "Svelte SSR 시 contenteditable `bind:innerText` 및 `bind:textContent`를 통한 XSS 취약점",
+    "description": "Svelte는 성능 중심의 웹 프레임워크입니다. 5.53.5 버전 이전에는 `contenteditable` 요소의 `bind:innerText` 및 `bind:textContent` 내용이 적절히 이스케이프되지 않아 서버 측 렌더링 시 신뢰할 수 없는 데이터를 초기 값으로 바인딩하면 HTML 삽입 및 XSS 공격이 가능했습니다. 5.53.5 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 5.3,
+    "epss": 0.00045,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "sveltejs",
+        "product": "svelte",
+        "versions": "< 5.53.5 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T14:42:23.204678+00:00",
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-27900",
+    "title": "Terraform Provider 디버그 로그의 민감 정보 노출 취약점",
+    "description": "Linode Terraform Provider v3.9.0 이전 버전은 디버그 로그에 일부 비밀번호, StackScript 내용, 오브젝트 스토리지 데이터 등 민감 정보를 삭제 없이 기록했습니다. 디버그 로깅은 기본적으로 비활성화되어 있지만, 활성화 시 민감 정보가 로그에 기록되어 유출될 수 있습니다. v3.9.0부터는 민감 정보가 삭제된 메타데이터만 기록하며, 로깅 비활성화, 접근 제한, 로그 삭제 등의 완화 조치를 권장합니다.",
+    "cvss": 5,
+    "epss": 0.0004,
+    "is_kev": false,
+    "cwe": [
+      "CWE-532"
+    ],
+    "affected": [
+      {
+        "vendor": "linode",
+        "product": "terraform-provider-linode",
+        "versions": "< 3.9.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T14:42:18.685209+00:00",
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-25191",
+    "title": "FinalCode Client 설치 프로그램의 DLL 검색 경로 취약점",
+    "description": "Digital Arts Inc.의 FinalCode Client 설치 프로그램에 DLL 검색 경로 관련 취약점이 존재합니다. 악성 DLL 파일을 설치 프로그램과 동일 디렉토리에 위치시킨 후 실행하면, 설치 프로그램 권한으로 임의 코드가 실행될 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0.00016,
+    "is_kev": false,
+    "cwe": [
+      "CWE-427"
+    ],
+    "affected": [
+      {
+        "vendor": "Digital Arts Inc.",
+        "product": "FinalCode Ver.5 series",
+        "versions": "prior to 5.43R01 (단일 버전)"
+      },
+      {
+        "vendor": "Digital Arts Inc.",
+        "product": "FinalCode Ver.6 series",
+        "versions": "prior to 6.51R01 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/TEST/issues/50",
+    "date": "2026-02-26T14:42:15.972645+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27643",
+    "title": "free5GC NEF의 부적절한 오류 처리 및 정보 노출",
+    "description": "free5GC UDR은 5G 모바일 코어 네트워크 오픈소스 프로젝트의 사용자 데이터 저장소입니다. 1.4.1 버전까지 NEF 컴포넌트에서 내부 파싱 오류 상세 정보(예: 최상위 값 뒤의 잘못된 문자 'n')가 원격 클라이언트에 유출되어 공격자가 서비스 지문을 식별하는 데 악용될 수 있습니다. Nnef_PfdManagement 서비스를 사용하는 모든 free5GC 배포에 영향을 줄 수 있으며, pull request 56에 패치가 포함되어 있습니다. 애플리케이션 레벨의 직접적인 해결책은 없으므로 제공된 패치를 적용하는 것이 좋습니다.",
+    "cvss": 6.6,
+    "epss": 0.00024,
+    "is_kev": false,
+    "cwe": [
+      "CWE-209"
+    ],
+    "affected": [
+      {
+        "vendor": "free5gc",
+        "product": "udr",
+        "versions": "<= 1.4.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T14:42:12.377223+00:00",
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-27642",
+    "title": "free5GC UDM UEAU 서비스의 부적절한 입력 유효성 검사",
+    "description": "free5GC UDM은 5G 모바일 코어 네트워크를 위한 오픈 소스 프로젝트입니다. 1.4.1 버전까지에서 공격자는 supi 파라미터에 제어 문자(예: %00)를 삽입하여 내부 URL 파싱 오류를 발생시킬 수 있습니다. 이는 시스템 오류 세부 정보를 노출하고 서비스 핑거프린팅에 악용될 수 있습니다. free5GC/udm 풀 리퀘스트 75에 수정 사항이 포함되어 있으며, 애플리케이션 레벨에서는 해결 방법이 없으므로 공식 패치 적용이 권장됩니다.",
+    "cvss": 6.6,
+    "epss": 0.00049,
+    "is_kev": false,
+    "cwe": [
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "free5gc",
+        "product": "udm",
+        "versions": "<= 1.4.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T14:42:09.192065+00:00",
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-26025",
+    "title": "free5GC SMF 충돌 (널 포인터 역참조) - PFCP SessionReportRequest 처리 시",
+    "description": "free5GC SMF는 5G 모바일 코어 네트워크 오픈소스 프로젝트인 free5GC의 세션 관리 기능을 제공합니다. 1.4.1 버전 이하에서, 잘못된 형식의 PFCP SessionReportRequest를 처리할 때 SMF가 패닉으로 종료될 수 있습니다. 현재 업스트림 수정본은 없으며, 접근 제어/방화벽 설정 또는 메시지 검사를 통해 완화가 가능합니다.",
+    "cvss": 6.6,
+    "epss": 0.00043,
+    "is_kev": false,
+    "cwe": [
+      "CWE-476"
+    ],
+    "affected": [
+      {
+        "vendor": "free5gc",
+        "product": "smf",
+        "versions": "<= 1.4.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T14:42:05.211581+00:00",
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-27465",
+    "title": "Fleet: 권한이 낮은 사용자에게 민감한 Google Calendar 자격 증명 정보 노출",
+    "description": "Fleet 오픈소스 장치 관리 소프트웨어의 4.80.1 이전 버전에서, 설정 API 취약점을 통해 권한이 낮은 인증된 사용자에게 Google Calendar 서비스 계정 자격 증명이 노출될 수 있습니다. 이는 서비스 계정과 연결된 Google Calendar 리소스에 대한 무단 접근을 야기할 수 있습니다. 4.80.1 버전으로 업데이트하거나, Google Calendar 통합을 제거하고 관련 서비스 계정 자격 증명을 변경하는 것이 좋습니다.",
+    "cvss": 1.3,
+    "epss": 0.0005,
+    "is_kev": false,
+    "cwe": [
+      "CWE-201"
+    ],
+    "affected": [
+      {
+        "vendor": "fleetdm",
+        "product": "fleet",
+        "versions": "< 4.80.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T14:42:00.703954+00:00",
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-25963",
+    "title": "Fleet: 인증서 템플릿 일괄 삭제 시 권한 우회 취약점 (팀 관리자)",
+    "description": "Fleet 오픈소스 장치 관리 소프트웨어의 4.80.1 이전 버전에서 인증서 템플릿 삭제 API의 권한 검사 오류로 인해 팀 관리자가 동일 Fleet 인스턴스 내 다른 팀의 인증서 템플릿을 삭제할 수 있습니다. 이 취약점은 장치 등록, Wi-Fi 인증, VPN 접근 등 인증서 기반 워크플로우에 영향을 줄 수 있으며, 4.80.1 버전에서 패치되었습니다. 즉각적인 업그레이드가 어려울 경우, 인증서 템플릿 관리 접근 권한을 제한하고 불필요한 팀 관리자 권한 위임을 피해야 합니다.",
+    "cvss": 1.2,
+    "epss": 0.00029,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "fleetdm",
+        "product": "fleet",
+        "versions": "< 4.80.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T14:41:52.767137+00:00",
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-26024",
+    "title": "free5GC SMF 충돌 (널 포인터 역참조) - PFCP SessionReportRequest 처리 시",
+    "description": "free5GC SMF는 5G 모바일 코어 네트워크 오픈소스 프로젝트인 free5GC의 세션 관리 기능을 제공합니다. 1.4.1 버전 이하에서, 잘못된 형식의 PFCP SessionReportRequest를 처리할 때 SMF가 패닉으로 종료될 수 있습니다. 현재 업스트림 수정본은 없으며, 접근 제어/방화벽 설정 또는 메시지 검사를 통해 완화가 가능합니다.",
+    "cvss": 6.6,
+    "epss": 0.00043,
+    "is_kev": false,
+    "cwe": [
+      "CWE-476"
+    ],
+    "affected": [
+      {
+        "vendor": "free5gc",
+        "product": "smf",
+        "versions": "<= 1.4.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T14:41:50.539272+00:00",
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-25501",
+    "title": "free5GC SMF 충돌 (널 포인터 역참조) - PFCP SessionReportRequest 처리 시",
+    "description": "free5GC SMF는 5G 코어 네트워크 오픈소스 프로젝트인 free5GC의 세션 관리 기능을 제공합니다. 1.4.1 버전 이하에서, ReportType이 DLDR로 설정되었지만 DownlinkDataReport IE가 누락된 잘못된 PFCP SessionReportRequest를 수신할 경우 널 포인터 역참조로 인해 SMF 프로세스가 종료됩니다. 현재 공식적인 수정 사항은 없지만, ACL/방화벽 설정 또는 메시지 검사를 통해 완화할 수 있습니다.",
+    "cvss": 6.6,
+    "epss": 0.00038,
+    "is_kev": false,
+    "cwe": [
+      "CWE-476"
+    ],
+    "affected": [
+      {
+        "vendor": "free5gc",
+        "product": "smf",
+        "versions": "<= 1.4.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T14:41:43.596397+00:00",
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-23703",
+    "title": "FinalCode Client 설치 프로그램의 권한 오류 취약점",
+    "description": "Digital Arts Inc.의 FinalCode Client 설치 프로그램에 잘못된 기본 권한 설정 취약점이 존재합니다. 일반 사용자가 SYSTEM 권한으로 임의 코드를 실행할 수 있습니다. 이는 관리자 권한 없이 악용될 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0.00011,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276"
+    ],
+    "affected": [
+      {
+        "vendor": "Digital Arts Inc.",
+        "product": "FinalCode Ver.5 series",
+        "versions": "prior to 5.43R01 (단일 버전)"
+      },
+      {
+        "vendor": "Digital Arts Inc.",
+        "product": "FinalCode Ver.6 series",
+        "versions": "prior to 6.51R01 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/TEST/issues/49",
+    "date": "2026-02-26T14:41:42.572145+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1779",
+    "title": "워드프레스 사용자 등록 & 멤버십 플러그인 인증 우회 (<= 5.1.2)",
+    "description": "워드프레스 사용자 등록 & 멤버십 플러그인 5.1.2 버전 이하에서 인증 우회 취약점이 발견되었습니다. 'register_member' 함수 내의 잘못된 인증 로직으로 인해, 'urm_user_just_created' 메타 데이터를 가진 신규 사용자가 인증 없이 로그인될 수 있습니다. 이는 공격자가 사이트에 무단 접근할 수 있도록 합니다.",
+    "cvss": 8.1,
+    "epss": 0.0011,
+    "is_kev": false,
+    "cwe": [
+      "CWE-288"
+    ],
+    "affected": [
+      {
+        "vendor": "wpeverest",
+        "product": "User Registration & Membership – Free & Paid Memberships, Subscriptions, Content Restriction, User Profile, Custom User Registration & Login Builder",
+        "versions": "* 부터 5.1.2 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/TEST/issues/48",
+    "date": "2026-02-26T14:41:37.129074+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-24004",
+    "title": "Fleet: 인증되지 않은 Android 기기 등록 해제 취약점 / Pub/Sub 엔드포인트",
+    "description": "Fleet은 오픈 소스 기기 관리 소프트웨어입니다. 4.80.1 버전 이전에서 Fleet의 Android MDM Pub/Sub 처리 방식의 취약점을 통해 인증되지 않은 요청으로 기기 등록 해제 이벤트가 발생할 수 있습니다. 공격자는 인증 없이 특정 Android 기기를 Fleet 관리에서 제거할 수 있으며, 영향은 해당 기기의 Android 기기 관리 중단으로 제한됩니다. 4.80.1 버전으로 업데이트하거나, 일시적으로 Android MDM을 비활성화하는 것이 좋습니다.",
+    "cvss": 1.7,
+    "epss": 0.00101,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "fleetdm",
+        "product": "fleet",
+        "versions": "< 4.80.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T14:41:18.278109+00:00",
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-1698",
+    "title": "WebClient 및 WebScheduler 웹 앱의 HTTP Host 헤더 취약점",
+    "description": "PcVue의 WebClient 및 WebScheduler 웹 앱 버전 15.0.0부터 16.3.3까지에서 HTTP Host 헤더 공격 취약점이 발견되었습니다. 이를 통해 원격 공격자가 서버 측 동작을 조작하는 악성 페이로드를 삽입할 수 있습니다.",
+    "cvss": 5.3,
+    "epss": 0.00213,
+    "is_kev": false,
+    "cwe": [
+      "CWE-644"
+    ],
+    "affected": [
+      {
+        "vendor": "arcinfo",
+        "product": "PcVue",
+        "versions": "16.0.0 부터 16.3.3 이하, 15.0.0 부터 15.2.13 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T14:41:09.933835+00:00",
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-1697",
+    "title": "PcVue GraphicalData 웹 서비스 및 WebClient 웹 앱의 안전하지 않은 쿠키 사용",
+    "description": "PcVue 버전 12.0.0부터 16.3.3까지의 GraphicalData 웹 서비스 및 WebClient 웹 앱에서 Secure 및 SameSite 속성이 누락되었습니다.",
+    "cvss": 5.3,
+    "epss": 0.00028,
+    "is_kev": false,
+    "cwe": [
+      "CWE-614",
+      "CWE-1275"
+    ],
+    "affected": [
+      {
+        "vendor": "arcinfo",
+        "product": "PcVue",
+        "versions": "16.0.0 부터 16.3.3 이하, 15.0.0 부터 15.2.13 이하, 12.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T14:41:05.720098+00:00",
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-1311",
+    "title": "Worry Proof Backup <= 0.2.4 - 인증된(Subscriber+) 경로 탐색 취약점 (백업 업로드)",
+    "description": "WordPress Worry Proof Backup 플러그인의 0.2.4 버전 이하에서 백업 업로드 기능의 경로 탐색 취약점이 발견되었습니다. Subscriber 권한 이상의 인증된 공격자가 악성 ZIP 파일을 업로드하여 서버의 임의 위치에 파일을 생성할 수 있습니다. 이는 원격 코드 실행으로 이어질 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0.00227,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "bearsthemes",
+        "product": "Worry Proof Backup",
+        "versions": "* 부터 0.2.4 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/TEST/issues/47",
+    "date": "2026-02-26T14:41:02.790309+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1696",
+    "title": "누락된 보안 HTTP 헤더",
+    "description": "웹 서버가 클라이언트 애플리케이션에 응답을 보낼 때 일부 보안 HTTP 헤더가 제대로 설정되지 않았습니다. 이는 보안 취약점으로 이어질 수 있습니다. 서버 설정을 확인하여 필요한 헤더를 추가해야 합니다.",
+    "cvss": 2.3,
+    "epss": 0.00047,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "arcinfo",
+        "product": "PcVue",
+        "versions": "16.0.0 부터 16.3.3 이하, 15.0.0 부터 15.2.13 이하, 12.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T14:41:00.397078+00:00",
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-1695",
+    "title": "인증 실패 시 발생하는 XSS 취약점",
+    "description": "PcVue의 WebVue, WebScheduler, TouchVue, SnapVue 기능에 사용된 OAuth 웹 서비스에서 XSS 취약점이 발견되었습니다 (버전 12.0.0 ~ 16.3.3). 인증 실패 시, 공격자가 사용자를 다른 사이트의 콘텐츠를 로드하도록 유도할 수 있습니다. 이 취약점은 OAuth 서버의 오류 페이지에만 영향을 미칩니다.",
+    "cvss": 5.3,
+    "epss": 0.00213,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "arcinfo",
+        "product": "PcVue",
+        "versions": "16.0.0 부터 16.3.3 이하, 15.0.0 부터 15.2.13 이하, 12.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T14:40:59.677729+00:00",
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-1694",
+    "title": "HTTP 헤더를 통한 서버 구성 정보 노출",
+    "description": "PcVue 12.0.0~16.3.3 버전의 WebVue, WebScheduler, TouchVue, SnapVue 기능에서 사용되는 웹 서비스 배포 시 IIS 및 ASP.net의 기본 설정에 의해 추가된 HTTP 헤더가 제거되지 않습니다. 이로 인해 서버 구성에 대한 민감한 정보가 불필요하게 노출될 수 있습니다.",
+    "cvss": 2.3,
+    "epss": 0.00042,
+    "is_kev": false,
+    "cwe": [
+      "CWE-201"
+    ],
+    "affected": [
+      {
+        "vendor": "arcinfo",
+        "product": "PcVue",
+        "versions": "16.0.0 부터 16.3.3 이하, 15.0.0 부터 15.2.13 이하, 12.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T14:40:53.974295+00:00",
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-1693",
+    "title": "취약한 리소스 소유자 비밀번호 자격 증명 흐름 사용",
+    "description": "PcVue의 WebVue, WebScheduler, TouchVue 및 Snapvue 기능에서 사용되는 웹 서비스는 12.0.0 버전부터 16.3.3 버전까지 더 이상 사용되지 않음에도 불구하고 OAuth 권한 부여 유형인 리소스 소유자 비밀번호 자격 증명(ROPC) 흐름을 계속 사용합니다. 이는 원격 공격자가 사용자 자격 증명을 탈취할 수 있게 할 수 있습니다.",
+    "cvss": 5.3,
+    "epss": 0.00137,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1390",
+      "CWE-477"
+    ],
+    "affected": [
+      {
+        "vendor": "arcinfo",
+        "product": "PcVue",
+        "versions": "16.0.0 부터 16.3.3 이하, 15.0.0 부터 15.2.13 이하, 12.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T14:40:50.562996+00:00",
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-1692",
+    "title": "GraphicalData 웹 서비스 요청의 원본 유효성 검사 누락",
+    "description": "PcVue 12.0.0~16.3.3 버전의 WebVue, WebScheduler, TouchVue, SnapVue 기능에서 사용되는 GraphicalData 웹 서비스의 WebSocket 취약점으로 인해 원본 유효성 검사가 누락되었습니다. 이를 악용하여 공격자가 인증된 사용자를 악성 웹사이트로 유도할 수 있습니다.",
+    "cvss": 5.3,
+    "epss": 0.00045,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1385"
+    ],
+    "affected": [
+      {
+        "vendor": "arcinfo",
+        "product": "PcVue",
+        "versions": "16.0.0 부터 16.3.3 이하, 15.0.0 부터 15.2.13 이하, 12.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T14:40:48.107274+00:00",
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-1789",
+    "title": "Genetec Update Service 로컬 권한 상승 취약점",
+    "description": "Genetec Update Service의 로컬 권한 상승 취약점을 통해, 인증된 낮은 권한의 Windows 사용자가 영향을 받는 시스템에서 권한을 상승시킬 수 있습니다.",
+    "cvss": 5.8,
+    "epss": 0.00013,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276"
+    ],
+    "affected": [
+      {
+        "vendor": "Genetec Inc.",
+        "product": "Genetec Update Service",
+        "versions": "<2.10.600 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T14:40:43.761163+00:00",
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-69253",
+    "title": "free5GC NEF의 부적절한 오류 처리로 인한 정보 노출 취약점",
+    "description": "free5GC 1.4.1 버전 이하에서 NEF 컴포넌트가 파싱 오류 세부 정보를 원격 클라이언트에 유출하여 서비스 식별 공격에 악용될 수 있습니다. Nnef_PfdManagement 서비스를 사용하는 모든 free5GC 배포가 취약할 수 있으며, 공식 패치 적용이 권장됩니다. 현재 애플리케이션 레벨의 임시 해결책은 없습니다.",
+    "cvss": 6.6,
+    "epss": 0.00027,
+    "is_kev": false,
+    "cwe": [
+      "CWE-209"
+    ],
+    "affected": [
+      {
+        "vendor": "free5gc",
+        "product": "udr",
+        "versions": "<= 1.4.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-02-26T14:40:41.650742+00:00",
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-1198",
+    "title": "SIMPLE.ERP SQL Injection 취약점",
+    "description": "SIMPLE.ERP의 \"Obroty na kontach\" 창 검색 기능에서 SQL Injection 취약점이 발견되었습니다. 입력값 검증 부족으로 인증된 공격자가 데이터베이스에 악성 쿼리를 실행할 수 있습니다. 해당 문제는 6.30@A04.4_u06 버전에서 수정되었습니다.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Simple SA",
+        "product": "Simple.ERP",
+        "versions": "6.30@A04.4_u06 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/TEST/issues/45",
+    "date": "2026-02-26T12:06:53.60305+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-64999",
+    "title": "합성 모니터링 테스트 서비스 HTML 로그의 교차 사이트 스크립팅",
+    "description": "Checkmk 2.4.0 (2.4.0p22 이전) 및 2.3.0 (2.3.0p43 이전) 버전에서 입력값 검증 미흡으로 인해 호스트 검사 결과를 조작하는 공격자가 합성 모니터링 HTML 로그에 악성 JavaScript를 삽입할 수 있습니다.",
+    "cvss": 7.3,
     "epss": 0,
     "is_kev": false,
     "cwe": [
@@ -116,14 +858,172 @@
     ],
     "affected": [
       {
-        "vendor": "A3factura",
-        "product": "A3factura",
-        "versions": "4.111.2-rev.1 (단일 버전)"
+        "vendor": "Checkmk GmbH",
+        "product": "Checkmk",
+        "versions": "2.4.0 부터 2.4.0p22 이전, 2.3.0 부터 2.3.0p43 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/TEST/issues/44",
+    "date": "2026-02-26T12:06:47.444935+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2024-1394",
+    "title": "Golang-fips/openssl: RSA 페이로드 암호화/복호화 코드의 메모리 누수",
+    "description": "Golang의 RSA 암호화/복호화 코드에서 메모리 누수 취약점이 발견되었습니다. 공격자가 제어하는 입력을 통해 리소스 고갈을 유발할 수 있습니다. 누수는 github.com/golang-fips/openssl/openssl/rsa.go#L113에서 발생하며, `pkey` 및 `ctx` 객체가 누수됩니다.",
+    "cvss": 7.5,
+    "epss": 0.01021,
+    "is_kev": false,
+    "cwe": [
+      "CWE-401"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Ansible Automation Platform 2.4 for RHEL 8",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Ansible Automation Platform 2.4 for RHEL 9",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Developer Tools",
+        "versions": "정보 없음"
       }
     ],
     "report_url": null,
-    "date": "2026-02-26T12:35:09.869332+00:00",
-    "severity": "Medium"
+    "date": "2026-02-26T12:07:15.063365+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-14343",
+    "title": "Dokuzsoft Technology E-Commerce 제품의 반사형 XSS 취약점",
+    "description": "Dokuzsoft Technology Ltd.의 E-Commerce 제품에서 웹 페이지 생성 시 입력값 검증 미흡으로 반사형 XSS 취약점이 발견되었습니다. 이 문제는 E-Commerce 제품 버전 10122025까지 영향을 미칩니다. 공격자는 악성 스크립트를 삽입하여 사용자에게 피해를 줄 수 있습니다.",
+    "cvss": 7.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "Dokuzsoft Technology Ltd.",
+        "product": "E-Commerce Product",
+        "versions": "10122025 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/TEST/issues/46",
+    "date": "2026-02-26T12:35:23.333464+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-2564",
+    "title": "Intelbras VIP 3260 Z IA OutsideCmd 비밀번호 복구 취약점",
+    "description": "Intelbras VIP 3260 Z IA 2.840.00IB005.0.T 버전에서 /OutsideCmd 파일의 취약점을 통해 비밀번호 복구가 용이해지는 보안 문제가 발견되었습니다. 원격으로 공격이 가능하지만, 공격 난이도는 높은 편입니다. 해당 구성 요소 업그레이드가 권장됩니다.",
+    "cvss": 9.2,
+    "epss": 0.00043,
+    "is_kev": false,
+    "cwe": [
+      "CWE-640"
+    ],
+    "affected": [
+      {
+        "vendor": "Intelbras",
+        "product": "VIP 3260 Z IA",
+        "versions": "2.840.00IB005.0.T (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/12",
+    "date": "2026-02-17T15:45:45.994324+00:00",
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-2565",
+    "title": "Wavlink WL-NU516U1 adm.cgi 스택 기반 오버플로우 취약점",
+    "description": "Wavlink WL-NU516U1 20251208 버전에서 /cgi-bin/adm.cgi 파일의 sub_40785C 함수에 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. time_zone 인자 조작을 통해 원격에서 공격이 가능하며, 공격 난이도는 높지만 공개된 익스플로잇이 존재합니다. 해당 취약점에 대해 Wavlink에 알렸으나 응답이 없었습니다.",
+    "cvss": 7.5,
+    "epss": 0.00013,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "Wavlink",
+        "product": "WL-NU516U1",
+        "versions": "20251208 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/21",
+    "date": "2026-02-17T15:54:46.383945+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-2101",
+    "title": "ENOVIAvpm Web Access의 반사형 XSS 취약점 (버전 1 릴리스 16 ~ 19)",
+    "description": "ENOVIAvpm Web Access 버전 1 릴리스 16부터 19까지에서 반사형 XSS 취약점이 발견되었습니다. 공격자는 이 취약점을 이용하여 사용자 브라우저 세션에서 임의의 스크립트 코드를 실행할 수 있습니다. 이는 사용자 보안에 심각한 위협이 될 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0.00032,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "Dassault Systèmes",
+        "product": "ENOVIAvpm Web Access",
+        "versions": "ENOVIAvpm V1R16 Golden 부터 ENOVIAvpm V1R16 SP6 이하, ENOVIAvpm V1R17 Golden 부터 ENOVIAvpm V1R17 SP5 이하, ENOVIAvpm V1R18 Golden 부터 ENOVIAvpm V1R18 SP3 이하, ENOVIAvpm V1R19 Golden 부터 ENOVIAvpm V1R19 SP1 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/19",
+    "date": "2026-02-17T15:53:50.853482+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-12062",
+    "title": "WP Maps <= 4.8.6 - 인증된 사용자의 로컬 파일 포함 취약점",
+    "description": "WP Maps 플러그인의 4.8.6 버전 이하에서 로컬 파일 포함 취약점이 발견되었습니다. Subscriber 권한 이상의 인증된 공격자가 임의의 .html 파일을 서버에 포함시켜 실행할 수 있습니다. 이를 통해 접근 제어를 우회하거나, 민감한 데이터를 탈취하거나, PHP 코드 실행이 가능해질 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0.00057,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "flippercode",
+        "product": "WP Maps – Store Locator,Google Maps,OpenStreetMap,Mapbox,Listing,Directory & Filters",
+        "versions": "* 부터 4.8.6 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/18",
+    "date": "2026-02-17T15:53:17.800102+00:00",
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-2592",
+    "title": "WooCommerce Zarinpal Gateway <= 5.0.16 - 결제 상태 업데이트 접근 통제 미흡",
+    "description": "WooCommerce용 Zarinpal Gateway 플러그인이 5.0.16 버전까지 결제 상태 업데이트 시 접근 통제 미흡 취약점을 가지고 있습니다. 콜백 핸들러가 콜백 URL에 포함된 권한 토큰이 특정 주문에 속하는지 확인하지 않아, 동일 금액의 다른 거래에서 유효한 토큰을 재사용하여 인증되지 않은 공격자가 결제를 위조할 수 있습니다.",
+    "cvss": 7.7,
+    "epss": 0.00068,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284"
+    ],
+    "affected": [
+      {
+        "vendor": "zarinpal",
+        "product": "Zarinpal Gateway",
+        "versions": "* 부터 5.0.16 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/11",
+    "date": "2026-02-17T15:44:33.406434+00:00",
+    "severity": "High"
   },
   {
     "id": "CVE-2026-2616",
@@ -230,58 +1130,6 @@
     ],
     "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2",
     "date": "2026-02-17T11:15:14.318362+00:00",
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2024-1394",
-    "title": "Golang-fips/openssl: RSA 페이로드 암호화/복호화 코드의 메모리 누수",
-    "description": "Golang의 RSA 암호화/복호화 코드에서 메모리 누수 취약점이 발견되었습니다. 공격자가 제어하는 입력을 통해 리소스 고갈을 유발할 수 있습니다. 누수는 github.com/golang-fips/openssl/openssl/rsa.go#L113에서 발생하며, `pkey` 및 `ctx` 객체가 누수됩니다.",
-    "cvss": 7.5,
-    "epss": 0.01021,
-    "is_kev": false,
-    "cwe": [
-      "CWE-401"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Ansible Automation Platform 2.4 for RHEL 8",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Ansible Automation Platform 2.4 for RHEL 9",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Developer Tools",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-26T12:07:15.063365+00:00",
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-64999",
-    "title": "합성 모니터링 테스트 서비스 HTML 로그의 교차 사이트 스크립팅",
-    "description": "Checkmk 2.4.0 (2.4.0p22 이전) 및 2.3.0 (2.3.0p43 이전) 버전에서 입력값 검증 미흡으로 인해 호스트 검사 결과를 조작하는 공격자가 합성 모니터링 HTML 로그에 악성 JavaScript를 삽입할 수 있습니다.",
-    "cvss": 7.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "Checkmk GmbH",
-        "product": "Checkmk",
-        "versions": "2.4.0 부터 2.4.0p22 이전, 2.3.0 부터 2.3.0p43 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/TEST/issues/44",
-    "date": "2026-02-26T12:06:47.444935+00:00",
     "severity": "High"
   },
   {
@@ -14802,37 +15650,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2025-7195",
-    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
-    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
-    "cvss": 5.2,
-    "epss": 9e-05,
-    "is_kev": false,
-    "cwe": [
-      "CWE-276"
-    ],
-    "affected": [
-      {
-        "vendor": "operator-framework",
-        "product": "operator-sdk",
-        "versions": "0.15.2 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.17",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.18",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-17T07:33:15.541842+00:00",
-    "severity": "Medium"
-  },
-  {
     "id": "CVE-2025-14799",
     "title": "Brevo - 이메일, SMS, 웹 푸시, 채팅 등 - 3.3.0 이하 버전의 인증 우회 취약점 (Type Juggling)",
     "description": "WordPress용 Brevo 플러그인은 3.3.0 버전 및 이전 버전에서 Type Juggling으로 인한 인증 우회 취약점에 노출됩니다. `/wp-json/mailin/v1/mailin_disconnect` REST API 엔드포인트에서 설치 ID 유효성 검사 시 느슨한 비교(==)를 사용하여 발생합니다. 공격자는 `id` 파라미터에 boolean `true` 값을 전송하여 인증을 우회하고 Brevo 연동을 해제, API 키 삭제, 구독 양식 제거, 플러그인 설정 초기화 등을 수행할 수 있습니다.",
@@ -20416,807 +21233,6 @@
     ],
     "report_url": null,
     "date": "2026-02-18T00:11:38.03266+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-4097",
-    "title": "Cisco NX-OS BGP 구현의 AS 경로 세그먼트 유형 필터링 취약점",
-    "description": "Cisco NX-OS의 BGP 구현에서 AS 경로 내 세그먼트 유형 필터링이 제대로 이루어지지 않아, 악의적인 UPDATE 메시지를 통해 원격 공격자가 서비스 거부(BGP 서비스 재시작)를 유발할 수 있는 취약점입니다. (Bug ID: CSCtn13043)",
-    "cvss": 0,
-    "epss": 0.00443,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:11:37.205533+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-21256",
-    "title": "GitHub Copilot 및 Visual Studio 원격 코드 실행 취약점",
-    "description": "GitHub Copilot과 Visual Studio의 취약점을 통해 원격 코드 실행이 가능합니다. 현재 상세 내용은 공개되지 않았습니다. 추가 정보가 확인되는 대로 업데이트될 예정입니다.",
-    "cvss": 8.8,
-    "epss": 0.00034,
-    "is_kev": false,
-    "cwe": [
-      "CWE-77",
-      "CWE-94"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Visual Studio 2022 version 17.14",
-        "versions": "17.14.0 부터 17.14.26 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Visual Studio 2022 version 18.3",
-        "versions": "18.3.0 부터 18.3.0 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:11:34.011494+00:00",
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2012-5455",
-    "title": "Joomla! 언어 검색 구성 요소 XSS 취약점",
-    "description": "Joomla! 3.0.1 이전 버전의 언어 검색 구성 요소에 크로스 사이트 스크립팅(XSS) 취약점이 존재합니다. 원격 공격자는 불특정 벡터를 통해 임의의 웹 스크립트 또는 HTML을 삽입할 수 있습니다. 이는 \"오타\"와 관련된 문제입니다.",
-    "cvss": 0,
-    "epss": 0.00011,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:10:43.466774+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-3970",
-    "title": "Mozilla Firefox, Thunderbird, SeaMonkey 사용 후 해제 취약점",
-    "description": "Mozilla Firefox 15.0 이전, Firefox ESR 10.x 10.0.7 이전, Thunderbird 15.0 이전, Thunderbird ESR 10.x 10.0.7 이전, SeaMonkey 2.12 이전 버전에서 nsTArray_base::Length 함수 관련 사용 후 해제 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0.02745,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:10:40.647555+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-4093",
-    "title": "Cisco UCS 관리자 구성 요소 서비스 거부 취약점",
-    "description": "Cisco Unified Computing System (UCS)의 관리자 구성 요소에서 유효하지 않은 Smart Call Home 연락처 주소를 통해 서비스 거부(DoS) 공격을 유발할 수 있는 취약점이 발견되었습니다. (Bug ID CSCtl00186)",
-    "cvss": 0,
-    "epss": 0.00121,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:10:40.105525+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-2812",
-    "title": "libexif 라이브러리 EXIF 태그 파싱 취약점",
-    "description": "libexif 0.6.21 이전 버전의 exif_entry_get_value 함수에서 조작된 EXIF 태그를 포함하는 이미지를 통해 서비스 거부(경계 외 읽기) 또는 민감한 정보 유출이 발생할 수 있습니다. 이는 원격 공격자가 악용 가능합니다.",
-    "cvss": 0,
-    "epss": 0.00928,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:10:36.336412+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-3833",
-    "title": "Quick.CMS 4.0 XSS 취약점",
-    "description": "Quick.CMS 4.0의 admin/ 기본 인덱스 페이지에서 'p' 파라미터를 통해 임의의 웹 스크립트 또는 HTML을 삽입할 수 있는 교차 사이트 스크립팅(XSS) 취약점이 발견되었습니다. 원격 공격자가 이를 악용할 수 있습니다.",
-    "cvss": 0,
-    "epss": 0.00374,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:10:35.754444+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-21239",
-    "title": "Windows 커널 권한 상승 취약점",
-    "description": "Windows 커널의 권한 상승 취약점이 발견되었습니다.",
-    "cvss": 7.8,
-    "epss": 0.00022,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.8868 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.8389 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.6937 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:10:32.949807+00:00",
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2012-3793",
-    "title": "Pro-face WinGP 및 Pro-Server EX 정수 오버플로우 취약점",
-    "description": "Pro-face WinGP PC Runtime 3.1.00 이하 버전 및 Pro-Server EX 1.30.000 이하 버전의 ProServr.exe에서 특정 opcode를 포함하는 조작된 패킷을 통해 메모리 할당 오류 및 버퍼 오버플로우가 발생하여 서비스 거부(데몬 충돌)를 유발할 수 있습니다. 원격 공격자가 악용 가능합니다.",
-    "cvss": 0,
-    "epss": 0.07544,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:09:38.883521+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-5563",
-    "title": "OpenStack Keystone 토큰 만료 처리 미흡으로 인한 권한 우회 취약점",
-    "description": "OpenStack Folsom 2012.2 버전의 Keystone에서 토큰 만료 처리가 제대로 이루어지지 않아, 인증된 사용자가 토큰 체이닝을 통해 의도된 권한 제한을 우회할 수 있습니다. 이는 CVE-2012-3426의 회귀로 인해 발생한 문제입니다. 새로운 토큰 생성을 통해 권한을 획득할 수 있습니다.",
-    "cvss": 0,
-    "epss": 0.00392,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:09:35.228662+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-4089",
-    "title": "Cisco UCS Fabric Interconnect의 MCTOOLS 취약점",
-    "description": "Cisco Unified Computing System(UCS)의 Fabric Interconnect 내 MCTOOLS에서 로컬 사용자가 운영체제 레이어의 로컬, 셸, 디버그 권한을 악용하여 임의의 Baseboard Management Controller(BMC) 명령을 실행할 수 있는 취약점입니다. (Bug ID CSCtg76239)",
-    "cvss": 0,
-    "epss": 0.00127,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:08:36.823251+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-5488",
-    "title": "Plone python_scripts.py 원격 코드 실행 취약점",
-    "description": "Plone 4.2.3 이전 버전 및 4.3 베타 1 이전 버전의 python_scripts.py 파일에서 조작된 URL을 통해 원격 코드 실행이 가능한 취약점이 발견되었습니다. 이는 createObject 기능과 관련이 있습니다. 공격자는 이 취약점을 이용하여 임의의 Python 코드를 실행할 수 있습니다.",
-    "cvss": 0,
-    "epss": 0.0064,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:08:33.491272+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-23598",
-    "title": "애플리케이션 API의 인증되지 않은 정보 공개로 민감한 시스템 정보 노출",
-    "description": "HPE Aruba Networking 5G Core 서버 API의 오류 처리 취약점을 통해 인증되지 않은 원격 공격자가 민감한 정보를 획득할 수 있습니다. 공격자는 사용자 계정, 역할, 시스템 구성 등의 세부 정보에 접근하고 내부 서비스 및 워크플로우를 파악하여 무단 접근 및 권한 상승 위험을 증가시킬 수 있습니다. 다른 취약점과 결합될 경우 더욱 심각한 피해를 야기할 수 있습니다.",
-    "cvss": 6.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Hewlett Packard Enterprise (HPE)",
-        "product": "HPE Aruba Networking Private 5G Core",
-        "versions": "1.24.3.0 부터 1.24.3.4 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:07:33.276491+00:00",
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2012-3973",
-    "title": "Mozilla Firefox 디버거 원격 접근 제어 미흡 취약점",
-    "description": "Mozilla Firefox 15.0 이전 버전의 개발자 도구 서브시스템 디버거는 원격 디버깅이 비활성화된 상태에서 원격 디버깅 서비스 접근을 제대로 제한하지 않습니다. HTTPMonitor 확장 프로그램이 설치된 경우, 공격자는 HTTPMonitor 포트를 통해 해당 서비스에 연결하여 임의 코드를 실행할 수 있습니다. 이 취약점은 원격 공격에 악용될 수 있습니다.",
-    "cvss": 0,
-    "epss": 0.03046,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:06:35.276926+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-2760",
-    "title": "Apache mod_auth_openid 권한 문제",
-    "description": "Apache의 mod_auth_openid 0.7 이전 버전에서 `/tmp/mod_auth_openid.db` 파일에 전 세계적으로 읽기 가능한 권한이 설정되어 있어, 로컬 사용자가 세션 ID를 획득할 수 있는 취약점이 존재합니다.",
-    "cvss": 0,
-    "epss": 0.00424,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:06:31.720924+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-3825",
-    "title": "Wireshark 1.4.x/1.6.x 정수 오버플로우 취약점",
-    "description": "Wireshark 1.4.13 이전 버전 및 1.6.8 이전 버전에서 BACapp 및 Bluetooth HCI 디섹터 관련 벡터를 통해 원격 공격자가 서비스 거부(무한 루프)를 유발할 수 있는 정수 오버플로우 취약점이 발견되었습니다. 이는 CVE-2012-2392와는 다른 취약점입니다.",
-    "cvss": 0,
-    "epss": 0.0205,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:06:28.506418+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2025-13333",
-    "title": "IBM WebSphere Application Server의 예상보다 낮은 보안 수준 가능성",
-    "description": "IBM WebSphere Application Server 9.0 및 8.5 버전에서 보안 설정 시스템 관리를 수행할 때 예상보다 낮은 보안 수준이 나타날 수 있습니다. 이는 시스템 관리 과정에서 보안 취약점이 발생할 가능성을 의미합니다. 사용자들은 보안 설정 관리에 주의를 기울여야 합니다.",
-    "cvss": 4.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-358"
-    ],
-    "affected": [
-      {
-        "vendor": "IBM",
-        "product": "WebSphere Application Server",
-        "versions": "9.0 부터 9.0.5.27 이하, 8.5 부터 8.5.5.29 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:06:27.497703+00:00",
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2012-4048",
-    "title": "Wireshark PPP 디섹터 DoS 취약점",
-    "description": "Wireshark 1.4.x (1.4.14 이전), 1.6.x (1.6.9 이전), 1.8.x (1.8.1 이전) 버전의 PPP 디섹터에서 조작된 패킷을 통해 서비스 거부(유효하지 않은 포인터 역참조 및 애플리케이션 충돌)가 발생할 수 있습니다. usbmon 덤프를 통해 취약점이 입증되었습니다.",
-    "cvss": 0,
-    "epss": 0.00209,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:06:25.028461+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2023-38265",
-    "title": "IBM Cloud Pak System 디렉터리 목록 취약점을 통한 부적절한 접근 제어 및 정보 노출",
-    "description": "IBM Cloud Pak System 2.3.3.6, 2.3.3.7, 2.3.4.0, 2.3.4.1, 2.3.5.0 버전에서 인증되지 않은 공격자에게 폴더 위치 정보가 노출될 수 있습니다. 이는 시스템에 대한 추가 공격에 악용될 수 있습니다. 디렉터리 목록 취약점과 관련된 접근 제어 문제입니다.",
-    "cvss": 5.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-548"
-    ],
-    "affected": [
-      {
-        "vendor": "IBM",
-        "product": "Cloud Pak System",
-        "versions": "2.3.3.6 부터 2.1.0 이하, 2.3.3.7 (단일 버전), 2.3.4.0 (단일 버전), 2.3.4.1 (단일 버전), 2.3.5.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:06:24.353108+00:00",
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2012-5452",
-    "title": "Subrion CMS 2.2.1의 다중 XSS 취약점",
-    "description": "Subrion CMS 2.2.1에서 발견된 다수의 교차 사이트 스크립팅(XSS) 취약점을 통해 원격 공격자가 악성 웹 스크립트 또는 HTML을 삽입할 수 있습니다. 취약점은 blocks/add/, plans/add/, fields/group/add/, advsearch/ 등의 다양한 파라미터를 통해 악용 가능합니다. CVE-2011-5211과 중복될 수 있으며, 2.2.2 버전에서도 일부 취약점이 존재할 수 있습니다.",
-    "cvss": 0,
-    "epss": 0.13096,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:06:20.853661+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-2591",
-    "title": "EmailArchitect 이메일 서버 XSS 취약점",
-    "description": "EmailArchitect 이메일 서버 10.0 및 10.0.0.3 버전에서 다수의 교차 사이트 스크립팅(XSS) 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0.0567,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:06:19.939844+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-21259",
-    "title": "Microsoft Excel 권한 상승 취약점",
-    "description": "Microsoft Excel의 권한 상승 취약점이 발견되었습니다.",
-    "cvss": 7.8,
-    "epss": 0.00021,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft 365 Apps for Enterprise",
-        "versions": "16.0.1 부터 https://aka.ms/OfficeSecurityReleases 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Excel 2016",
-        "versions": "16.0.0.0 부터 16.0.5539.1002 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Office 2019",
-        "versions": "19.0.0 부터 https://aka.ms/OfficeSecurityReleases 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:06:16.767113+00:00",
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2012-5326",
-    "title": "IDevSpot iSupport 1.x 관리자 계정 탈취 가능성",
-    "description": "IDevSpot iSupport 1.x의 admin/function.php 파일에서 CSRF 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0.00211,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:05:30.01888+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-4114",
-    "title": "Cisco UCS Fabric Interconnect KVM 모듈의 비디오 데이터 암호화 미흡 건",
-    "description": "Cisco UCS Fabric Interconnect KVM 모듈이 비디오 데이터를 암호화하지 않아 네트워크 스니핑을 통해 KVM 화면 내용을 탈취하거나, 중간자 공격자가 데이터를 변조할 수 있는 취약점(CSCtr72949)이 발견되었습니다. 클라이언트-서버 데이터 스트림에 패킷을 삽입하여 공격이 가능합니다.",
-    "cvss": 0,
-    "epss": 0.00255,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:05:26.973523+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-20841",
-    "title": "Windows 메모장 앱 원격 코드 실행 취약점",
-    "description": "Windows 메모장 앱에서 원격 코드 실행이 가능한 취약점이 발견되었습니다. 공격자는 이 취약점을 악용하여 시스템을 제어할 수 있습니다. 현재 자세한 내용은 공개되지 않았습니다.",
-    "cvss": 7.8,
-    "epss": 0.00085,
-    "is_kev": false,
-    "cwe": [
-      "CWE-77"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows Notepad",
-        "versions": "11.0.0 부터 11.2510 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:05:26.923461+00:00",
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2012-4024",
-    "title": "Squashfs의 스택 기반 버퍼 오버플로우 취약점",
-    "description": "Squashfs 4.2 이하 버전의 unsquashfs.c 내 get_component 함수에서 조작된 리스트 파일(-ef 옵션)을 통해 원격 코드 실행이 가능한 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. 일반적으로 리스트 파일은 신뢰할 수 있지만, 외부 출처에서 얻을 경우 위험이 존재합니다. 해당 취약점을 악용하면 임의의 코드를 실행할 수 있습니다.",
-    "cvss": 0,
-    "epss": 0.02288,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:05:23.297135+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-3941",
-    "title": "Cisco WebEx Recording Format 플레이어 취약점",
-    "description": "Cisco WebEx Recording Format (WRF) 플레이어 T27 (LD SP32 EP10 이전) 및 T28 (T28.4 이전)에서 힙 기반 버퍼 오버플로우 취약점이 발견되었습니다. 공격자는 특수 제작된 WRF 파일을 통해 임의의 코드를 실행할 수 있습니다. (Bug ID CSCtz72850)",
-    "cvss": 0,
-    "epss": 0.03713,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:05:19.519417+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-5354",
-    "title": "Mozilla Firefox, Thunderbird, SeaMonkey 취약점 (클릭재킹 공격 가능)",
-    "description": "Mozilla Firefox 16.0 이전 버전, Thunderbird 16.0 이전 버전, SeaMonkey 2.13 이전 버전에서 활성화된 다수의 SELECT 요소가 있는 웹 페이지에서 이탈 시 적절하게 처리하지 못하는 문제점이 발견되었습니다. 이를 통해 공격자는 XPI 파일, window.open 메서드, Geolocation API 등을 이용해 클릭재킹 공격을 수행할 수 있습니다. (CVE-2012-3984와 다른 취약점입니다.)",
-    "cvss": 0,
-    "epss": 0.00885,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:04:18.148777+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-3869",
-    "title": "REDAXO XSS 취약점",
-    "description": "REDAXO 4.3.x 및 4.4 버전의 include/classes/class.rex_list.inc.php 파일에서 발견된 교차 사이트 스크립팅(XSS) 취약점을 통해 원격 공격자가 index.php의 subpage 파라미터를 이용하여 임의의 웹 스크립트 또는 HTML을 삽입할 수 있습니다. 이를 악용하면 악성 스크립트 실행이 가능합니다.",
-    "cvss": 0,
-    "epss": 0.00446,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:03:17.030397+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-3890",
-    "title": "Winamp in_mod 플러그인 취약점",
-    "description": "Winamp 5.63 이전 버전의 in_mod 플러그인에서 .IT 파일을 통해 원격 공격자가 서비스 거부(힙 메모리 손상) 또는 기타 악영향을 발생시킬 수 있습니다.",
-    "cvss": 0,
-    "epss": 0.00666,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:02:29.459207+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-2587",
-    "title": "AfterLogic MailSuite Pro 6.3의 다중 크로스 사이트 스크립팅(XSS) 취약점",
-    "description": "AfterLogic MailSuite Pro 6.3에서 발견된 다수의 XSS 취약점을 이용하면, 공격자가 악성 스크립트 또는 HTML을 삽입할 수 있습니다. 이는 조작된 SRC 속성을 가진 IFRAME 또는 SCRIPT 요소를 포함하는 이메일 메시지 본문을 통해 원격으로 공격이 가능합니다.",
-    "cvss": 0,
-    "epss": 0.00387,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:02:26.734506+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-2848",
-    "title": "구글 크롬 드래그 앤 드롭 취약점",
-    "description": "구글 크롬 브라우저의 드래그 앤 드롭 기능에서, Mac OS X 및 Linux 21.0.1180.57 이전 버전, 그리고 Windows 및 Chrome Frame 21.0.1180.60 이전 버전에서 악성 웹사이트를 통해 파일 접근 제한을 우회할 수 있는 취약점이 발견되었습니다. 사용자의 조작이 필요하며, 원격 공격자가 악용할 수 있습니다.",
-    "cvss": 0,
-    "epss": 0.002,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:02:25.796162+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-4017",
-    "title": "N/A",
-    "description": "Android용 jigbrowser+ 앱 1.5.0 이전 버전은 WebView 클래스를 제대로 구현하지 않아, 악의적인 앱을 통해 민감한 정보가 유출될 수 있습니다. 원격 공격자가 특별히 제작된 앱을 사용하여 정보를 탈취할 수 있는 취약점입니다.",
-    "cvss": 0,
-    "epss": 0.00262,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:02:22.57354+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-2829",
-    "title": "Google Chrome CSS 구현의 use-after-free 취약점",
-    "description": "Google Chrome 20.0.1132.43 이전 버전에서 CSS 구현의 `:first-letter` 의사 요소 관련 벡터를 통해 use-after-free 취약점이 발생합니다.",
-    "cvss": 0,
-    "epss": 0.01157,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:02:22.140276+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-2698",
-    "title": "N/A",
-    "description": "Cross-site scripting (XSS) vulnerability in the outputPage function in includes/SkinTemplate.php in MediaWiki before 1.17.5, 1.18.x before 1.18.4, and 1.19.x before 1.19.1 allows remote attackers to i",
-    "cvss": 0,
-    "epss": 0.20419,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:02:18.054579+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-2721",
-    "title": "N/A",
-    "description": "The default views in the Organic Groups (OG) module 6.x-2.x before 6.x-2.4 for Drupal do not properly check permissions when all users have the \"access content\" permission removed, which allows remote",
-    "cvss": 0,
-    "epss": 0.00215,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:02:18.051642+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-5552",
-    "title": "Drupal Password Policy 모듈 취약점",
-    "description": "Drupal의 Password Policy 모듈 6.x-1.x (6.x-1.5 이전) 및 7.x-1.x (7.x-1.3 이전) 버전에서 네트워크 스니핑을 통해 비밀번호 해시를 탈취할 수 있는 원격 공격 가능성이 존재합니다. 이는 \"클라이언트 측 비밀번호 기록 확인\"과 관련된 문제입니다.",
-    "cvss": 0,
-    "epss": 0.00357,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:02:17.023952+00:00",
     "severity": "None"
   }
 ]

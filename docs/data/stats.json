@@ -1,38 +1,38 @@
 {
-  "generated_at": "2026-02-26T12:35:30.587733+00:00",
+  "generated_at": "2026-02-26T14:45:25.133926+00:00",
   "cve": {
     "total": 1000,
-    "recent_24h": 8,
+    "recent_24h": 40,
     "kev_count": 9,
     "severity": {
-      "High": 63,
-      "Medium": 60,
-      "Critical": 10,
-      "None": 864,
-      "Low": 3
+      "High": 72,
+      "Medium": 73,
+      "Critical": 12,
+      "None": 835,
+      "Low": 8
     },
     "daily_trend": [
       {
         "date": "2026-02-17",
-        "count": 18
+        "count": 23
       },
       {
         "date": "2026-02-18",
-        "count": 974
+        "count": 937
       },
       {
         "date": "2026-02-26",
-        "count": 8
+        "count": 40
       }
     ],
     "top_vendors": [
       {
         "vendor": "n/a",
-        "count": 825
+        "count": 795
       },
       {
         "vendor": "Microsoft",
-        "count": 43
+        "count": 34
       },
       {
         "vendor": "Linux",
@@ -43,6 +43,10 @@
         "count": 12
       },
       {
+        "vendor": "arcinfo",
+        "count": 7
+      },
+      {
         "vendor": "Graylog",
         "count": 7
       },
@@ -51,20 +55,16 @@
         "count": 6
       },
       {
+        "vendor": "free5gc",
+        "count": 6
+      },
+      {
         "vendor": "Dassault Systèmes",
+        "count": 6
+      },
+      {
+        "vendor": "Dell",
         "count": 5
-      },
-      {
-        "vendor": "Bosch Rexroth",
-        "count": 5
-      },
-      {
-        "vendor": "A3factura",
-        "count": 4
-      },
-      {
-        "vendor": "Wavlink",
-        "count": 3
       }
     ]
   },
