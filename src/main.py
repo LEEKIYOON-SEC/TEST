@@ -553,7 +553,7 @@ def check_for_official_rules() -> None:
         
         ai_cves = db.get_ai_generated_cves()
         
-         if not ai_cves:
+        if not ai_cves:
             logger.info("재확인 대상 없음")
             return
         # 배치 제한: 한 실행당 최대 5건만 재확인 (API 할당량 보호)
