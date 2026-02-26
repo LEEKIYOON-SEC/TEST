@@ -16,55 +16,53 @@ class RuleManagerError(Exception):
     pass
 
 class RuleManager:
+    # GitHub Code Search API 차단 상태 (클래스 수준 - 모든 인스턴스 공유)
+    _code_search_blocked = False
     def __init__(self):
         self.gh_token = os.environ.get("GH_TOKEN")
         self.groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
         self.model = config.MODEL_PHASE_1
-        
         # 룰셋 캐시 (엔진별로 구분)
         # 예: {"Snort 2.9 Community": "rule_content", "Snort 3 ET Open": "rule_content"}
         self.rules_cache: Dict[str, str] = {}
-        
         logger.info("✅ RuleManager 초기화 완료 (정규식 검증 모드)")
     
     # ====================================================================
     # [1] 공개 룰 검색
     # ====================================================================
     
-    @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
     def _search_github(self, repo: str, query: str) -> Optional[str]:
+        # Circuit breaker: 이미 403이 한 번 발생했으면 이번 실행 내 모든 검색 스킵
+        if RuleManager._code_search_blocked:
+            return None
         logger.debug(f"GitHub 검색: {repo} / {query}")
-        
         url = f"https://api.github.com/search/code?q=repo:{repo} {query}"
         headers = {
             "Authorization": f"token {self.gh_token}",
             "Accept": "application/vnd.github.v3+json"
         }
-        
         try:
-            time.sleep(1)
+            time.sleep(2)
             response = requests.get(url, headers=headers, timeout=10)
+            # 403/429는 rate limit → 재시도 없이 즉시 중단
+            if response.status_code in (403, 429):
+                logger.warning(f"⚠️ GitHub Code Search rate limit ({response.status_code}) → 이번 실행 내 검색 중단")
+                RuleManager._code_search_blocked = True
+                return None
             response.raise_for_status()
-            
             data = response.json()
-            
             if data.get('total_count', 0) > 0:
                 item = data['items'][0]
                 logger.info(f"✅ 공개 룰 발견: {item['html_url']}")
-                
                 raw_url = item['html_url'].replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/')
-                
                 raw_response = requests.get(raw_url, timeout=10)
                 raw_response.raise_for_status()
-                
                 return raw_response.text
-            
             logger.debug(f"❌ 공개 룰 없음: {repo}")
             return None
-            
         except requests.exceptions.RequestException as e:
             logger.error(f"GitHub 검색 실패: {e}")
-            raise  # 재시도
+            return None
         except Exception as e:
             logger.error(f"예상치 못한 에러: {e}")
             return None
