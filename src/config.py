@@ -65,7 +65,9 @@ class ArgusConfig:
         "max_workers": 3,  # 병렬 처리 워커 수 (너무 많으면 API 한도 초과)
         "batch_size": 10,  # 배치 처리 크기
         "cve_fetch_hours": 2,  # 최근 N시간 내 CVE 수집
-        "rule_check_interval_days": 7  # 공식 룰 재확인 주기
+        "rule_check_interval_days": 7,  # 공식 룰 재확인 주기
+        "max_cves_per_run": 50,  # 한 실행당 최대 처리 CVE 수 (할당량 보호)
+        "bulk_commit_threshold": 100  # 벌크 커밋 판단 기준 (파일 수)
     }
     
     # ==========================================
