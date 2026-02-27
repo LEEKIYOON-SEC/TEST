@@ -32,34 +32,7 @@ class ArgusConfig:
     }
     
     # ==========================================
-    # [2] Docker 설정 (현재 비활성화)
-    # ==========================================
-    DOCKER_CONFIG = {
-        "enabled": False,  # GitHub Actions에서 Docker 이미지 없으므로 비활성화
-        "snort_image": "snort/snort3",  # 향후 사용 시를 위한 설정
-        "timeout": 20
-    }
-    
-    # ==========================================
-    # [3] API Rate Limit 설정
-    # ==========================================
-    RATE_LIMITS = {
-        "github_api": {
-            "calls_per_hour": 5000,  # GitHub API 기본 한도
-            "delay_between_calls": 1  # 초 단위
-        },
-        "groq_api": {
-            "calls_per_minute": 30,
-            "delay_between_calls": 2
-        },
-        "epss_api": {
-            "calls_per_minute": 60,
-            "delay_between_calls": 1
-        }
-    }
-    
-    # ==========================================
-    # [4] 성능 최적화 설정
+    # [2] 성능 최적화 설정
     # ==========================================
     PERFORMANCE = {
         "max_workers": 3,  # 병렬 처리 워커 수 (너무 많으면 API 한도 초과)

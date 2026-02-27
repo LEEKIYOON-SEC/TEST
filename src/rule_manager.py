@@ -5,12 +5,12 @@ import io
 import re
 import yaml
 import yara
-import time
 from groq import Groq
 from tenacity import retry, stop_after_attempt, wait_fixed
 from typing import Dict, Optional, Tuple, List
 from logger import logger
 from config import config
+from rate_limiter import rate_limit_manager
 
 class RuleManagerError(Exception):
     pass
@@ -51,8 +51,9 @@ class RuleManager:
         }
 
         try:
-            time.sleep(2)
+            rate_limit_manager.check_and_wait("github_search")
             response = requests.get(url, headers=headers, timeout=10)
+            rate_limit_manager.record_call("github_search")
 
             # 403/429는 rate limit → 재시도 없이 즉시 중단
             if response.status_code in (403, 429):
@@ -218,11 +219,13 @@ class RuleManager:
         headers = {"Authorization": f"token {self.gh_token}"} if self.gh_token else {}
 
         try:
+            rate_limit_manager.check_and_wait("ruleset_download")
             response = requests.get(
                 "https://api.github.com/repos/SigmaHQ/sigma/tarball",
                 headers=headers, timeout=60
             )
             response.raise_for_status()
+            rate_limit_manager.record_call("ruleset_download")
 
             count = 0
             with tarfile.open(fileobj=io.BytesIO(response.content), mode="r:gz") as tar:
@@ -247,11 +250,13 @@ class RuleManager:
         headers = {"Authorization": f"token {self.gh_token}"} if self.gh_token else {}
 
         try:
+            rate_limit_manager.check_and_wait("ruleset_download")
             response = requests.get(
                 "https://api.github.com/repos/Yara-Rules/rules/tarball",
                 headers=headers, timeout=60
             )
             response.raise_for_status()
+            rate_limit_manager.record_call("ruleset_download")
 
             count = 0
             with tarfile.open(fileobj=io.BytesIO(response.content), mode="r:gz") as tar:
@@ -692,7 +697,7 @@ level: high
     # [4] 메인 인터페이스
     # ====================================================================
     
-    def get_rules(self, cve_data: Dict, feasibility: bool, analysis: Optional[Dict] = None) -> Dict:
+    def get_rules(self, cve_data: Dict, analysis: Optional[Dict] = None) -> Dict:
         rules = {"sigma": None, "network": [], "yara": None, "skip_reasons": {}}
         cve_id = cve_data['id']
 
