@@ -12,26 +12,51 @@ def clamp(x: int, lo: int = 0, hi: int = 100) -> int:
 # 카테고리에 따라 위험 기준이 다름:
 #   - botnet/C2: 더 낮은 임계값 (즉각 차단 필요)
 #   - scanner/bruteforce: 약간 낮은 임계값
+#   - tor: 높은 임계값 (단독으로는 위험하지 않음, 다중 소스 겹칠 때만)
 #   - spam/proxy: 기본 임계값 유지
 CATEGORY_THRESHOLD_OVERRIDES: Dict[str, Dict[str, int]] = {
     "botnet":      {"critical": 70, "high": 50, "medium": 30},
     "c2":          {"critical": 70, "high": 50, "medium": 30},
+    "feodo":       {"critical": 70, "high": 50, "medium": 30},
     "malware":     {"critical": 70, "high": 50, "medium": 30},
     "bruteforce":  {"critical": 75, "high": 55, "medium": 35},
     "scanner":     {"critical": 75, "high": 55, "medium": 35},
     "exploit":     {"critical": 70, "high": 50, "medium": 30},
+    "compromised": {"critical": 75, "high": 55, "medium": 35},
+    "tor":         {"critical": 90, "high": 75, "medium": 50},
     # 나머지 카테고리는 글로벌 기본값 사용
 }
+
+
+def _match_category_override(category: str) -> Optional[Dict[str, int]]:
+    """
+    카테고리 문자열에서 키워드 부분 매칭.
+    feeds.yml의 category는 "abuse.ch Feodo C2", "Tor exit nodes" 등 긴 문자열이므로
+    키워드가 포함되어 있으면 해당 오버라이드를 적용.
+    """
+    if not category:
+        return None
+    cat_lower = category.lower().strip()
+
+    # 정확 매칭 우선
+    if cat_lower in CATEGORY_THRESHOLD_OVERRIDES:
+        return CATEGORY_THRESHOLD_OVERRIDES[cat_lower]
+
+    # 키워드 부분 매칭
+    for keyword, overrides in CATEGORY_THRESHOLD_OVERRIDES.items():
+        if keyword in cat_lower:
+            return overrides
+
+    return None
 
 
 def risk_bucket(score: int, critical: int, high: int, medium: int,
                 category: str = "") -> str:
     """
     카테고리별 임계값 오버라이드 지원.
-    category가 CATEGORY_THRESHOLD_OVERRIDES에 있으면 해당 임계값 사용.
+    category 문자열에서 키워드를 부분 매칭하여 해당 임계값 적용.
     """
-    cat_lower = category.lower().strip() if category else ""
-    overrides = CATEGORY_THRESHOLD_OVERRIDES.get(cat_lower)
+    overrides = _match_category_override(category)
     if overrides:
         critical = overrides["critical"]
         high = overrides["high"]
