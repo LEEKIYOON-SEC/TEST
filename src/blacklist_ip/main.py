@@ -119,10 +119,24 @@ def main():
     print(f"  Enrichment 완료 ({time.time()-t0:.1f}s)", flush=True)
 
     # -------------------------
-    # Scoring
+    # Scoring (기간 기반 가중치 + 카테고리별 임계값)
     # -------------------------
     t0 = time.time()
     print("[Step 4/5] Scoring 중...", flush=True)
+
+    # 기간 기반 가중치: 기존 IP의 연속 등장 일수 조회
+    existing_ips = [ip for ip in today_set if ip not in set(delta.new_indicators)]
+    streak_data = {}
+    if existing_ips:
+        # 기존 IP 중 상위 500개만 조회 (API 부하 방어)
+        sample = sorted(existing_ips)[:500]
+        try:
+            streak_data = store.get_indicator_streak(sample, report_date, lookback_days=7)
+            if streak_data:
+                print(f"  기간 가중치: {len(streak_data)}개 IP에 적용 (최대 streak: {max(streak_data.values())}일)", flush=True)
+        except Exception as e:
+            print(f"  [!] 기간 가중치 조회 실패 (무시): {e}", flush=True)
+
     scored = apply_scoring(
         tier1_records=tier1_records,
         enrichment=enrichment,
@@ -132,6 +146,7 @@ def main():
         enable_source_bonus=settings.enable_source_bonus,
         source_bonus_step=settings.source_bonus_step,
         source_bonus_cap=settings.source_bonus_cap,
+        streak_data=streak_data,
     )
     print(f"  Scoring 완료: {len(scored)}개 ({time.time()-t0:.1f}s)", flush=True)
 

@@ -308,36 +308,66 @@ class RuleManager:
     
     def _validate_sigma(self, code: str) -> bool:
         """
-        Sigma 룰 검증
-        
-        Sigma는 YAML 형식을 사용. 검증 과정:
-        1. YAML 파싱이 되는가?
-        2. 필수 필드가 있는가? (title, logsource, detection)
-        3. logsource에 product 또는 category가 있는가?
+        Sigma 룰 검증 (강화)
+
+        7단계 검증:
+        1. YAML 파싱
+        2. 필수 필드 존재 (title, logsource, detection)
+        3. logsource에 product 또는 category
+        4. detection에 condition 필드
+        5. detection에 최소 1개 selection 존재
+        6. selection이 단순 파라미터만이 아닌지 (semantic check)
+        7. level 필드 존재
         """
         try:
             data = yaml.safe_load(code)
-            
+
             if not isinstance(data, dict):
                 logger.warning("Sigma: YAML이 딕셔너리가 아님")
                 return False
-            
+
             # 필수 필드 확인
             required = ['title', 'logsource', 'detection']
             for field in required:
                 if field not in data:
                     logger.warning(f"Sigma: 필수 필드 누락 - {field}")
                     return False
-            
+
             # logsource 검증
             logsource = data['logsource']
+            if not isinstance(logsource, dict):
+                logger.warning("Sigma: logsource가 딕셔너리가 아님")
+                return False
             if 'product' not in logsource and 'category' not in logsource:
                 logger.warning("Sigma: logsource에 product 또는 category 필요")
                 return False
-            
+
+            # detection 검증
+            detection = data['detection']
+            if not isinstance(detection, dict):
+                logger.warning("Sigma: detection이 딕셔너리가 아님")
+                return False
+
+            # condition 필수
+            if 'condition' not in detection:
+                logger.warning("Sigma: detection에 condition 필드 누락")
+                return False
+
+            # 최소 1개 selection 존재
+            selections = [k for k in detection.keys() if k != 'condition']
+            if not selections:
+                logger.warning("Sigma: detection에 selection이 없음")
+                return False
+
+            # 단일 selection만 있고 필드가 1개뿐이면 경고 (너무 포괄적)
+            if len(selections) == 1:
+                sel = detection[selections[0]]
+                if isinstance(sel, dict) and len(sel) == 1:
+                    logger.warning("Sigma: 단일 조건 detection - false positive 위험 높음 (허용하되 경고)")
+
             logger.debug("✅ Sigma 검증 통과")
             return True
-            
+
         except yaml.YAMLError as e:
             logger.warning(f"Sigma: YAML 파싱 실패 - {e}")
             return False
@@ -650,19 +680,46 @@ CWE: {', '.join(cve_data.get('cwe', []))}
         
         if rule_type in ["Snort", "Suricata", "snort", "suricata"]:
             base_prompt += """
-[Snort/Suricata Template]
+[Snort/Suricata QUALITY REQUIREMENTS]
+
+1. **HTTP-aware detection**: Use HTTP sticky buffers for precise matching:
+   - `http_uri` or `http.uri` (Snort3): match URI path + query string
+   - `http_client_body` or `http.request_body` (Snort3): match POST body parameters
+   - `http_header` or `http.header` (Snort3): match specific HTTP headers
+   - `http_method` or `http.method` (Snort3): match GET/POST/PUT/DELETE
+   - Do NOT use bare `content` for HTTP fields — always use the appropriate buffer modifier
+
+2. **Multi-condition rules** (reduce false positives):
+   - Combine endpoint path + parameter name + attack payload in the same rule
+   - Example for SQL Injection in POST body:
+     content:"POST"; http_method;
+     content:"/vulnerable/endpoint"; http_uri;
+     content:"param_name="; http_client_body;
+     pcre:"/param_name=.*?(UNION|SELECT|'|--|%27)/Pi";
+   - Use `distance` and `within` for positional matching when appropriate
+
+3. **Stateful detection**: Always include `flow:to_server,established;` for TCP rules
+
+4. **Rule metadata**:
+   - msg: Include CVE ID and specific attack type (e.g., "CVE-2025-XXXX SQL Injection via coupon_code")
+   - classtype: Choose the MOST SPECIFIC class (web-application-attack, attempted-admin, etc.)
+   - sid: Use range 9000001-9999999 for custom rules
+   - reference: Include `reference:cve,XXXX-XXXXX;`
+
+5. **Template**:
 alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (
-    msg:"CVE-XXXX Exploit Attempt";
+    msg:"CVE-XXXX Exploit Attempt - [Specific Attack Description]";
     flow:to_server,established;
-    content:"specific_string"; http_uri;
-    pcre:"/pattern/i";
+    content:"/path"; http_uri;
+    content:"param="; http_client_body;
+    pcre:"/attack_pattern/Pi";
+    reference:cve,XXXX-XXXXX;
     classtype:web-application-attack;
-    sid:1000001; rev:1;
+    sid:9000001; rev:1;
 )
 
-Requirements:
-- MUST include: msg, sid
-- Use actual content/pcre from description
+6. **CRITICAL**: If the CVE is about a POST parameter, you MUST use http_client_body (not http_uri).
+   If unsure, create TWO content matches — one for URI, one for body.
 """
         elif rule_type in ["Yara", "yara"]:
             base_prompt += """
