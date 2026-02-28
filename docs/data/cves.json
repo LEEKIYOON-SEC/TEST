@@ -1,5 +1,26 @@
 [
   {
+    "id": "CVE-2025-13673",
+    "title": "Tutor LMS <= 3.9.6 - 인증되지 않은 SQL Injection 취약점 (coupon_code)",
+    "description": "Tutor LMS 플러그인은 3.9.6 버전까지 'coupon_code' 파라미터에서 SQL Injection에 취약합니다. 사용자 입력값에 대한 적절한 이스케이핑 및 SQL 쿼리 준비 부족으로 인해 발생합니다. 인증되지 않은 공격자가 데이터베이스에서 민감한 정보를 유출할 수 있습니다. (3.9.4 및 3.9.6 버전에서 부분적으로 완화되었습니다.)",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "themeum",
+        "product": "Tutor LMS – eLearning and online course solution",
+        "versions": "* 부터 3.9.6 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/TEST/issues/71",
+    "date": "2026-02-28T09:00:06.224771+00:00",
+    "severity": "High"
+  },
+  {
     "id": "CVE-2023-26323",
     "title": "Xiaomi 앱 마켓 코드 실행 취약점",
     "description": "Xiaomi 앱 마켓 제품에 코드 실행 취약점이 존재합니다. 이 취약점은 안전하지 않은 설정으로 인해 발생하며, 공격자가 임의 코드를 실행하는 데 악용될 수 있습니다.",
@@ -21309,27 +21330,6 @@
     ],
     "report_url": null,
     "date": "2026-02-18T00:30:58.151765+00:00",
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2012-4084",
-    "title": "Cisco UCS Fabric Interconnect CSRF 취약점",
-    "description": "Cisco Unified Computing System(UCS)의 fabric interconnect(FI) 구성 요소 웹 관리 인터페이스에서 발생하는 교차 사이트 요청 위조(CSRF) 취약점입니다. 원격 공격자가 임의 사용자 인증을 탈취할 수 있습니다. (Bug ID CSCtg20755)",
-    "cvss": 0,
-    "epss": 0.00152,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-02-18T00:30:56.79649+00:00",
     "severity": "None"
   }
 ]

@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-02-28T04:45:01.568777+00:00",
+  "generated_at": "2026-02-28T09:00:11.856986+00:00",
   "cve": {
     "total": 1000,
-    "recent_24h": 0,
+    "recent_24h": 1,
     "kev_count": 6,
     "severity": {
-      "High": 98,
+      "High": 99,
       "Medium": 103,
-      "None": 774,
+      "None": 773,
       "Low": 11,
       "Critical": 14
     },
@@ -18,17 +18,21 @@
       },
       {
         "date": "2026-02-18",
-        "count": 799
+        "count": 798
       },
       {
         "date": "2026-02-26",
         "count": 161
+      },
+      {
+        "date": "2026-02-28",
+        "count": 1
       }
     ],
     "top_vendors": [
       {
         "vendor": "n/a",
-        "count": 734
+        "count": 733
       },
       {
         "vendor": "Microsoft",
