@@ -36,9 +36,60 @@ class SlackNotifier:
         logger.info(f"Slack 배치 수집: {cve_data['id']}")
 
     def send_alert(self, cve_data: Dict, reason: str, report_url: Optional[str] = None) -> bool:
-        """개별 CVE 알림을 배치에 수집 (하위 호환성 유지)"""
+        """
+        CVE 알림 처리:
+        - KEV 등재 또는 CVSS 9.0+ → 즉시 Slack 전송 (긴급)
+        - 나머지 → 배치에 수집 (send_batch_summary에서 일괄 전송)
+        """
         self.collect_alert(cve_data, reason, report_url)
+
+        # 긴급 알림: KEV 등재 또는 CVSS 9.0+
+        is_urgent = cve_data.get('is_kev', False) or cve_data.get('cvss', 0) >= 9.0
+        if is_urgent:
+            self._send_urgent_alert(cve_data, reason, report_url)
+
         return True
+
+    def _send_urgent_alert(self, cve_data: Dict, reason: str, report_url: Optional[str] = None) -> bool:
+        """긴급 CVE 즉시 알림 (KEV 또는 CVSS 9+)"""
+        try:
+            display_title = cve_data.get('title_ko', cve_data.get('title', 'N/A'))
+            cvss = cve_data.get('cvss', 0)
+            epss = cve_data.get('epss', 0)
+
+            # 긴급 배지
+            badges = []
+            if cve_data.get('is_kev'):
+                badges.append("KEV")
+            if cvss >= 9.0:
+                badges.append(f"CVSS {cvss}")
+            if cve_data.get('has_poc'):
+                badges.append("PoC")
+            badge_text = " | ".join(badges)
+
+            blocks = [
+                {"type": "header", "text": {"type": "plain_text", "text": f"🚨 긴급: {cve_data['id']}"}},
+                {"type": "section", "text": {"type": "mrkdwn", "text":
+                    f"*{display_title}*\n\n"
+                    f"*{badge_text}*  |  EPSS {epss*100:.2f}%"
+                }},
+            ]
+
+            if report_url:
+                blocks.append({
+                    "type": "actions",
+                    "elements": [{"type": "button", "text": {"type": "plain_text", "text": "상세 분석 리포트"}, "url": report_url, "style": "danger"}]
+                })
+
+            response = requests.post(self.webhook_url, json={"blocks": blocks}, timeout=10)
+            response.raise_for_status()
+
+            logger.info(f"Slack 긴급 알림 전송: {cve_data['id']} ({badge_text})")
+            return True
+
+        except Exception as e:
+            logger.error(f"Slack 긴급 알림 실패: {e}")
+            return False
 
     def send_batch_summary(self, dashboard_url: Optional[str] = None) -> bool:
         """수집된 CVE 결과를 한 번에 요약 전송"""

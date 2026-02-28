@@ -48,47 +48,80 @@ class ArgusDB:
             return False
     
     def get_ai_generated_cves(self, days: int = 7) -> List[Dict]:
+        """
+        공식 룰 재확인이 필요한 고위험 CVE 조회.
+
+        대상:
+        1. AI 룰만 있는 CVE (has_official_rules=False, rules_snapshot != null) — 공식 룰 교체 필요
+        2. 룰이 아예 없는 고위험 CVE (CVSS >= 7.0 or KEV) — 새로 공식 룰 나왔을 수 있음
+
+        쿨다운:
+        - 성공 시: 7일 후 재확인
+        - 실패 시: 1일 후 재시도 (빠른 복구)
+        """
         try:
-            response = self.client.table("cves") \
+            # Case 1: AI 룰만 있는 CVE
+            ai_response = self.client.table("cves") \
                 .select("*") \
                 .eq("has_official_rules", False) \
                 .not_.is_("rules_snapshot", "null") \
                 .execute()
-            
-            if not response.data:
-                logger.info("AI 생성 룰 CVE: 0건")
+
+            # Case 2: 룰이 아예 없는 고위험 CVE (CVSS >= 7.0)
+            norule_response = self.client.table("cves") \
+                .select("*") \
+                .is_("rules_snapshot", "null") \
+                .gte("cvss_score", 7.0) \
+                .execute()
+
+            all_records = {}
+            for record in (ai_response.data or []):
+                all_records[record['id']] = record
+            for record in (norule_response.data or []):
+                all_records[record['id']] = record
+
+            if not all_records:
+                logger.info("공식 룰 재확인 대상: 0건")
                 return []
-            
+
             now = datetime.datetime.now(datetime.timezone.utc)
             eligible = []
-            
-            for record in response.data:
+
+            for cve_id, record in all_records.items():
                 cvss = record.get('cvss_score', 0) or 0
                 is_kev = record.get('is_kev', False)
                 epss = record.get('epss_score', 0) or 0
-                
-                # 최근 7일 이내에 이미 체크했으면 스킵
+
+                # 쿨다운 체크 (성공: 7일, 실패: 1일)
                 last_check = record.get('last_rule_check_at', '')
                 if last_check:
                     try:
                         last_check_dt = datetime.datetime.fromisoformat(last_check.replace('Z', '+00:00'))
-                        if (now - last_check_dt).days < 7:
+                        days_since = (now - last_check_dt).days
+
+                        # 공식 룰이 이미 있으면 더 이상 재확인 불필요
+                        if record.get('has_official_rules'):
+                            continue
+
+                        # 쿨다운: 기본 7일, 실패 플래그가 있으면 1일
+                        cooldown = 1 if record.get('last_rule_check_failed') else 7
+                        if days_since < cooldown:
                             continue
                     except (ValueError, TypeError):
                         pass
-                
+
                 # KEV 등재 또는 EPSS > 0 → 무기한 (보존 기간 제한 없음)
                 if is_kev or epss > 0:
                     eligible.append(record)
                     continue
-                
+
                 # CVSS 7.0 미만 → 재확인 안 함
                 if cvss < 7.0:
                     continue
-                
+
                 # CVSS 기반 보존 기간
                 max_age_days = 180 if cvss >= 9.0 else 90
-                
+
                 created_at = record.get('last_alert_at', record.get('created_at', ''))
                 if created_at:
                     try:
@@ -97,12 +130,20 @@ class ArgusDB:
                             continue
                     except (ValueError, TypeError):
                         pass
-                
+
                 eligible.append(record)
-            
-            logger.info(f"AI 생성 룰 CVE: {len(response.data)}건 중 재확인 대상: {len(eligible)}건")
+
+            # 우선순위: KEV > CVSS 높은 순 > EPSS 높은 순
+            eligible.sort(key=lambda r: (
+                -(1 if r.get('is_kev') else 0),
+                -(r.get('cvss_score', 0) or 0),
+                -(r.get('epss_score', 0) or 0),
+            ))
+
+            total = len(ai_response.data or []) + len(norule_response.data or [])
+            logger.info(f"AI 생성 룰 CVE: {total}건 중 재확인 대상: {len(eligible)}건")
             return eligible
-            
+
         except Exception as e:
             logger.error(f"AI 생성 CVE 조회 실패: {e}")
             return []

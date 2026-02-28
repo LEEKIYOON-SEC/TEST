@@ -556,46 +556,60 @@ def _should_send_alert(current: Dict, last: Optional[Dict]) -> Tuple[bool, str, 
 # ==============================================================================
 
 def check_for_official_rules() -> None:
+    """
+    공식 룰 재발견 체크.
+
+    대상:
+    1. AI 룰만 있는 CVE → 공식 룰로 교체
+    2. 룰이 아예 없는 고위험 CVE (CVSS >= 7.0, KEV) → 새로 나온 공식 룰 적용
+    3. 룰 없이 AI 생성도 실패한 CVE → 재시도
+
+    배치 제한: config 기반 (기본 10건)
+    쿨다운: 성공 7일 / 실패 1일 (빠른 재시도)
+    """
     try:
         logger.info("=== 공식 룰 재발견 체크 시작 ===")
-        
+
         db = ArgusDB()
         notifier = SlackNotifier()
         rule_manager = RuleManager()
-        
-        ai_cves = db.get_ai_generated_cves()
-        
-        if not ai_cves:
+
+        candidates = db.get_ai_generated_cves()
+
+        if not candidates:
             logger.info("재확인 대상 없음")
             return
 
-        # 배치 제한: 한 실행당 최대 5건만 재확인 (API 할당량 보호)
-        max_recheck = 5
-        if len(ai_cves) > max_recheck:
-            logger.info(f"재확인 대상: {len(ai_cves)}건 중 {max_recheck}건만 처리 (할당량 보호)")
-            ai_cves = ai_cves[:max_recheck]
+        # 배치 제한: config 기반 (2시간마다 실행 × 10건 = 하루 120건 처리 가능)
+        max_recheck = config.PERFORMANCE.get("max_rule_recheck", 10)
+        if len(candidates) > max_recheck:
+            logger.info(f"재확인 대상: {len(candidates)}건 중 {max_recheck}건 처리 (우선순위 기반)")
+            candidates = candidates[:max_recheck]
         else:
-            logger.info(f"재확인 대상: {len(ai_cves)}건")
+            logger.info(f"재확인 대상: {len(candidates)}건")
 
-        for record in ai_cves:
+        found_count = 0
+
+        for record in candidates:
             cve_id = record['id']
-            
+
             try:
                 # 공개 룰만 검색
                 rules = rule_manager.search_public_only(cve_id)
-                
+
                 # 공식 룰 존재 확인
                 has_official = any([
                     rules.get('sigma') and rules['sigma'].get('verified'),
                     any(r.get('verified') for r in rules.get('network', [])),
                     rules.get('yara') and rules['yara'].get('verified')
                 ])
-                
+
                 now_iso = datetime.datetime.now(KST).isoformat()
-                
+
                 if has_official:
+                    found_count += 1
                     logger.info(f"✅ {cve_id}: 공식 룰 발견!")
-                    
+
                     # Slack 알림
                     title_ko = record.get('last_alert_state', {}).get('title_ko', cve_id)
                     notifier.send_official_rule_update(
@@ -604,7 +618,7 @@ def check_for_official_rules() -> None:
                         rules_info=rules,
                         original_report_url=record.get('report_url')
                     )
-                    
+
                     # GitHub Issue 업데이트
                     if record.get('report_url'):
                         update_github_issue_with_official_rules(
@@ -612,38 +626,41 @@ def check_for_official_rules() -> None:
                             cve_id,
                             rules
                         )
-                    
-                    # DB 업데이트 — 공식 룰 발견
+
+                    # DB 업데이트 — 공식 룰 발견 (실패 플래그 초기화)
                     db.upsert_cve({
                         "id": cve_id,
                         "has_official_rules": True,
                         "rules_snapshot": rules,
                         "last_rule_check_at": now_iso,
+                        "last_rule_check_failed": False,
                         "updated_at": now_iso
                     })
                 else:
-                    # 공식 룰 미발견 — last_rule_check_at만 갱신 (다음 7일간 스킵)
+                    # 공식 룰 미발견 — 쿨다운 갱신 (7일 후 재확인)
                     db.upsert_cve({
                         "id": cve_id,
                         "last_rule_check_at": now_iso,
+                        "last_rule_check_failed": False,
                         "updated_at": now_iso
                     })
-                
+
             except Exception as e:
                 logger.error(f"{cve_id} 공식 룰 체크 실패: {e}")
-                # 실패해도 last_rule_check_at 갱신 (다음 7일간 재시도 방지)
+                # 실패 시 쿨다운 1일 (빠른 재시도)
                 try:
                     db.upsert_cve({
                         "id": cve_id,
                         "last_rule_check_at": datetime.datetime.now(KST).isoformat(),
+                        "last_rule_check_failed": True,
                         "updated_at": datetime.datetime.now(KST).isoformat()
                     })
                 except Exception:
                     pass
                 continue
-        
-        logger.info("=== 공식 룰 재발견 체크 완료 ===")
-        
+
+        logger.info(f"=== 공식 룰 재발견 체크 완료 (발견: {found_count}건) ===")
+
     except Exception as e:
         logger.error(f"공식 룰 체크 프로세스 실패: {e}")
 
