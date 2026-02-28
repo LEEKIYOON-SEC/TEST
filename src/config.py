@@ -19,8 +19,7 @@ class ArgusConfig:
         "temperature": 0.3,  # 낮을수록 일관된 출력 (hallucination 감소)
         "top_p": 0.9,
         "max_completion_tokens": 8192,  # 긴 분석을 위해 증가
-        "reasoning_effort": "high",
-        "response_format": {"type": "json_object"}
+        "reasoning_effort": "high"
     }
     
     # [룰 생성용] Groq 파라미터 - 정확한 코드 생성
@@ -44,7 +43,7 @@ class ArgusConfig:
     }
     
     # ==========================================
-    # [5] 필수 환경 변수 목록
+    # [3] 필수 환경 변수 목록
     # ==========================================
     REQUIRED_ENV_VARS = [
         "GH_TOKEN",

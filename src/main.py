@@ -15,6 +15,7 @@ from database import ArgusDB
 from notifier import SlackNotifier
 from analyzer import Analyzer
 from rule_manager import RuleManager
+from rate_limiter import rate_limit_manager
 
 # KST 타임존 (한국 표준시)
 KST = pytz.timezone('Asia/Seoul')
@@ -158,6 +159,7 @@ Do NOT add intro/outro.
 """
     
     try:
+        rate_limit_manager.check_and_wait("gemini")
         response = gemini_client.models.generate_content(
             model=config.MODEL_PHASE_0,
             contents=prompt,
@@ -168,7 +170,8 @@ Do NOT add intro/outro.
                 )]
             )
         )
-        
+        rate_limit_manager.record_call("gemini")
+
         text = response.text.strip()
         title_ko, desc_ko = cve_data['title'], cve_data['description'][:200]
         
@@ -724,6 +727,9 @@ def main():
     logger.info(f"처리 완료: {len(results)}/{len(target_cve_ids)}건 성공")
     logger.info(f"소요 시간: {elapsed:.1f}초")
     logger.info("=" * 60)
+
+    # Step 9: Rate Limit 사용 요약
+    rate_limit_manager.print_summary()
 
 if __name__ == "__main__":
     main()

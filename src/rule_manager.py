@@ -528,6 +528,7 @@ class RuleManager:
         prompt = self._build_rule_prompt(rule_type, cve_data, analysis)
         
         try:
+            rate_limit_manager.check_and_wait("groq")
             response = self.groq_client.chat.completions.create(
                 model=self.model,
                 messages=[{"role": "user", "content": prompt}],
@@ -536,7 +537,8 @@ class RuleManager:
                 max_completion_tokens=config.GROQ_RULE_PARAMS["max_completion_tokens"],
                 reasoning_effort=config.GROQ_RULE_PARAMS["reasoning_effort"]
             )
-            
+            rate_limit_manager.record_call("groq")
+
             content = response.choices[0].message.content.strip()
             content = re.sub(r"```[a-z]*\n|```", "", content).strip()
             
@@ -596,7 +598,7 @@ class RuleManager:
         analysis_section = ""
         if analysis:
             root_cause = analysis.get('root_cause', 'N/A')
-            attack_scenario = analysis.get('attack_scenario', 'N/A')
+            attack_scenario = analysis.get('scenario', 'N/A')
             if root_cause != 'N/A' or attack_scenario != 'N/A':
                 analysis_section = f"""
 [AI Analysis - Additional Context]

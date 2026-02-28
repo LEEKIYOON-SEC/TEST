@@ -37,10 +37,7 @@ class RateLimitInfo:
             return 0
         return (self.reset_at - now).total_seconds()
     
-    def should_wait(self) -> bool:
-        return self.usage_percent >= 80
-
-class RateLimitManager: 
+class RateLimitManager:
     def __init__(self):
         self.limits: Dict[str, RateLimitInfo] = {
             "github": RateLimitInfo(
