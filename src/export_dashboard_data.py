@@ -1,45 +1,45 @@
 """
 GitHub Pages 대시보드용 데이터 Export
- 
+
 Supabase에서 CVE/Shield 데이터를 조회하여
 docs/data/*.json 정적 파일로 생성한다.
 브라우저에서 직접 Supabase를 호출하지 않으므로 free tier 안전.
 """
- 
+
 import os
 import sys
 import json
 import datetime as dt
 from collections import defaultdict
- 
+
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 if _THIS_DIR not in sys.path:
     sys.path.insert(0, _THIS_DIR)
- 
+
 from supabase import create_client
- 
- 
+
+
 def _get_client():
     url = os.environ.get("SUPABASE_URL", "").strip()
     key = os.environ.get("SUPABASE_KEY", "").strip()
     if not url or not key:
         return None
     return create_client(url, key)
- 
- 
+
+
 def export_cves(client, days: int = 90) -> list:
     """최근 N일 CVE 데이터 export"""
     cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).isoformat()
- 
+
     response = client.table("cves") \
         .select("id, cvss_score, epss_score, is_kev, last_alert_at, last_alert_state, report_url, updated_at") \
         .gte("updated_at", cutoff) \
         .order("updated_at", desc=True) \
         .execute()
- 
+
     rows = response.data or []
     result = []
- 
+
     for row in rows:
         state = row.get("last_alert_state") or {}
         entry = {
@@ -54,7 +54,7 @@ def export_cves(client, days: int = 90) -> list:
             "report_url": row.get("report_url"),
             "date": row.get("last_alert_at", row.get("updated_at", "")),
         }
- 
+
         # affected 정보 간략화
         for aff in state.get("affected", [])[:3]:
             entry["affected"].append({
@@ -62,7 +62,7 @@ def export_cves(client, days: int = 90) -> list:
                 "product": aff.get("product", "Unknown"),
                 "versions": aff.get("versions", ""),
             })
- 
+
         # 심각도 등급 계산
         score = entry["cvss"]
         if score >= 9.0:
@@ -75,16 +75,16 @@ def export_cves(client, days: int = 90) -> list:
             entry["severity"] = "Low"
         else:
             entry["severity"] = "None"
- 
+
         result.append(entry)
- 
+
     return result
- 
- 
+
+
 def export_blacklist(client, days: int = 7) -> dict:
     """최근 N일 Shield IP 데이터 export"""
     today = dt.date.today()
- 
+
     # 최근 날짜의 스냅샷 조회
     snapshots = []
     for d in range(days):
@@ -95,24 +95,24 @@ def export_blacklist(client, days: int = 7) -> dict:
             .execute()
         if res.data:
             snapshots.append(res.data[0])
- 
+
     # 오늘(또는 가장 최근) 날짜의 indicator 데이터
     latest_date = today.isoformat()
     if snapshots:
         latest_date = snapshots[0].get("date", today.isoformat())
- 
+
     indicators_res = client.table("shield_indicators") \
         .select("indicator, type, category, sources, base_score, final_score, risk, enrichment") \
         .eq("date", latest_date) \
         .order("final_score", desc=True) \
         .limit(500) \
         .execute()
- 
+
     indicators = []
     for row in (indicators_res.data or []):
         enrichment = row.get("enrichment") or {}
         abuse = enrichment.get("abuseipdb") or {}
- 
+
         indicators.append({
             "indicator": row.get("indicator", ""),
             "type": row.get("type", "ip"),
@@ -123,31 +123,31 @@ def export_blacklist(client, days: int = 7) -> dict:
             "abuse_confidence": abuse.get("abuseConfidenceScore"),
             "abuse_reports": abuse.get("totalReports"),
         })
- 
+
     return {
         "date": latest_date,
         "snapshots": snapshots,
         "indicators": indicators,
     }
- 
- 
+
+
 def export_stats(cve_data: list, blacklist_data: dict) -> dict:
     """통계 집계"""
     now = dt.datetime.now(dt.timezone.utc)
- 
+
     # CVE 통계
     severity_counts = defaultdict(int)
     vendor_counts = defaultdict(int)
     daily_counts = defaultdict(int)
     recent_24h = 0
     kev_count = 0
- 
+
     for cve in cve_data:
         severity_counts[cve.get("severity", "None")] += 1
- 
+
         if cve.get("is_kev"):
             kev_count += 1
- 
+
         # 일별 집계
         date_str = cve.get("date", "")
         if date_str:
@@ -159,26 +159,26 @@ def export_stats(cve_data: list, blacklist_data: dict) -> dict:
                     recent_24h += 1
             except (ValueError, TypeError):
                 pass
- 
+
         # 벤더별 집계
         for aff in cve.get("affected", []):
             vendor = aff.get("vendor", "Unknown")
             if vendor and vendor != "Unknown":
                 vendor_counts[vendor] += 1
- 
+
     # 일별 추이 (최근 30일, 정렬)
     daily_trend = sorted(daily_counts.items(), key=lambda x: x[0])[-30:]
- 
+
     # 벤더 TOP 10
     vendor_top = sorted(vendor_counts.items(), key=lambda x: x[1], reverse=True)[:10]
- 
+
     # 블랙리스트 통계
     bl_risk_counts = defaultdict(int)
     bl_category_counts = defaultdict(int)
     for ind in blacklist_data.get("indicators", []):
         bl_risk_counts[ind.get("risk", "Low")] += 1
         bl_category_counts[ind.get("category", "unknown")] += 1
- 
+
     bl_daily_trend = []
     for snap in reversed(blacklist_data.get("snapshots", [])):
         bl_daily_trend.append({
@@ -187,7 +187,7 @@ def export_stats(cve_data: list, blacklist_data: dict) -> dict:
             "new": snap.get("new_count", 0),
             "removed": snap.get("removed_count", 0),
         })
- 
+
     return {
         "generated_at": now.isoformat(),
         "cve": {
@@ -205,37 +205,37 @@ def export_stats(cve_data: list, blacklist_data: dict) -> dict:
             "daily_trend": bl_daily_trend,
         },
     }
- 
- 
+
+
 def _generate_sample_data(data_dir: str):
     """Supabase 자격증명 없을 때 빈 샘플 데이터 생성 (대시보드가 에러 없이 로드되도록)"""
     print("  [!] SUPABASE_URL/SUPABASE_KEY 미설정 → 빈 샘플 데이터 생성", flush=True)
- 
+
     cve_data = []
     bl_data = {"date": dt.date.today().isoformat(), "snapshots": [], "indicators": []}
     stats = export_stats(cve_data, bl_data)
- 
+
     for filename, data in [("cves.json", cve_data), ("blacklist.json", bl_data), ("stats.json", stats)]:
         path = os.path.join(data_dir, filename)
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
         print(f"  {filename} → {path}", flush=True)
- 
- 
+
+
 def main():
     print("=== Dashboard Data Export ===", flush=True)
     client = _get_client()
- 
+
     # docs/data 디렉토리 확인
     data_dir = os.path.join(os.path.dirname(_THIS_DIR), "docs", "data")
     os.makedirs(data_dir, exist_ok=True)
- 
+
     # Supabase 자격증명 없으면 샘플 데이터 생성
     if client is None:
         _generate_sample_data(data_dir)
         print("=== Export 완료 (샘플 데이터) ===", flush=True)
         return
- 
+
     # CVE 데이터
     print("[1/3] CVE 데이터 export...", flush=True)
     cve_data = export_cves(client)
@@ -243,7 +243,7 @@ def main():
     with open(cve_path, "w", encoding="utf-8") as f:
         json.dump(cve_data, f, ensure_ascii=False, indent=2)
     print(f"  CVE: {len(cve_data)}건 → {cve_path}", flush=True)
- 
+
     # 블랙리스트 데이터
     print("[2/3] 블랙리스트 IP 데이터 export...", flush=True)
     bl_data = export_blacklist(client)
@@ -251,7 +251,7 @@ def main():
     with open(bl_path, "w", encoding="utf-8") as f:
         json.dump(bl_data, f, ensure_ascii=False, indent=2)
     print(f"  Blacklist: {len(bl_data.get('indicators', []))}건 → {bl_path}", flush=True)
- 
+
     # 통계
     print("[3/3] 통계 집계...", flush=True)
     stats = export_stats(cve_data, bl_data)
@@ -259,10 +259,9 @@ def main():
     with open(stats_path, "w", encoding="utf-8") as f:
         json.dump(stats, f, ensure_ascii=False, indent=2)
     print(f"  Stats → {stats_path}", flush=True)
- 
+
     print("=== Export 완료 ===", flush=True)
- 
- 
+
+
 if __name__ == "__main__":
     main()
- 

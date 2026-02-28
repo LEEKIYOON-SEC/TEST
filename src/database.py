@@ -107,17 +107,6 @@ class ArgusDB:
             logger.error(f"AI 생성 CVE 조회 실패: {e}")
             return []
     
-    def get_content_hash(self, cve_id: str) -> Optional[str]:
-        """CVE의 콘텐츠 해시 조회"""
-        try:
-            response = self.client.table("cves").select("content_hash").eq("id", cve_id).execute()
-            if response.data:
-                return response.data[0].get('content_hash')
-            return None
-        except Exception as e:
-            logger.error(f"콘텐츠 해시 조회 실패 ({cve_id}): {e}")
-            return None
-
     def batch_get_content_hashes(self, cve_ids: List[str]) -> Dict[str, str]:
         """여러 CVE의 콘텐츠 해시를 한번에 조회 (API 호출 최소화)"""
         result = {}
@@ -151,11 +140,3 @@ class ArgusDB:
         except Exception as e:
             logger.error(f"대시보드 CVE 조회 실패: {e}")
             return []
-
-    def get_report_url(self, cve_id: str) -> Optional[str]:
-        try:
-            record = self.get_cve(cve_id)
-            return record.get('report_url') if record else None
-        except Exception as e:
-            logger.error(f"Report URL 조회 실패: {e}")
-            return None

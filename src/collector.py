@@ -362,7 +362,6 @@ class Collector:
                 "cwe": [],
                 "references": [],
                 "affected": [],
-                "cce": [],
                 "content_hash": content_hash
             }
             
@@ -398,11 +397,6 @@ class Collector:
             for ref in cna.get('references', []):
                 if 'url' in ref:
                     data['references'].append(ref['url'])
-            
-            json_str = json.dumps(json_data)
-            cce_matches = re.findall(r'(CCE-\d{4,}-\d+)', json_str)
-            if cce_matches:
-                data['cce'] = list(set(cce_matches))
             
             logger.debug(f"Enriched {cve_id}: CVSS={data['cvss']}, State={data['state']}")
             return data
@@ -622,6 +616,5 @@ class Collector:
             "state": "ERROR",
             "cwe": [],
             "references": [],
-            "affected": [],
-            "cce": []
+            "affected": []
         }

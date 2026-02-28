@@ -15,6 +15,7 @@ from database import ArgusDB
 from notifier import SlackNotifier
 from analyzer import Analyzer
 from rule_manager import RuleManager
+from rate_limiter import rate_limit_manager
 
 # KST 타임존 (한국 표준시)
 KST = pytz.timezone('Asia/Seoul')
@@ -158,6 +159,7 @@ Do NOT add intro/outro.
 """
     
     try:
+        rate_limit_manager.check_and_wait("gemini")
         response = gemini_client.models.generate_content(
             model=config.MODEL_PHASE_0,
             contents=prompt,
@@ -168,7 +170,8 @@ Do NOT add intro/outro.
                 )]
             )
         )
-        
+        rate_limit_manager.record_call("gemini")
+
         text = response.text.strip()
         title_ko, desc_ko = cve_data['title'], cve_data['description'][:200]
         
@@ -205,7 +208,7 @@ def create_github_issue(cve_data: Dict, reason: str) -> Tuple[Optional[str], Opt
         # Step 2: 룰 생성/수집
         logger.info(f"룰 수집 시작: {cve_data['id']}")
         rule_manager = RuleManager()
-        rules = rule_manager.get_rules(cve_data, analysis.get('rule_feasibility', False), analysis)
+        rules = rule_manager.get_rules(cve_data, analysis)
         
         # Step 3: 공식 룰 존재 여부 확인
         has_official = any([
@@ -326,10 +329,10 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
             
             rules_section += f"### Yara Rule ({rules['yara']['source']}) {badge}\n{indicator_info}```yara\n{rules['yara']['code']}\n```\n\n"
     
-    # AI 생성 탐지 룰 상태 섹션 (항상 표시)
+    # 탐지 룰 현황 섹션 (항상 표시)
     skip_reasons = rules.get('skip_reasons', {})
-    ai_status_section = "## 🛡️ AI 생성 탐지 룰\n\n"
-    
+    ai_status_section = "## 📋 탐지 룰 현황\n\n"
+
     # Sigma 상태
     if rules.get('sigma'):
         if rules['sigma'].get('verified'):
@@ -337,9 +340,9 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
         else:
             ai_status_section += "**Sigma Rule** ✅ AI 생성 완료\n\n"
     else:
-        reason = skip_reasons.get('sigma', '공개 룰 미발견, AI 생성 실패')
-        ai_status_section += f"**Sigma Rule** ❌ 미생성\n> **사유:** {reason}\n\n"
-    
+        skip_reason = skip_reasons.get('sigma', '공개 룰 미발견, AI 생성 실패')
+        ai_status_section += f"**Sigma Rule** ❌ 미생성\n> **사유:** {skip_reason}\n\n"
+
     # Snort/Suricata 상태
     if rules.get('network'):
         verified_count = sum(1 for r in rules['network'] if r.get('verified'))
@@ -348,9 +351,9 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
         else:
             ai_status_section += "**Snort/Suricata Rule** ✅ AI 생성 완료\n\n"
     else:
-        reason = skip_reasons.get('network', '공개 룰 미발견, AI 생성 실패')
-        ai_status_section += f"**Snort/Suricata Rule** ❌ 미생성\n> **사유:** {reason}\n\n"
-    
+        skip_reason = skip_reasons.get('network', '공개 룰 미발견, AI 생성 실패')
+        ai_status_section += f"**Snort/Suricata Rule** ❌ 미생성\n> **사유:** {skip_reason}\n\n"
+
     # Yara 상태
     if rules.get('yara'):
         if rules['yara'].get('verified'):
@@ -358,8 +361,8 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
         else:
             ai_status_section += "**Yara Rule** ✅ AI 생성 완료\n\n"
     else:
-        reason = skip_reasons.get('yara', '공개 룰 미발견, AI 생성 실패')
-        ai_status_section += f"**Yara Rule** ❌ 미생성\n> **사유:** {reason}\n\n"
+        skip_reason = skip_reasons.get('yara', '공개 룰 미발견, AI 생성 실패')
+        ai_status_section += f"**Yara Rule** ❌ 미생성\n> **사유:** {skip_reason}\n\n"
     
     now_kst = datetime.datetime.now(KST).strftime('%Y-%m-%d %H:%M:%S (KST)')
     
@@ -445,7 +448,10 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
         if not is_target:
             logger.debug(f"{cve_id}: 감시 대상 아님, 건너뜀")
             return None
-        
+
+        # Step 2.5: 추가 위협 인텔리전스 (NVD, PoC, VulnCheck, Advisory)
+        raw_data = collector.enrich_threat_intel(raw_data)
+
         # Step 3: 현재 상태 구성
         current_state = {
             "id": cve_id,
@@ -457,7 +463,13 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
             "description": raw_data['description'],
             "cwe": raw_data['cwe'],
             "references": raw_data['references'],
-            "affected": raw_data['affected']
+            "affected": raw_data['affected'],
+            "has_poc": raw_data.get('has_poc', False),
+            "poc_count": raw_data.get('poc_count', 0),
+            "poc_urls": raw_data.get('poc_urls', []),
+            "is_vulncheck_kev": raw_data.get('is_vulncheck_kev', False),
+            "github_advisory": raw_data.get('github_advisory', {}),
+            "nvd_cpe": raw_data.get('nvd_cpe', [])
         }
         
         # Step 4: 알림 필요성 판단
@@ -556,6 +568,7 @@ def check_for_official_rules() -> None:
         if not ai_cves:
             logger.info("재확인 대상 없음")
             return
+
         # 배치 제한: 한 실행당 최대 5건만 재확인 (API 할당량 보호)
         max_recheck = 5
         if len(ai_cves) > max_recheck:
@@ -563,6 +576,7 @@ def check_for_official_rules() -> None:
             ai_cves = ai_cves[:max_recheck]
         else:
             logger.info(f"재확인 대상: {len(ai_cves)}건")
+
         for record in ai_cves:
             cve_id = record['id']
             
@@ -574,8 +588,7 @@ def check_for_official_rules() -> None:
                 has_official = any([
                     rules.get('sigma') and rules['sigma'].get('verified'),
                     any(r.get('verified') for r in rules.get('network', [])),
-                    rules.get('yara') and rules['yara'].get('verified'),
-                    rules.get('nuclei') and rules['nuclei'].get('verified')
+                    rules.get('yara') and rules['yara'].get('verified')
                 ])
                 
                 now_iso = datetime.datetime.now(KST).isoformat()
@@ -661,6 +674,7 @@ def main():
     
     # Step 4: KEV 및 최신 CVE 수집 (스마트 필터링 적용)
     collector.fetch_kev()
+    collector.fetch_vulncheck_kev()
     target_cves = collector.fetch_recent_cves(
         hours=config.PERFORMANCE["cve_fetch_hours"],
         db=db
@@ -713,6 +727,9 @@ def main():
     logger.info(f"처리 완료: {len(results)}/{len(target_cve_ids)}건 성공")
     logger.info(f"소요 시간: {elapsed:.1f}초")
     logger.info("=" * 60)
+
+    # Step 9: Rate Limit 사용 요약
+    rate_limit_manager.print_summary()
 
 if __name__ == "__main__":
     main()

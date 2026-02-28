@@ -149,16 +149,6 @@ class SlackNotifier:
                     "text": {"type": "mrkdwn", "text": f"*🟢 Yara* ({rules_info['yara']['source']})\n```{preview}```"}
                 })
 
-            # Nuclei
-            if rules_info.get('nuclei') and rules_info['nuclei'].get('code'):
-                rule_count += 1
-                nuclei_code = rules_info['nuclei']['code'].strip()
-                preview = nuclei_code[:800] + "\n..." if len(nuclei_code) > 800 else nuclei_code
-                blocks.append({
-                    "type": "section",
-                    "text": {"type": "mrkdwn", "text": f"*🟢 Nuclei* ({rules_info['nuclei']['source']})\n```{preview}```"}
-                })
-
             blocks.append({"type": "divider"})
             blocks.append({
                 "type": "context",
