@@ -21,6 +21,14 @@ jobs:
         run: |
           pip install -r requirements.txt
 
+      - name: Export dashboard data
+        run: python src/export_dashboard_data.py
+      - name: Deploy dashboard
+        run: |
+          git add docs/data/
+          git commit -m "Update dashboard data" || true
+          git push
+
       - name: Run Scanner
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -29,4 +37,5 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
         run: python src/main.py

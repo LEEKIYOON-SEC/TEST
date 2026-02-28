@@ -1,0 +1,106 @@
+{
+  "generated_at": "2026-02-28T09:00:11.856986+00:00",
+  "cve": {
+    "total": 1000,
+    "recent_24h": 1,
+    "kev_count": 6,
+    "severity": {
+      "High": 99,
+      "Medium": 103,
+      "None": 773,
+      "Low": 11,
+      "Critical": 14
+    },
+    "daily_trend": [
+      {
+        "date": "2026-02-17",
+        "count": 40
+      },
+      {
+        "date": "2026-02-18",
+        "count": 798
+      },
+      {
+        "date": "2026-02-26",
+        "count": 161
+      },
+      {
+        "date": "2026-02-28",
+        "count": 1
+      }
+    ],
+    "top_vendors": [
+      {
+        "vendor": "n/a",
+        "count": 733
+      },
+      {
+        "vendor": "Microsoft",
+        "count": 59
+      },
+      {
+        "vendor": "Linux",
+        "count": 26
+      },
+      {
+        "vendor": "NVIDIA",
+        "count": 12
+      },
+      {
+        "vendor": "ImageMagick",
+        "count": 7
+      },
+      {
+        "vendor": "arcinfo",
+        "count": 7
+      },
+      {
+        "vendor": "Graylog",
+        "count": 7
+      },
+      {
+        "vendor": "Red Hat",
+        "count": 6
+      },
+      {
+        "vendor": "Dassault Systèmes",
+        "count": 6
+      },
+      {
+        "vendor": "free5gc",
+        "count": 6
+      }
+    ]
+  },
+  "blacklist": {
+    "total": 500,
+    "risk": {
+      "Critical": 500
+    },
+    "categories": {
+      "abuse.ch Feodo C2": 3,
+      "ET Block-IPs": 1,
+      "Spamhaus DROP (CIDR)": 496
+    },
+    "daily_trend": [
+      {
+        "date": "2026-02-26",
+        "total": 28852,
+        "new": 28852,
+        "removed": 0
+      },
+      {
+        "date": "2026-02-27",
+        "total": 30421,
+        "new": 29546,
+        "removed": 125
+      },
+      {
+        "date": "2026-02-28",
+        "total": 32773,
+        "new": 31949,
+        "removed": 176
+      }
+    ]
+  }
+}

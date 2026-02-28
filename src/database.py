@@ -140,4 +140,3 @@ class ArgusDB:
         except Exception as e:
             logger.error(f"대시보드 CVE 조회 실패: {e}")
             return []
-

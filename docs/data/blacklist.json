@@ -1,0 +1,6043 @@
+{
+  "date": "2026-02-28",
+  "snapshots": [
+    {
+      "date": "2026-02-28",
+      "total_count": 32773,
+      "new_count": 31949,
+      "removed_count": 176,
+      "api_usage": {
+        "abuseipdb": 443,
+        "internetdb": 67
+      },
+      "created_at": "2026-02-28T04:44:43.664828+00:00"
+    },
+    {
+      "date": "2026-02-27",
+      "total_count": 30421,
+      "new_count": 29546,
+      "removed_count": 125,
+      "api_usage": {
+        "abuseipdb": 62,
+        "internetdb": 66
+      },
+      "created_at": "2026-02-27T05:09:48.344163+00:00"
+    },
+    {
+      "date": "2026-02-26",
+      "total_count": 28852,
+      "new_count": 28852,
+      "removed_count": 0,
+      "api_usage": {
+        "abuseipdb": 500,
+        "internetdb": 59
+      },
+      "created_at": "2026-02-26T12:02:53.028425+00:00"
+    }
+  ],
+  "indicators": [
+    {
+      "indicator": "162.243.103.246",
+      "type": "ip",
+      "category": "abuse.ch Feodo C2",
+      "sources": [
+        "ET_Block_IPs",
+        "abuse_ch_Feodo_C2"
+      ],
+      "score": 100,
+      "risk": "Critical",
+      "abuse_confidence": 0,
+      "abuse_reports": 1
+    },
+    {
+      "indicator": "178.62.3.223",
+      "type": "ip",
+      "category": "abuse.ch Feodo C2",
+      "sources": [
+        "ET_Block_IPs",
+        "abuse_ch_Feodo_C2"
+      ],
+      "score": 96,
+      "risk": "Critical",
+      "abuse_confidence": 0,
+      "abuse_reports": 0
+    },
+    {
+      "indicator": "34.204.119.63",
+      "type": "ip",
+      "category": "abuse.ch Feodo C2",
+      "sources": [
+        "ET_Block_IPs",
+        "abuse_ch_Feodo_C2"
+      ],
+      "score": 90,
+      "risk": "Critical",
+      "abuse_confidence": 0,
+      "abuse_reports": 1
+    },
+    {
+      "indicator": "154.213.160.0",
+      "type": "ip",
+      "category": "ET Block-IPs",
+      "sources": [
+        "ET_Block_IPs"
+      ],
+      "score": 87,
+      "risk": "Critical",
+      "abuse_confidence": 46,
+      "abuse_reports": 17
+    },
+    {
+      "indicator": "103.253.216.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.232.36.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.254.108.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "62.60.226.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "83.142.214.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "83.142.209.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.249.72.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.250.224.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.56.144.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.230.24.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "43.249.92.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.117.140.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "27.124.41.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.116.224.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.156.87.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "62.60.188.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "77.47.242.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "83.97.73.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.240.252.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.248.68.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.243.240.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.237.86.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "102.135.91.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.55.84.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.173.40.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.229.124.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "36.255.236.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "23.146.240.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "23.164.152.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "36.255.216.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "41.71.226.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "43.248.40.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.74.47.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.114.200.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.141.58.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.154.98.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "49.89.240.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "62.60.186.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "65.216.208.0/21",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "77.47.178.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "79.141.79.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "82.135.228.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "86.107.193.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "86.107.72.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.36.141.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.36.136.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.251.10.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.241.194.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.232.200.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "94.26.90.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "95.164.162.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "101.203.128.0/19",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.20.72.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.54.164.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.102.236.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.171.236.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.195.144.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.228.196.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "5.42.92.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "5.183.60.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "2.56.192.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "23.148.144.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "24.233.0.0/19",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "27.124.17.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "31.222.236.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "36.255.98.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "38.107.120.0/21",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "41.71.225.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "42.160.0.0/12",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "43.239.104.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.64.74.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.74.40.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.83.31.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.114.184.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.135.48.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.141.56.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.143.201.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.153.34.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.248.88.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "46.174.204.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "59.155.0.0/16",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "62.60.135.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "64.89.160.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "65.205.64.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "76.74.36.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "77.47.152.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "77.90.185.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "79.124.62.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "80.97.47.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "82.135.156.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "86.105.176.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "86.105.6.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "86.106.14.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "86.106.174.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.23.126.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.18.16.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.35.90.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.35.89.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.40.207.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.190.156.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "91.218.236.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.236.32.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "92.87.6.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "94.26.38.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "93.114.54.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "93.152.219.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "94.74.182.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "95.164.131.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "101.99.76.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "101.134.0.0/15",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.4.32.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.19.188.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.32.132.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.52.48.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.84.170.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.97.2.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.116.44.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.157.75.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.184.162.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.193.184.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.215.80.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.228.60.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "2.57.232.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "1.19.0.0/16",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "1.10.16.0/20",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "5.133.101.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "14.152.94.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "23.137.100.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "23.147.52.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "23.147.164.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "23.176.184.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "24.170.208.0/20",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "27.99.128.0/17",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "27.124.0.0/18",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "31.40.204.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "31.217.252.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "36.37.48.0/20",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "36.255.97.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "37.140.251.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "38.92.184.0/21",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "41.71.150.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "41.71.224.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "41.71.240.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "42.128.0.0/12",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "43.229.52.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "43.236.0.0/16",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.13.37.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.64.52.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.66.118.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.74.16.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.80.158.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.83.28.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.91.227.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.94.31.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.129.187.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.133.246.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.137.201.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.141.12.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.142.152.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.142.193.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.148.10.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.152.149.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.192.178.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.230.66.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "46.173.218.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "46.173.240.0/20",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "57.14.0.0/15",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "58.14.0.0/15",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "61.11.224.0/19",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "62.60.131.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "63.80.8.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "64.15.0.0/20",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "64.116.200.0/21",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "65.162.110.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "69.36.44.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "76.74.0.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "76.74.52.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "77.36.112.0/21",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "77.81.89.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "77.90.154.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "77.221.146.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "78.153.140.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "80.66.77.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "80.94.95.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "80.244.11.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "81.94.159.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "85.192.49.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "85.158.149.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "86.54.42.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "86.105.2.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "86.105.229.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "86.106.13.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "86.106.104.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "86.106.140.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "87.228.25.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "87.121.84.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "87.228.112.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "88.210.63.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.33.206.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.33.134.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.34.0.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.34.104.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.38.240.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.40.138.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.43.50.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.125.255.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "91.215.85.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "91.200.164.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "91.214.109.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "94.26.88.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "91.233.0.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "91.232.18.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "91.243.93.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "92.63.197.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "92.255.57.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "93.114.52.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "93.123.109.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "93.119.120.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "94.74.157.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "94.74.164.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "94.103.188.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "95.161.128.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "95.213.159.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "101.99.75.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "101.99.92.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "101.99.95.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "102.220.112.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.3.212.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.7.198.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.19.116.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.25.88.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.32.0.0/16",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.37.118.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.48.36.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.72.200.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.83.86.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.93.77.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.95.180.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.107.20.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.113.144.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.135.207.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.155.236.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.177.228.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.180.180.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.185.162.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.192.228.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.198.36.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.214.56.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.225.68.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.225.69.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "1.32.128.0/18",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "2.57.234.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "5.188.236.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "2.57.122.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "2.58.56.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "2.59.152.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "5.101.82.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "5.105.220.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "14.128.32.0/20",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "14.128.48.0/21",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "23.129.252.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "23.132.164.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "23.146.241.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "23.146.242.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "23.147.148.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "23.147.156.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "23.172.112.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "23.172.216.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "23.235.128.0/19",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "24.137.16.0/20",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "24.236.0.0/19",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "27.50.63.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "27.112.32.0/19",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "27.123.208.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "27.126.160.0/20",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "27.146.0.0/16",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "31.129.48.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "31.129.49.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "36.0.8.0/21",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "36.0.128.0/17",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "36.116.0.0/16",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "36.119.0.0/16",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "37.72.140.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "37.77.150.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "37.156.64.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "38.92.176.0/21",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "38.182.0.0/19",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "41.71.128.0/17",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "41.71.222.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "41.71.223.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "41.71.229.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "41.71.230.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "42.0.32.0/19",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "42.0.128.0/17",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "42.208.0.0/12",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "43.228.157.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "43.229.240.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "43.231.220.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.3.62.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.9.168.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.13.213.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.15.21.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.65.32.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.66.117.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.67.138.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.74.10.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.74.57.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.80.37.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.80.248.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.81.23.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.86.48.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.88.186.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.92.1.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.93.20.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.125.12.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.125.66.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.132.180.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.133.73.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.135.193.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.135.194.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.138.16.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.139.104.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.141.84.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.141.215.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.142.154.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.142.155.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.144.212.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.146.130.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.148.121.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.151.71.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.172.219.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.186.152.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.194.66.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.194.92.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "46.151.182.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "46.173.214.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "46.173.219.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "46.173.223.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "49.156.160.0/19",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "49.238.64.0/18",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "57.37.0.0/16",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "58.2.0.0/17",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "60.200.0.0/16",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "60.233.0.0/16",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "61.45.251.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "62.60.130.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "62.204.41.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "63.66.60.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "63.80.80.0/21",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "63.106.68.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "64.89.160.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "64.92.224.0/20",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "64.250.144.0/20",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "64.254.80.0/20",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "67.219.208.0/20",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "69.5.189.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "69.165.0.0/20",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "74.114.148.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "76.74.40.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "76.74.42.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "76.74.60.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "76.74.78.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "77.81.84.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "77.81.86.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "77.83.39.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "77.90.142.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "77.109.3.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "77.221.134.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "77.244.221.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "78.40.143.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "80.66.65.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "80.66.75.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "80.94.92.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "80.94.92.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "80.97.160.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "80.208.192.0/20",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "81.30.107.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "81.94.150.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "84.54.33.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "83.218.218.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "85.114.120.0/21",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "85.121.236.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "85.203.26.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "85.208.212.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "86.104.222.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "86.104.224.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "86.105.178.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "86.105.186.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "86.105.230.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "86.106.10.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "86.106.80.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "86.106.94.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "86.106.106.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "86.106.110.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "86.111.228.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "86.107.194.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "87.120.191.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "87.121.79.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "87.228.109.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "87.228.110.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "87.228.112.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "87.251.79.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.32.170.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.32.43.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.32.202.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.33.46.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.33.250.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.33.254.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.34.4.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.34.102.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "23.164.153.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.37.96.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.39.69.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.39.215.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.40.209.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.41.50.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.45.82.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "89.46.47.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "91.202.233.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "91.92.240.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "91.188.254.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "91.200.133.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "91.203.193.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "91.203.192.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "91.206.169.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "91.204.224.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "91.224.92.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "91.220.163.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "91.229.52.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "91.231.222.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "91.235.130.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "91.240.118.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "91.246.176.0/21",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "91.246.43.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "92.118.39.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "92.242.62.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "92.255.85.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "93.114.51.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "93.114.99.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "93.114.58.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "93.115.59.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "93.119.118.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "94.26.105.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "94.74.152.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "37.49.148.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "45.121.204.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "83.175.0.0/18",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "94.74.191.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "94.154.35.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "95.161.128.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "95.169.180.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "95.213.154.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "96.31.94.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "98.98.195.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "101.99.88.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "101.99.90.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "101.99.93.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "101.99.94.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "102.211.56.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "102.216.254.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "102.240.1.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.1.43.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.5.116.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.6.36.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.12.220.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.13.140.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.20.156.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.23.12.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.29.120.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.30.12.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.34.0.0/16",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.36.64.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.43.140.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.44.208.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.58.68.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.70.114.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.80.132.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.81.44.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.84.196.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.93.76.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.93.78.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.93.79.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.104.0.0/21",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.105.240.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.109.107.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.110.104.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.130.147.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.133.136.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.146.208.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.148.42.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.174.130.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.175.229.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.177.238.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.179.148.0/24",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.185.134.0/23",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    },
+    {
+      "indicator": "103.255.56.0/22",
+      "type": "cidr",
+      "category": "Spamhaus DROP (CIDR)",
+      "sources": [
+        "Spamhaus_DROP"
+      ],
+      "score": 80,
+      "risk": "Critical",
+      "abuse_confidence": null,
+      "abuse_reports": null
+    }
+  ]
+}
