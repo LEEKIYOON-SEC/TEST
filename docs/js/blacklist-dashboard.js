@@ -6,6 +6,7 @@
 let allIndicators = [];
 let filteredIndicators = [];
 let blStatsData = {};
+let recoveredIps = [];
 let blCurrentPage = 1;
 const BL_PAGE_SIZE = 50;
 let blSortField = 'score';
@@ -21,11 +22,13 @@ async function init() {
       fetch('data/stats.json').then(r => r.json()),
     ]);
     allIndicators = blRes.indicators || [];
+    recoveredIps = blRes.recovered || [];
     blStatsData = statsRes;
     renderStats(blRes);
     renderChart();
     buildCategoryFilter();
     applyFilters();
+    renderRecoveredIps();
   } catch (e) {
     console.error('Data load failed:', e);
     document.getElementById('bl-table-body').innerHTML =
@@ -47,7 +50,7 @@ function renderStats(blData) {
   setText('stat-total', bl.total || allIndicators.length);
   setText('stat-critical', risk.Critical || 0);
   setText('stat-high', risk.High || 0);
-  setText('stat-medium', risk.Medium || 0);
+  setText('stat-recovered', bl.recovered_count || (blData.recovered || []).length);
 
   // 날짜
   if (blData.date) {
@@ -196,6 +199,37 @@ function sortBy(field) {
     blSortDir = -1;
   }
   applyFilters();
+}
+
+// ===== 평판 회복 IP =====
+function renderRecoveredIps() {
+  const section = document.getElementById('recovered-section');
+  const tbody = document.getElementById('recovered-table-body');
+  if (!section || !tbody) return;
+
+  if (!recoveredIps || recoveredIps.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+  tbody.innerHTML = recoveredIps.map(r => {
+    const statusBadge = r.status === 'removed'
+      ? '<span class="badge" style="background:#28A745;color:#fff;">Removed</span>'
+      : '<span class="badge" style="background:#FFC107;color:#000;">Degraded</span>';
+    const yesterdayBadge = `<span class="badge badge-${r.yesterday_risk.toLowerCase()}">${r.yesterday_risk}</span> ${r.yesterday_score}`;
+    const todayText = r.status === 'removed'
+      ? '<span style="color:var(--text-muted)">- (Feed removed)</span>'
+      : `<span class="badge badge-${(r.today_risk || 'low').toLowerCase()}">${r.today_risk}</span> ${r.today_score}`;
+
+    return `<tr>
+      <td><code>${escapeHtml(r.indicator)}</code></td>
+      <td>${statusBadge}</td>
+      <td>${yesterdayBadge}</td>
+      <td>${todayText}</td>
+      <td>${escapeHtml(r.category || '-')}</td>
+    </tr>`;
+  }).join('');
 }
 
 // ===== 유틸 =====

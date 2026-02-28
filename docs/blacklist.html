@@ -38,8 +38,8 @@
         <div class="value high" id="stat-high">-</div>
       </div>
       <div class="stat-card">
-        <div class="label">Medium</div>
-        <div class="value" style="color:var(--medium)" id="stat-medium">-</div>
+        <div class="label">Recovered</div>
+        <div class="value" style="color:var(--success, #28A745)" id="stat-recovered">-</div>
       </div>
     </div>
 
@@ -97,6 +97,28 @@
       <button id="prev-btn" onclick="changePage(-1)">&laquo; Prev</button>
       <span class="page-info" id="page-info">-</span>
       <button id="next-btn" onclick="changePage(1)">Next &raquo;</button>
+    </div>
+
+    <!-- Recovered IPs Section -->
+    <div id="recovered-section" style="display:none;margin-top:32px;">
+      <h3 style="color:var(--success, #28A745);margin-bottom:12px;">&#x2705; Recovered IPs (Firewall Review)</h3>
+      <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;">
+        Yesterday high-risk IPs that were removed from feeds or degraded to Medium/Low today.
+      </p>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>IP</th>
+              <th>Status</th>
+              <th>Yesterday</th>
+              <th>Today</th>
+              <th>Category</th>
+            </tr>
+          </thead>
+          <tbody id="recovered-table-body"></tbody>
+        </table>
+      </div>
     </div>
 
     <!-- Report Date -->

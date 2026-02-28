@@ -101,34 +101,111 @@ def export_blacklist(client, days: int = 7) -> dict:
     if snapshots:
         latest_date = snapshots[0].get("date", today.isoformat())
 
-    indicators_res = client.table("shield_indicators") \
-        .select("indicator, type, category, sources, base_score, final_score, risk, enrichment") \
-        .eq("date", latest_date) \
-        .order("final_score", desc=True) \
-        .limit(500) \
-        .execute()
-
+    # 전체 indicator 조회 (페이지네이션으로 전체 로드)
     indicators = []
-    for row in (indicators_res.data or []):
-        enrichment = row.get("enrichment") or {}
-        abuse = enrichment.get("abuseipdb") or {}
+    page_size = 1000
+    offset = 0
+    while True:
+        indicators_res = client.table("shield_indicators") \
+            .select("indicator, type, category, sources, base_score, final_score, risk, enrichment") \
+            .eq("date", latest_date) \
+            .order("final_score", desc=True) \
+            .range(offset, offset + page_size - 1) \
+            .execute()
 
-        indicators.append({
-            "indicator": row.get("indicator", ""),
-            "type": row.get("type", "ip"),
-            "category": row.get("category", "unknown"),
-            "sources": row.get("sources", []),
-            "score": row.get("final_score", 0),
-            "risk": row.get("risk", "Low"),
-            "abuse_confidence": abuse.get("abuseConfidenceScore"),
-            "abuse_reports": abuse.get("totalReports"),
-        })
+        rows = indicators_res.data or []
+        if not rows:
+            break
+
+        for row in rows:
+            enrichment = row.get("enrichment") or {}
+            abuse = enrichment.get("abuseipdb") or {}
+
+            indicators.append({
+                "indicator": row.get("indicator", ""),
+                "type": row.get("type", "ip"),
+                "category": row.get("category", "unknown"),
+                "sources": row.get("sources", []),
+                "score": row.get("final_score", 0),
+                "risk": row.get("risk", "Low"),
+                "abuse_confidence": abuse.get("abuseConfidenceScore"),
+                "abuse_reports": abuse.get("totalReports"),
+            })
+
+        if len(rows) < page_size:
+            break
+        offset += page_size
+
+    # 어제 → 오늘 사이 제거/등급 하락 IP (평판 회복 IP)
+    yesterday = (today - dt.timedelta(days=1)).isoformat()
+    recovered_ips = _get_recovered_ips(client, yesterday, latest_date)
 
     return {
         "date": latest_date,
         "snapshots": snapshots,
         "indicators": indicators,
+        "recovered": recovered_ips,
     }
+
+
+def _get_recovered_ips(client, yesterday_date: str, today_date: str) -> list:
+    """어제 고위험이었으나 오늘 제거되거나 등급이 하락한 IP 목록"""
+    try:
+        # 어제 Critical/High IP 조회
+        yesterday_res = client.table("shield_indicators") \
+            .select("indicator, final_score, risk, category") \
+            .eq("date", yesterday_date) \
+            .in_("risk", ["Critical", "High"]) \
+            .order("final_score", desc=True) \
+            .limit(200) \
+            .execute()
+
+        yesterday_highrisk = {r["indicator"]: r for r in (yesterday_res.data or [])}
+        if not yesterday_highrisk:
+            return []
+
+        # 오늘 데이터에서 해당 IP들 조회
+        today_ips = list(yesterday_highrisk.keys())
+        today_res = client.table("shield_indicators") \
+            .select("indicator, final_score, risk") \
+            .eq("date", today_date) \
+            .in_("indicator", today_ips[:100]) \
+            .execute()
+
+        today_map = {r["indicator"]: r for r in (today_res.data or [])}
+
+        recovered = []
+        for ip, y_data in yesterday_highrisk.items():
+            t_data = today_map.get(ip)
+            if t_data is None:
+                # 피드에서 완전 제거됨
+                recovered.append({
+                    "indicator": ip,
+                    "yesterday_score": y_data.get("final_score", 0),
+                    "yesterday_risk": y_data.get("risk", "-"),
+                    "today_score": 0,
+                    "today_risk": "Removed",
+                    "category": y_data.get("category", "-"),
+                    "status": "removed",
+                })
+            elif t_data.get("risk") in ("Medium", "Low"):
+                # 등급 하락
+                recovered.append({
+                    "indicator": ip,
+                    "yesterday_score": y_data.get("final_score", 0),
+                    "yesterday_risk": y_data.get("risk", "-"),
+                    "today_score": t_data.get("final_score", 0),
+                    "today_risk": t_data.get("risk", "-"),
+                    "category": y_data.get("category", "-"),
+                    "status": "degraded",
+                })
+
+        recovered.sort(key=lambda x: x["yesterday_score"], reverse=True)
+        return recovered
+
+    except Exception as e:
+        print(f"  [!] 평판 회복 IP 조회 실패: {e}", flush=True)
+        return []
 
 
 def export_stats(cve_data: list, blacklist_data: dict) -> dict:
@@ -203,6 +280,9 @@ def export_stats(cve_data: list, blacklist_data: dict) -> dict:
             "risk": dict(bl_risk_counts),
             "categories": dict(bl_category_counts),
             "daily_trend": bl_daily_trend,
+            "recovered_count": len(blacklist_data.get("recovered", [])),
+            "recovered_removed": len([r for r in blacklist_data.get("recovered", []) if r.get("status") == "removed"]),
+            "recovered_degraded": len([r for r in blacklist_data.get("recovered", []) if r.get("status") == "degraded"]),
         },
     }
 
@@ -212,7 +292,7 @@ def _generate_sample_data(data_dir: str):
     print("  [!] SUPABASE_URL/SUPABASE_KEY 미설정 → 빈 샘플 데이터 생성", flush=True)
 
     cve_data = []
-    bl_data = {"date": dt.date.today().isoformat(), "snapshots": [], "indicators": []}
+    bl_data = {"date": dt.date.today().isoformat(), "snapshots": [], "indicators": [], "recovered": []}
     stats = export_stats(cve_data, bl_data)
 
     for filename, data in [("cves.json", cve_data), ("blacklist.json", bl_data), ("stats.json", stats)]:

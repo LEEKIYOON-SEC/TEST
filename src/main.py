@@ -721,14 +721,19 @@ def main():
             except Exception as e:
                 logger.error(f"{cve_id} 처리 중 예외 발생: {e}")
 
-    # Step 8: 결과 요약
+    # Step 8: Slack 배치 요약 전송
+    repo = os.environ.get("GITHUB_REPOSITORY", "")
+    dashboard_url = f"https://{repo.split('/')[0].lower()}.github.io/{repo.split('/')[1]}/" if '/' in repo else None
+    notifier.send_batch_summary(dashboard_url=dashboard_url)
+
+    # Step 9: 결과 요약
     elapsed = time.time() - start_time
     logger.info("=" * 60)
     logger.info(f"처리 완료: {len(results)}/{len(target_cve_ids)}건 성공")
     logger.info(f"소요 시간: {elapsed:.1f}초")
     logger.info("=" * 60)
 
-    # Step 9: Rate Limit 사용 요약
+    # Step 10: Rate Limit 사용 요약
     rate_limit_manager.print_summary()
 
 if __name__ == "__main__":

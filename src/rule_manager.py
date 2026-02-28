@@ -676,21 +676,68 @@ rule CVE_XXXX_Indicator {
     condition:
         any of ($s*)
 }
+
+[YARA CRITICAL CONSTRAINTS]
+1. Use ONLY standard YARA syntax. DO NOT use undefined identifiers.
+2. FORBIDDEN identifiers (cause compile errors): filepath, filename, extension, path, pe.*, elf.*, math.*, cuckoo.*
+   - These require explicit 'import' statements. If you don't import a module, DO NOT reference its identifiers.
+3. ALLOWED in condition without imports: any of, all of, filesize, uint16, uint32, uint16be, uint32be, entrypoint
+4. For string matching, use ONLY $variable_name definitions in the strings section.
+5. If the CVE is about a web vulnerability (SQL injection, XSS, etc.), focus on detecting payload strings, NOT file metadata.
+6. Each string ($s1, $s2, ...) MUST be a concrete, specific indicator from the provided data. DO NOT invent generic patterns.
 """
         elif rule_type in ["Sigma", "sigma"]:
             base_prompt += """
-[Sigma Template]
-title: CVE-XXXX Detection
+[Sigma QUALITY REQUIREMENTS - READ CAREFULLY]
+
+1. **Logsource precision**: Choose the MOST SPECIFIC logsource for the vulnerability type:
+   - Web app vulns (SQLi, XSS, RCE via HTTP): use `product: webserver` with `category: webserver_access`
+   - If the attack uses POST body parameters, ALSO add a second detection block using `category: webserver` or `category: proxy` to catch POST data
+   - OS-level exploits: use `product: windows/linux` with appropriate category (process_creation, file_event, etc.)
+   - Network exploits: use `product: zeek/suricata` as appropriate
+
+2. **Detection MUST match the attack semantics**:
+   - If the title says "SQL Injection", the detection MUST include SQL injection patterns (e.g., UNION, SELECT, OR 1=1, single quotes, comment sequences like -- or #) NOT just the parameter name
+   - If the title says "RCE", detect command execution patterns, not just URL paths
+   - If the title says "XSS", detect script injection patterns
+   - NEVER create a rule where detection is ONLY "parameter_name exists in URI" - this causes massive false positives
+
+3. **Multi-condition detection** (reduce false positives):
+   - Use multiple selection conditions combined with `condition: all of selection_*`
+   - Example for SQL Injection in coupon_code parameter:
+     - selection_endpoint: uri|contains the vulnerable endpoint path or plugin path
+     - selection_param: uri|contains OR cs-body|contains the parameter name
+     - selection_payload: uri|contains|any OR cs-body|contains|any with SQL injection patterns
+     - condition: all of selection_*
+
+4. **POST body awareness**:
+   - Many web parameters are sent via POST body, not URI query string
+   - Use fields like `cs-body`, `request_body`, or `post_data` when appropriate
+   - If unsure whether GET or POST, create detection for BOTH using `|` (OR) in field names
+
+5. **Sigma Template**:
+title: CVE-XXXX [Specific Attack Type] Attempt
 status: experimental
-description: Detects CVE-XXXX
+description: Detects [specific attack] targeting [specific component/parameter] in [product name]
 logsource:
-    product: windows
-    category: process_creation
+    product: webserver
+    category: webserver_access
 detection:
-    selection:
-        CommandLine|contains: 'pattern'
-    condition: selection
+    selection_endpoint:
+        uri|contains: '/specific/path'
+    selection_param:
+        uri|contains: 'param_name'
+    selection_payload:
+        uri|contains|any:
+            - "UNION"
+            - "SELECT"
+            - "'"
+            - "--"
+    condition: all of selection_*
 level: high
+tags:
+    - cve.XXXX.XXXXX
+    - attack.initial_access
 """
         
         return base_prompt
