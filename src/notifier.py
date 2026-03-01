@@ -1,6 +1,8 @@
 import requests
 import os
 import re
+import time
+import threading
 from typing import Dict, List, Optional
 from logger import logger
 
@@ -9,6 +11,9 @@ class NotifierError(Exception):
     pass
 
 class SlackNotifier:
+    MAX_RETRIES = 3
+    RETRY_DELAYS = [2, 5, 10]  # 초
+
     def __init__(self):
         """Slack Webhook 초기화"""
         self.webhook_url = os.environ.get("SLACK_WEBHOOK_URL")
@@ -16,23 +21,42 @@ class SlackNotifier:
         if not self.webhook_url:
             raise NotifierError("SLACK_WEBHOOK_URL이 설정되지 않음")
 
-        # 배치 알림용 결과 수집
+        # 배치 알림용 결과 수집 (thread-safe)
         self._batch_results: List[Dict] = []
+        self._lock = threading.Lock()
 
         logger.info("Slack Notifier 초기화 완료")
 
+    def _send_slack_with_retry(self, payload: dict, context: str = "Slack") -> bool:
+        """Slack webhook 전송 + 재시도 (최대 3회, 지수 백오프)"""
+        for attempt in range(self.MAX_RETRIES):
+            try:
+                response = requests.post(self.webhook_url, json=payload, timeout=10)
+                response.raise_for_status()
+                return True
+            except requests.exceptions.RequestException as e:
+                delay = self.RETRY_DELAYS[attempt] if attempt < len(self.RETRY_DELAYS) else 10
+                logger.warning(f"{context} 전송 실패 (시도 {attempt+1}/{self.MAX_RETRIES}): {e}")
+                if attempt < self.MAX_RETRIES - 1:
+                    time.sleep(delay)
+                else:
+                    logger.error(f"{context} 전송 최종 실패: {e}")
+                    return False
+        return False
+
     def collect_alert(self, cve_data: Dict, reason: str, report_url: Optional[str] = None) -> None:
-        """개별 CVE 알림을 배치 결과에 수집 (Slack 전송하지 않음)"""
-        self._batch_results.append({
-            "id": cve_data['id'],
-            "title_ko": cve_data.get('title_ko', cve_data.get('title', 'N/A')),
-            "cvss": cve_data.get('cvss', 0),
-            "epss": cve_data.get('epss', 0),
-            "is_kev": cve_data.get('is_kev', False),
-            "has_poc": cve_data.get('has_poc', False),
-            "reason": reason,
-            "report_url": report_url,
-        })
+        """개별 CVE 알림을 배치 결과에 수집 (thread-safe)"""
+        with self._lock:
+            self._batch_results.append({
+                "id": cve_data['id'],
+                "title_ko": cve_data.get('title_ko', cve_data.get('title', 'N/A')),
+                "cvss": cve_data.get('cvss', 0),
+                "epss": cve_data.get('epss', 0),
+                "is_kev": cve_data.get('is_kev', False),
+                "has_poc": cve_data.get('has_poc', False),
+                "reason": reason,
+                "report_url": report_url,
+            })
         logger.info(f"Slack 배치 수집: {cve_data['id']}")
 
     def send_alert(self, cve_data: Dict, reason: str, report_url: Optional[str] = None) -> bool:
@@ -81,11 +105,10 @@ class SlackNotifier:
                     "elements": [{"type": "button", "text": {"type": "plain_text", "text": "상세 분석 리포트"}, "url": report_url, "style": "danger"}]
                 })
 
-            response = requests.post(self.webhook_url, json={"blocks": blocks}, timeout=10)
-            response.raise_for_status()
-
-            logger.info(f"Slack 긴급 알림 전송: {cve_data['id']} ({badge_text})")
-            return True
+            success = self._send_slack_with_retry({"blocks": blocks}, f"긴급 알림 ({cve_data['id']})")
+            if success:
+                logger.info(f"Slack 긴급 알림 전송: {cve_data['id']} ({badge_text})")
+            return success
 
         except Exception as e:
             logger.error(f"Slack 긴급 알림 실패: {e}")
@@ -157,16 +180,13 @@ class SlackNotifier:
                 "elements": [{"type": "mrkdwn", "text": "상세 분석은 웹 대시보드 또는 GitHub Issue에서 확인하세요."}]
             })
 
-            response = requests.post(self.webhook_url, json={"blocks": blocks}, timeout=10)
-            response.raise_for_status()
+            success = self._send_slack_with_retry({"blocks": blocks}, "배치 요약")
+            if success:
+                logger.info(f"Slack 배치 요약 전송 완료: {total}건 (고위험 {len(high_risk)}건)")
+                with self._lock:
+                    self._batch_results = []
+            return success
 
-            logger.info(f"Slack 배치 요약 전송 완료: {total}건 (고위험 {len(high_risk)}건)")
-            self._batch_results = []
-            return True
-
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Slack 배치 요약 전송 실패: {e}")
-            return False
         except Exception as e:
             logger.error(f"배치 요약 생성 에러: {e}")
             return False
@@ -229,11 +249,10 @@ class SlackNotifier:
                     ]
                 })
 
-            response = requests.post(self.webhook_url, json={"blocks": blocks}, timeout=10)
-            response.raise_for_status()
-
-            logger.info(f"공식 룰 발견 알림 전송: {cve_id} ({rule_count}개 엔진)")
-            return True
+            success = self._send_slack_with_retry({"blocks": blocks}, f"공식 룰 알림 ({cve_id})")
+            if success:
+                logger.info(f"공식 룰 발견 알림 전송: {cve_id} ({rule_count}개 엔진)")
+            return success
 
         except Exception as e:
             logger.error(f"공식 룰 알림 실패: {e}")

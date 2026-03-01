@@ -18,6 +18,8 @@ class RuleManagerError(Exception):
 class RuleManager:
     # GitHub Code Search API 차단 상태 (클래스 수준 - 모든 인스턴스 공유)
     _code_search_blocked = False
+    _code_search_fail_count = 0
+    _CODE_SEARCH_MAX_FAILS = 3  # 3회 연속 실패 시 차단 (단일 실패로 전체 차단 방지)
     # SigmaHQ/Yara-Rules tarball 캐시 (클래스 수준 - 한 번 다운로드 후 재사용)
     _sigma_files: Dict[str, str] = {}
     _yara_files: Dict[str, str] = {}
@@ -55,10 +57,14 @@ class RuleManager:
             response = requests.get(url, headers=headers, timeout=10)
             rate_limit_manager.record_call("github_search")
 
-            # 403/429는 rate limit → 재시도 없이 즉시 중단
+            # 403/429는 rate limit → 누적 카운트 후 임계치 도달 시 차단
             if response.status_code in (403, 429):
-                logger.warning(f"⚠️ GitHub Code Search rate limit ({response.status_code}) → 이번 실행 내 검색 중단")
-                RuleManager._code_search_blocked = True
+                RuleManager._code_search_fail_count += 1
+                if RuleManager._code_search_fail_count >= RuleManager._CODE_SEARCH_MAX_FAILS:
+                    logger.warning(f"⚠️ GitHub Code Search {RuleManager._code_search_fail_count}회 연속 실패 → 이번 실행 내 검색 중단")
+                    RuleManager._code_search_blocked = True
+                else:
+                    logger.warning(f"⚠️ GitHub Code Search rate limit ({response.status_code}), 실패 {RuleManager._code_search_fail_count}/{RuleManager._CODE_SEARCH_MAX_FAILS}")
                 return None
 
             response.raise_for_status()

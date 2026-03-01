@@ -77,7 +77,12 @@ class Analyzer:
                 logger.warning(f"Groq 429 수신 (Analyzer), {wait_time:.1f}초 대기")
                 rate_limit_manager.handle_429("groq", wait_time)
                 raise
-            logger.error(f"{cve_data['id']}: Analysis error: {e}")
+            # 네트워크/타임아웃 에러는 재시도 가능 → raise로 tenacity 재시도
+            if any(keyword in error_str.lower() for keyword in ['timeout', 'connection', 'socket', 'network']):
+                logger.warning(f"{cve_data['id']}: 일시적 에러, 재시도: {e}")
+                raise
+            # 그 외 에러 (API 응답 문제 등)는 fallback
+            logger.error(f"{cve_data['id']}: Analysis error (fallback): {e}", exc_info=True)
             return self._fallback_analysis(cve_data)
 
     def _extract_json(self, text: str) -> Optional[Dict]:
