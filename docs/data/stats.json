@@ -1,24 +1,24 @@
 {
-  "generated_at": "2026-03-01T07:39:17.171667+00:00",
+  "generated_at": "2026-03-01T08:51:49.890067+00:00",
   "cve": {
-    "total": 1000,
-    "recent_24h": 4,
-    "kev_count": 6,
+    "total": 5577,
+    "recent_24h": 7,
+    "kev_count": 16,
     "severity": {
-      "Medium": 106,
-      "High": 99,
-      "None": 770,
-      "Low": 11,
-      "Critical": 14
+      "Medium": 195,
+      "Critical": 23,
+      "High": 139,
+      "None": 5205,
+      "Low": 15
     },
     "daily_trend": [
       {
         "date": "2026-02-17",
-        "count": 40
+        "count": 4394
       },
       {
         "date": "2026-02-18",
-        "count": 795
+        "count": 1015
       },
       {
         "date": "2026-02-26",
@@ -30,25 +30,41 @@
       },
       {
         "date": "2026-03-01",
-        "count": 3
+        "count": 6
       }
     ],
     "top_vendors": [
       {
         "vendor": "n/a",
-        "count": 733
+        "count": 5062
       },
       {
         "vendor": "Microsoft",
-        "count": 59
+        "count": 138
+      },
+      {
+        "vendor": "MediaTek, Inc.",
+        "count": 32
       },
       {
         "vendor": "Linux",
         "count": 26
       },
       {
+        "vendor": "Smoothwall",
+        "count": 17
+      },
+      {
         "vendor": "NVIDIA",
+        "count": 13
+      },
+      {
+        "vendor": "Red Hat",
         "count": 12
+      },
+      {
+        "vendor": "IBM",
+        "count": 10
       },
       {
         "vendor": "ImageMagick",
@@ -57,22 +73,6 @@
       {
         "vendor": "arcinfo",
         "count": 7
-      },
-      {
-        "vendor": "Graylog",
-        "count": 7
-      },
-      {
-        "vendor": "Red Hat",
-        "count": 6
-      },
-      {
-        "vendor": "Dassault Systèmes",
-        "count": 6
-      },
-      {
-        "vendor": "free5gc",
-        "count": 6
       }
     ]
   },
