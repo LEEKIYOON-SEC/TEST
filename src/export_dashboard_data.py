@@ -28,16 +28,28 @@ def _get_client():
 
 
 def export_cves(client, days: int = 90) -> list:
-    """최근 N일 CVE 데이터 export"""
+    """최근 N일 CVE 데이터 export (페이지네이션으로 전체 로드)"""
     cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).isoformat()
 
-    response = client.table("cves") \
-        .select("id, cvss_score, epss_score, is_kev, last_alert_at, last_alert_state, report_url, updated_at") \
-        .gte("updated_at", cutoff) \
-        .order("updated_at", desc=True) \
-        .execute()
+    rows = []
+    page_size = 1000
+    offset = 0
+    while True:
+        response = client.table("cves") \
+            .select("id, cvss_score, epss_score, is_kev, last_alert_at, last_alert_state, report_url, updated_at") \
+            .gte("updated_at", cutoff) \
+            .order("updated_at", desc=True) \
+            .range(offset, offset + page_size - 1) \
+            .execute()
 
-    rows = response.data or []
+        page = response.data or []
+        if not page:
+            break
+        rows.extend(page)
+        if len(page) < page_size:
+            break
+        offset += page_size
+
     result = []
 
     for row in rows:

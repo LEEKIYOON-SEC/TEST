@@ -627,13 +627,12 @@ def check_for_official_rules() -> None:
                             rules
                         )
 
-                    # DB 업데이트 — 공식 룰 발견 (실패 플래그 초기화)
+                    # DB 업데이트 — 공식 룰 발견
                     db.upsert_cve({
                         "id": cve_id,
                         "has_official_rules": True,
                         "rules_snapshot": rules,
                         "last_rule_check_at": now_iso,
-                        "last_rule_check_failed": False,
                         "updated_at": now_iso
                     })
                 else:
@@ -641,18 +640,18 @@ def check_for_official_rules() -> None:
                     db.upsert_cve({
                         "id": cve_id,
                         "last_rule_check_at": now_iso,
-                        "last_rule_check_failed": False,
                         "updated_at": now_iso
                     })
 
             except Exception as e:
                 logger.error(f"{cve_id} 공식 룰 체크 실패: {e}")
-                # 실패 시 쿨다운 1일 (빠른 재시도)
+                # 실패 시 쿨다운 1일: last_rule_check_at을 6일 전으로 설정
+                # → 7일 쿨다운 기준으로 내일 재시도 가능
                 try:
+                    fake_past = (datetime.datetime.now(KST) - datetime.timedelta(days=6)).isoformat()
                     db.upsert_cve({
                         "id": cve_id,
-                        "last_rule_check_at": datetime.datetime.now(KST).isoformat(),
-                        "last_rule_check_failed": True,
+                        "last_rule_check_at": fake_past,
                         "updated_at": datetime.datetime.now(KST).isoformat()
                     })
                 except Exception:
