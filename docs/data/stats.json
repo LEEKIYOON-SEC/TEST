@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-03-01T05:21:20.399941+00:00",
+  "generated_at": "2026-03-01T07:39:17.171667+00:00",
   "cve": {
     "total": 1000,
-    "recent_24h": 1,
+    "recent_24h": 4,
     "kev_count": 6,
     "severity": {
+      "Medium": 106,
       "High": 99,
-      "Medium": 103,
-      "None": 773,
+      "None": 770,
       "Low": 11,
       "Critical": 14
     },
@@ -18,7 +18,7 @@
       },
       {
         "date": "2026-02-18",
-        "count": 798
+        "count": 795
       },
       {
         "date": "2026-02-26",
@@ -27,6 +27,10 @@
       {
         "date": "2026-02-28",
         "count": 1
+      },
+      {
+        "date": "2026-03-01",
+        "count": 3
       }
     ],
     "top_vendors": [
@@ -73,14 +77,19 @@
     ]
   },
   "blacklist": {
-    "total": 500,
+    "total": 33885,
     "risk": {
-      "Critical": 500
+      "Critical": 1538,
+      "High": 1991,
+      "Medium": 30356
     },
     "categories": {
       "abuse.ch Feodo C2": 3,
-      "ET Block-IPs": 1,
-      "Spamhaus DROP (CIDR)": 496
+      "ET Block-IPs": 1543,
+      "Spamhaus DROP (CIDR)": 1534,
+      "ET compromised-ips": 449,
+      "Blocklist.de (all)": 29189,
+      "Tor exit nodes": 1167
     },
     "daily_trend": [
       {
@@ -107,6 +116,9 @@
         "new": 33095,
         "removed": 210
       }
-    ]
+    ],
+    "recovered_count": 100,
+    "recovered_removed": 100,
+    "recovered_degraded": 0
   }
 }
