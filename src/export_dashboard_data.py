@@ -36,7 +36,7 @@ def export_cves(client, days: int = 90) -> list:
     offset = 0
     while True:
         response = client.table("cves") \
-            .select("id, cvss_score, epss_score, is_kev, last_alert_at, last_alert_state, report_url, updated_at") \
+            .select("id, cvss_score, epss_score, is_kev, has_official_rules, last_alert_at, last_alert_state, rules_snapshot, report_url, updated_at") \
             .gte("updated_at", cutoff) \
             .order("updated_at", desc=True) \
             .range(offset, offset + page_size - 1) \
@@ -74,6 +74,21 @@ def export_cves(client, days: int = 90) -> list:
                 "product": aff.get("product", "Unknown"),
                 "versions": aff.get("versions", ""),
             })
+
+        # 탐지 룰 정보
+        rules = row.get("rules_snapshot") or {}
+        rule_engines = []
+        for engine in ["sigma", "snort", "suricata", "yara"]:
+            if rules.get(engine):
+                rule_engines.append(engine)
+        entry["rule_engines"] = rule_engines
+        entry["has_official_rules"] = row.get("has_official_rules", False)
+        entry["rules"] = rules
+
+        # PoC 정보
+        state_poc = state.get("has_poc", False)
+        entry["has_poc"] = state_poc
+        entry["poc_urls"] = state.get("poc_urls", [])[:3]
 
         # 심각도 등급 계산
         score = entry["cvss"]
@@ -220,6 +235,135 @@ def _get_recovered_ips(client, yesterday_date: str, today_date: str) -> list:
         return []
 
 
+def export_ioc(cve_data: list, blacklist_data: dict) -> dict:
+    """CVE + IP + 탐지 룰을 통합 IOC 데이터로 변환"""
+    now = dt.datetime.now(dt.timezone.utc)
+    ioc_items = []
+
+    # 1) CVE → IOC
+    for cve in cve_data:
+        risk = cve.get("severity", "None")
+        if risk == "None":
+            risk = "Low"
+
+        ioc_items.append({
+            "ioc_type": "cve",
+            "indicator": cve["id"],
+            "title": cve.get("title", "N/A"),
+            "risk": risk,
+            "score": cve.get("cvss", 0),
+            "date": cve.get("date", ""),
+            "detail": {
+                "cvss": cve.get("cvss", 0),
+                "epss": cve.get("epss", 0),
+                "is_kev": cve.get("is_kev", False),
+                "cwe": cve.get("cwe", []),
+                "affected": cve.get("affected", []),
+                "has_poc": cve.get("has_poc", False),
+                "report_url": cve.get("report_url"),
+            },
+            "tags": _build_cve_tags(cve),
+            "related_rules": cve.get("rule_engines", []),
+        })
+
+    # 2) IP → IOC
+    for ind in blacklist_data.get("indicators", []):
+        ioc_items.append({
+            "ioc_type": "ip",
+            "indicator": ind["indicator"],
+            "title": f"{ind.get('category', 'unknown')} ({', '.join(ind.get('sources', [])[:2])})",
+            "risk": ind.get("risk", "Low"),
+            "score": ind.get("score", 0),
+            "date": blacklist_data.get("date", ""),
+            "detail": {
+                "category": ind.get("category", "unknown"),
+                "sources": ind.get("sources", []),
+                "abuse_confidence": ind.get("abuse_confidence"),
+                "abuse_reports": ind.get("abuse_reports"),
+            },
+            "tags": _build_ip_tags(ind),
+            "related_rules": [],
+        })
+
+    # 3) 탐지 룰 → IOC (CVE에 연결된 룰을 독립 IOC로도 등록)
+    for cve in cve_data:
+        rules = cve.get("rules", {})
+        if not rules:
+            continue
+        for engine, rule_content in rules.items():
+            if not rule_content:
+                continue
+            is_official = cve.get("has_official_rules", False)
+            ioc_items.append({
+                "ioc_type": "rule",
+                "indicator": f"{cve['id']}:{engine}",
+                "title": f"{engine.upper()} rule for {cve['id']}",
+                "risk": cve.get("severity", "Low") if cve.get("severity") != "None" else "Low",
+                "score": cve.get("cvss", 0),
+                "date": cve.get("date", ""),
+                "detail": {
+                    "engine": engine,
+                    "cve_id": cve["id"],
+                    "is_official": is_official,
+                    "rule_preview": rule_content[:500] if isinstance(rule_content, str) else "",
+                    "report_url": cve.get("report_url"),
+                },
+                "tags": ["official" if is_official else "ai-generated", engine],
+                "related_rules": [],
+            })
+
+    # 날짜 기준 정렬 (최신 우선)
+    ioc_items.sort(key=lambda x: x.get("date", ""), reverse=True)
+
+    # 통계 집계
+    type_counts = defaultdict(int)
+    risk_counts = defaultdict(int)
+    for item in ioc_items:
+        type_counts[item["ioc_type"]] += 1
+        risk_counts[item["risk"]] += 1
+
+    return {
+        "generated_at": now.isoformat(),
+        "total": len(ioc_items),
+        "by_type": dict(type_counts),
+        "by_risk": dict(risk_counts),
+        "items": ioc_items,
+    }
+
+
+def _build_cve_tags(cve: dict) -> list:
+    """CVE에서 태그 목록 생성"""
+    tags = []
+    if cve.get("is_kev"):
+        tags.append("KEV")
+    if cve.get("has_poc"):
+        tags.append("PoC")
+    if cve.get("cvss", 0) >= 9.0:
+        tags.append("Critical")
+    if cve.get("epss", 0) >= 0.1:
+        tags.append("High-EPSS")
+    if cve.get("rule_engines"):
+        tags.append("has-rules")
+    if cve.get("has_official_rules"):
+        tags.append("official-rules")
+    return tags
+
+
+def _build_ip_tags(ind: dict) -> list:
+    """IP indicator에서 태그 목록 생성"""
+    tags = []
+    cat = ind.get("category", "")
+    if cat:
+        tags.append(cat)
+    source_count = len(ind.get("sources", []))
+    if source_count >= 3:
+        tags.append("multi-source")
+    abuse = ind.get("abuse_confidence")
+    if abuse is not None and abuse >= 80:
+        tags.append("high-abuse")
+    return tags
+
+
 def export_stats(cve_data: list, blacklist_data: dict) -> dict:
     """통계 집계"""
     now = dt.datetime.now(dt.timezone.utc)
@@ -306,8 +450,9 @@ def _generate_sample_data(data_dir: str):
     cve_data = []
     bl_data = {"date": dt.date.today().isoformat(), "snapshots": [], "indicators": [], "recovered": []}
     stats = export_stats(cve_data, bl_data)
+    ioc_data = export_ioc(cve_data, bl_data)
 
-    for filename, data in [("cves.json", cve_data), ("blacklist.json", bl_data), ("stats.json", stats)]:
+    for filename, data in [("cves.json", cve_data), ("blacklist.json", bl_data), ("stats.json", stats), ("ioc.json", ioc_data)]:
         path = os.path.join(data_dir, filename)
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
@@ -329,7 +474,7 @@ def main():
         return
 
     # CVE 데이터
-    print("[1/3] CVE 데이터 export...", flush=True)
+    print("[1/4] CVE 데이터 export...", flush=True)
     cve_data = export_cves(client)
     cve_path = os.path.join(data_dir, "cves.json")
     with open(cve_path, "w", encoding="utf-8") as f:
@@ -337,15 +482,23 @@ def main():
     print(f"  CVE: {len(cve_data)}건 → {cve_path}", flush=True)
 
     # 블랙리스트 데이터
-    print("[2/3] 블랙리스트 IP 데이터 export...", flush=True)
+    print("[2/4] 블랙리스트 IP 데이터 export...", flush=True)
     bl_data = export_blacklist(client)
     bl_path = os.path.join(data_dir, "blacklist.json")
     with open(bl_path, "w", encoding="utf-8") as f:
         json.dump(bl_data, f, ensure_ascii=False, indent=2)
     print(f"  Blacklist: {len(bl_data.get('indicators', []))}건 → {bl_path}", flush=True)
 
+    # IOC 통합 데이터
+    print("[3/4] IOC 통합 데이터 export...", flush=True)
+    ioc_data = export_ioc(cve_data, bl_data)
+    ioc_path = os.path.join(data_dir, "ioc.json")
+    with open(ioc_path, "w", encoding="utf-8") as f:
+        json.dump(ioc_data, f, ensure_ascii=False, indent=2)
+    print(f"  IOC: {ioc_data['total']}건 → {ioc_path}", flush=True)
+
     # 통계
-    print("[3/3] 통계 집계...", flush=True)
+    print("[4/4] 통계 집계...", flush=True)
     stats = export_stats(cve_data, bl_data)
     stats_path = os.path.join(data_dir, "stats.json")
     with open(stats_path, "w", encoding="utf-8") as f:
