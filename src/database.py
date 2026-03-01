@@ -103,9 +103,8 @@ class ArgusDB:
                         if record.get('has_official_rules'):
                             continue
 
-                        # 쿨다운: 기본 7일, 실패 플래그가 있으면 1일
-                        cooldown = 1 if record.get('last_rule_check_failed') else 7
-                        if days_since < cooldown:
+                        # 쿨다운: 7일 (실패 시 last_rule_check_at을 6일 전으로 설정하여 1일 후 재시도)
+                        if days_since < 7:
                             continue
                     except (ValueError, TypeError):
                         pass
