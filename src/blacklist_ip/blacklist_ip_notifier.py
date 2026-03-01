@@ -243,6 +243,21 @@ def build_slack_blocks(
 
 
 def send_slack(webhook_url: str, blocks: List[Dict[str, Any]]) -> None:
+    """Slack 전송 + 재시도 (최대 3회, 지수 백오프)"""
     payload = {"blocks": blocks}
-    r = requests.post(webhook_url, json=payload, timeout=20)
-    r.raise_for_status()
+    max_retries = 3
+    delays = [2, 5, 10]
+    for attempt in range(max_retries):
+        try:
+            r = requests.post(webhook_url, json=payload, timeout=20)
+            r.raise_for_status()
+            return
+        except requests.exceptions.RequestException as e:
+            if attempt < max_retries - 1:
+                delay = delays[attempt]
+                print(f"  [!] Slack 전송 실패 (시도 {attempt+1}/{max_retries}): {e}, {delay}s 후 재시도", flush=True)
+                import time
+                time.sleep(delay)
+            else:
+                print(f"  [!] Slack 전송 최종 실패: {e}", flush=True)
+                raise

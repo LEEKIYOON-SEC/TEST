@@ -18,6 +18,8 @@ class RuleManagerError(Exception):
 class RuleManager:
     # GitHub Code Search API 차단 상태 (클래스 수준 - 모든 인스턴스 공유)
     _code_search_blocked = False
+    _code_search_fail_count = 0
+    _CODE_SEARCH_MAX_FAILS = 3  # 3회 연속 실패 시 차단 (단일 실패로 전체 차단 방지)
     # SigmaHQ/Yara-Rules tarball 캐시 (클래스 수준 - 한 번 다운로드 후 재사용)
     _sigma_files: Dict[str, str] = {}
     _yara_files: Dict[str, str] = {}
@@ -55,10 +57,14 @@ class RuleManager:
             response = requests.get(url, headers=headers, timeout=10)
             rate_limit_manager.record_call("github_search")
 
-            # 403/429는 rate limit → 재시도 없이 즉시 중단
+            # 403/429는 rate limit → 누적 카운트 후 임계치 도달 시 차단
             if response.status_code in (403, 429):
-                logger.warning(f"⚠️ GitHub Code Search rate limit ({response.status_code}) → 이번 실행 내 검색 중단")
-                RuleManager._code_search_blocked = True
+                RuleManager._code_search_fail_count += 1
+                if RuleManager._code_search_fail_count >= RuleManager._CODE_SEARCH_MAX_FAILS:
+                    logger.warning(f"⚠️ GitHub Code Search {RuleManager._code_search_fail_count}회 연속 실패 → 이번 실행 내 검색 중단")
+                    RuleManager._code_search_blocked = True
+                else:
+                    logger.warning(f"⚠️ GitHub Code Search rate limit ({response.status_code}), 실패 {RuleManager._code_search_fail_count}/{RuleManager._CODE_SEARCH_MAX_FAILS}")
                 return None
 
             response.raise_for_status()
@@ -308,36 +314,66 @@ class RuleManager:
     
     def _validate_sigma(self, code: str) -> bool:
         """
-        Sigma 룰 검증
-        
-        Sigma는 YAML 형식을 사용. 검증 과정:
-        1. YAML 파싱이 되는가?
-        2. 필수 필드가 있는가? (title, logsource, detection)
-        3. logsource에 product 또는 category가 있는가?
+        Sigma 룰 검증 (강화)
+
+        7단계 검증:
+        1. YAML 파싱
+        2. 필수 필드 존재 (title, logsource, detection)
+        3. logsource에 product 또는 category
+        4. detection에 condition 필드
+        5. detection에 최소 1개 selection 존재
+        6. selection이 단순 파라미터만이 아닌지 (semantic check)
+        7. level 필드 존재
         """
         try:
             data = yaml.safe_load(code)
-            
+
             if not isinstance(data, dict):
                 logger.warning("Sigma: YAML이 딕셔너리가 아님")
                 return False
-            
+
             # 필수 필드 확인
             required = ['title', 'logsource', 'detection']
             for field in required:
                 if field not in data:
                     logger.warning(f"Sigma: 필수 필드 누락 - {field}")
                     return False
-            
+
             # logsource 검증
             logsource = data['logsource']
+            if not isinstance(logsource, dict):
+                logger.warning("Sigma: logsource가 딕셔너리가 아님")
+                return False
             if 'product' not in logsource and 'category' not in logsource:
                 logger.warning("Sigma: logsource에 product 또는 category 필요")
                 return False
-            
+
+            # detection 검증
+            detection = data['detection']
+            if not isinstance(detection, dict):
+                logger.warning("Sigma: detection이 딕셔너리가 아님")
+                return False
+
+            # condition 필수
+            if 'condition' not in detection:
+                logger.warning("Sigma: detection에 condition 필드 누락")
+                return False
+
+            # 최소 1개 selection 존재
+            selections = [k for k in detection.keys() if k != 'condition']
+            if not selections:
+                logger.warning("Sigma: detection에 selection이 없음")
+                return False
+
+            # 단일 selection만 있고 필드가 1개뿐이면 경고 (너무 포괄적)
+            if len(selections) == 1:
+                sel = detection[selections[0]]
+                if isinstance(sel, dict) and len(sel) == 1:
+                    logger.warning("Sigma: 단일 조건 detection - false positive 위험 높음 (허용하되 경고)")
+
             logger.debug("✅ Sigma 검증 통과")
             return True
-            
+
         except yaml.YAMLError as e:
             logger.warning(f"Sigma: YAML 파싱 실패 - {e}")
             return False
@@ -650,19 +686,46 @@ CWE: {', '.join(cve_data.get('cwe', []))}
         
         if rule_type in ["Snort", "Suricata", "snort", "suricata"]:
             base_prompt += """
-[Snort/Suricata Template]
+[Snort/Suricata QUALITY REQUIREMENTS]
+
+1. **HTTP-aware detection**: Use HTTP sticky buffers for precise matching:
+   - `http_uri` or `http.uri` (Snort3): match URI path + query string
+   - `http_client_body` or `http.request_body` (Snort3): match POST body parameters
+   - `http_header` or `http.header` (Snort3): match specific HTTP headers
+   - `http_method` or `http.method` (Snort3): match GET/POST/PUT/DELETE
+   - Do NOT use bare `content` for HTTP fields — always use the appropriate buffer modifier
+
+2. **Multi-condition rules** (reduce false positives):
+   - Combine endpoint path + parameter name + attack payload in the same rule
+   - Example for SQL Injection in POST body:
+     content:"POST"; http_method;
+     content:"/vulnerable/endpoint"; http_uri;
+     content:"param_name="; http_client_body;
+     pcre:"/param_name=.*?(UNION|SELECT|'|--|%27)/Pi";
+   - Use `distance` and `within` for positional matching when appropriate
+
+3. **Stateful detection**: Always include `flow:to_server,established;` for TCP rules
+
+4. **Rule metadata**:
+   - msg: Include CVE ID and specific attack type (e.g., "CVE-2025-XXXX SQL Injection via coupon_code")
+   - classtype: Choose the MOST SPECIFIC class (web-application-attack, attempted-admin, etc.)
+   - sid: Use range 9000001-9999999 for custom rules
+   - reference: Include `reference:cve,XXXX-XXXXX;`
+
+5. **Template**:
 alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (
-    msg:"CVE-XXXX Exploit Attempt";
+    msg:"CVE-XXXX Exploit Attempt - [Specific Attack Description]";
     flow:to_server,established;
-    content:"specific_string"; http_uri;
-    pcre:"/pattern/i";
+    content:"/path"; http_uri;
+    content:"param="; http_client_body;
+    pcre:"/attack_pattern/Pi";
+    reference:cve,XXXX-XXXXX;
     classtype:web-application-attack;
-    sid:1000001; rev:1;
+    sid:9000001; rev:1;
 )
 
-Requirements:
-- MUST include: msg, sid
-- Use actual content/pcre from description
+6. **CRITICAL**: If the CVE is about a POST parameter, you MUST use http_client_body (not http_uri).
+   If unsure, create TWO content matches — one for URI, one for body.
 """
         elif rule_type in ["Yara", "yara"]:
             base_prompt += """
@@ -676,21 +739,68 @@ rule CVE_XXXX_Indicator {
     condition:
         any of ($s*)
 }
+
+[YARA CRITICAL CONSTRAINTS]
+1. Use ONLY standard YARA syntax. DO NOT use undefined identifiers.
+2. FORBIDDEN identifiers (cause compile errors): filepath, filename, extension, path, pe.*, elf.*, math.*, cuckoo.*
+   - These require explicit 'import' statements. If you don't import a module, DO NOT reference its identifiers.
+3. ALLOWED in condition without imports: any of, all of, filesize, uint16, uint32, uint16be, uint32be, entrypoint
+4. For string matching, use ONLY $variable_name definitions in the strings section.
+5. If the CVE is about a web vulnerability (SQL injection, XSS, etc.), focus on detecting payload strings, NOT file metadata.
+6. Each string ($s1, $s2, ...) MUST be a concrete, specific indicator from the provided data. DO NOT invent generic patterns.
 """
         elif rule_type in ["Sigma", "sigma"]:
             base_prompt += """
-[Sigma Template]
-title: CVE-XXXX Detection
+[Sigma QUALITY REQUIREMENTS - READ CAREFULLY]
+
+1. **Logsource precision**: Choose the MOST SPECIFIC logsource for the vulnerability type:
+   - Web app vulns (SQLi, XSS, RCE via HTTP): use `product: webserver` with `category: webserver_access`
+   - If the attack uses POST body parameters, ALSO add a second detection block using `category: webserver` or `category: proxy` to catch POST data
+   - OS-level exploits: use `product: windows/linux` with appropriate category (process_creation, file_event, etc.)
+   - Network exploits: use `product: zeek/suricata` as appropriate
+
+2. **Detection MUST match the attack semantics**:
+   - If the title says "SQL Injection", the detection MUST include SQL injection patterns (e.g., UNION, SELECT, OR 1=1, single quotes, comment sequences like -- or #) NOT just the parameter name
+   - If the title says "RCE", detect command execution patterns, not just URL paths
+   - If the title says "XSS", detect script injection patterns
+   - NEVER create a rule where detection is ONLY "parameter_name exists in URI" - this causes massive false positives
+
+3. **Multi-condition detection** (reduce false positives):
+   - Use multiple selection conditions combined with `condition: all of selection_*`
+   - Example for SQL Injection in coupon_code parameter:
+     - selection_endpoint: uri|contains the vulnerable endpoint path or plugin path
+     - selection_param: uri|contains OR cs-body|contains the parameter name
+     - selection_payload: uri|contains|any OR cs-body|contains|any with SQL injection patterns
+     - condition: all of selection_*
+
+4. **POST body awareness**:
+   - Many web parameters are sent via POST body, not URI query string
+   - Use fields like `cs-body`, `request_body`, or `post_data` when appropriate
+   - If unsure whether GET or POST, create detection for BOTH using `|` (OR) in field names
+
+5. **Sigma Template**:
+title: CVE-XXXX [Specific Attack Type] Attempt
 status: experimental
-description: Detects CVE-XXXX
+description: Detects [specific attack] targeting [specific component/parameter] in [product name]
 logsource:
-    product: windows
-    category: process_creation
+    product: webserver
+    category: webserver_access
 detection:
-    selection:
-        CommandLine|contains: 'pattern'
-    condition: selection
+    selection_endpoint:
+        uri|contains: '/specific/path'
+    selection_param:
+        uri|contains: 'param_name'
+    selection_payload:
+        uri|contains|any:
+            - "UNION"
+            - "SELECT"
+            - "'"
+            - "--"
+    condition: all of selection_*
 level: high
+tags:
+    - cve.XXXX.XXXXX
+    - attack.initial_access
 """
         
         return base_prompt

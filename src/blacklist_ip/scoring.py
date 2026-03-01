@@ -6,7 +6,62 @@ def clamp(x: int, lo: int = 0, hi: int = 100) -> int:
     return max(lo, min(hi, x))
 
 
-def risk_bucket(score: int, critical: int, high: int, medium: int) -> str:
+# ==========================================
+# 카테고리별 임계값 오버라이드
+# ==========================================
+# 카테고리에 따라 위험 기준이 다름:
+#   - botnet/C2: 더 낮은 임계값 (즉각 차단 필요)
+#   - scanner/bruteforce: 약간 낮은 임계값
+#   - tor: 높은 임계값 (단독으로는 위험하지 않음, 다중 소스 겹칠 때만)
+#   - spam/proxy: 기본 임계값 유지
+CATEGORY_THRESHOLD_OVERRIDES: Dict[str, Dict[str, int]] = {
+    "botnet":      {"critical": 70, "high": 50, "medium": 30},
+    "c2":          {"critical": 70, "high": 50, "medium": 30},
+    "feodo":       {"critical": 70, "high": 50, "medium": 30},
+    "malware":     {"critical": 70, "high": 50, "medium": 30},
+    "bruteforce":  {"critical": 75, "high": 55, "medium": 35},
+    "scanner":     {"critical": 75, "high": 55, "medium": 35},
+    "exploit":     {"critical": 70, "high": 50, "medium": 30},
+    "compromised": {"critical": 75, "high": 55, "medium": 35},
+    "tor":         {"critical": 90, "high": 75, "medium": 50},
+    # 나머지 카테고리는 글로벌 기본값 사용
+}
+
+
+def _match_category_override(category: str) -> Optional[Dict[str, int]]:
+    """
+    카테고리 문자열에서 키워드 부분 매칭.
+    feeds.yml의 category는 "abuse.ch Feodo C2", "Tor exit nodes" 등 긴 문자열이므로
+    키워드가 포함되어 있으면 해당 오버라이드를 적용.
+    """
+    if not category:
+        return None
+    cat_lower = category.lower().strip()
+
+    # 정확 매칭 우선
+    if cat_lower in CATEGORY_THRESHOLD_OVERRIDES:
+        return CATEGORY_THRESHOLD_OVERRIDES[cat_lower]
+
+    # 키워드 부분 매칭
+    for keyword, overrides in CATEGORY_THRESHOLD_OVERRIDES.items():
+        if keyword in cat_lower:
+            return overrides
+
+    return None
+
+
+def risk_bucket(score: int, critical: int, high: int, medium: int,
+                category: str = "") -> str:
+    """
+    카테고리별 임계값 오버라이드 지원.
+    category 문자열에서 키워드를 부분 매칭하여 해당 임계값 적용.
+    """
+    overrides = _match_category_override(category)
+    if overrides:
+        critical = overrides["critical"]
+        high = overrides["high"]
+        medium = overrides["medium"]
+
     if score >= critical:
         return "Critical"
     if score >= high:
@@ -116,6 +171,29 @@ def adjust_from_internetdb(inetdb: Dict[str, Any]) -> int:
     return port_adj + vuln_adj
 
 
+def adjust_from_duration(streak_days: int) -> int:
+    """
+    기간 기반 가중치.
+
+    블랙리스트에 연속으로 오래 등장할수록 위험도가 높음.
+    (단발성 오탐 vs 지속적 악성 IP 구분)
+
+    스코어링:
+      1일(신규): 0
+      2일: +2
+      3일: +4
+      4일: +6
+      5일: +8
+      6일: +10
+      7일+: +12 (cap)
+
+    총 범위: 0 ~ +12
+    """
+    if streak_days <= 1:
+        return 0
+    return min(12, (streak_days - 1) * 2)
+
+
 def apply_scoring(
     tier1_records: Dict[str, Any],
     enrichment: Dict[str, Dict[str, Any]],
@@ -125,11 +203,13 @@ def apply_scoring(
     enable_source_bonus: bool,
     source_bonus_step: int,
     source_bonus_cap: int,
+    streak_data: Optional[Dict[str, int]] = None,
 ) -> Dict[str, Dict[str, Any]]:
     """
     Input:
       tier1_records: {indicator: IndicatorRecord-like}
       enrichment: {ip: {"abuseipdb": {...}?, "internetdb": {...}?}}
+      streak_data: {indicator: consecutive_days} (optional, 기간 기반 가중치)
 
     Output:
       scored: {
@@ -140,6 +220,7 @@ def apply_scoring(
       }
     """
     out: Dict[str, Dict[str, Any]] = {}
+    streaks = streak_data or {}
 
     for ind, rec in tier1_records.items():
         base = int(rec.base_score)
@@ -164,13 +245,19 @@ def apply_scoring(
             if isinstance(inetdb, dict):
                 inetdb_adj = adjust_from_internetdb(inetdb)
 
-        final_score = clamp(base + bonus + abuse_adj + inetdb_adj)
-        risk = risk_bucket(final_score, critical, high, medium)
+        # 기간 기반 가중치
+        duration_adj = adjust_from_duration(streaks.get(ind, 0))
+
+        final_score = clamp(base + bonus + abuse_adj + inetdb_adj + duration_adj)
+
+        # 카테고리별 임계값 적용
+        category = rec.category if hasattr(rec, 'category') else ""
+        risk = risk_bucket(final_score, critical, high, medium, category=category)
 
         out[ind] = {
             "indicator": ind,
             "type": rec.type,
-            "category": rec.category,
+            "category": category,
             "sources": sources,
             "base_score": base,
             "final_score": final_score,
@@ -180,6 +267,7 @@ def apply_scoring(
                 "source_bonus": bonus,
                 "abuseipdb": abuse_adj,
                 "internetdb": inetdb_adj,
+                "duration": duration_adj,
             },
         }
 

@@ -39,6 +39,7 @@ class ArgusConfig:
         "cve_fetch_hours": 2,  # 최근 N시간 내 CVE 수집
         "rule_check_interval_days": 7,  # 공식 룰 재확인 주기
         "max_cves_per_run": 50,  # 한 실행당 최대 처리 CVE 수 (할당량 보호)
+        "max_rule_recheck": 10,  # 공식 룰 재확인 배치 크기 (2h × 10건 = 하루 120건)
         "bulk_commit_threshold": 100  # 벌크 커밋 판단 기준 (파일 수)
     }
     

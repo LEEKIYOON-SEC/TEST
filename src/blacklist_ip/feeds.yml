@@ -29,6 +29,12 @@ feeds:
     base_score: 40
     category: "Tor exit nodes"
 
+  - name: Tor_exit_dan
+    url: "https://www.dan.me.uk/torlist/?exit"
+    format: "plain_ip"
+    base_score: 40
+    category: "Tor exit nodes"
+
   - name: Blocklist_de_all
     url: "https://lists.blocklist.de/lists/all.txt"
     format: "plain_ip"

@@ -79,6 +79,47 @@ class Store:
         except Exception:
             return []
 
+    def get_indicator_streak(self, indicators: list, today: dt.date, lookback_days: int = 7) -> dict:
+        """
+        각 indicator가 최근 N일 동안 몇 일 연속 등장했는지 반환.
+        Returns: {indicator: streak_days}  (streak_days = 1~lookback_days)
+        """
+        if not indicators:
+            return {}
+
+        streak: dict = {}
+        # 최근 N일 날짜 목록 (어제부터 역순)
+        dates = [(today - dt.timedelta(days=d)).isoformat() for d in range(1, lookback_days + 1)]
+
+        # 날짜별 indicator set 조회 (캐시 효율을 위해 날짜 단위)
+        daily_sets: list = []
+        for d in dates:
+            try:
+                res = (
+                    self.sb.table("shield_indicators")
+                    .select("indicator")
+                    .eq("date", d)
+                    .in_("indicator", indicators[:200])
+                    .execute()
+                )
+                day_set = set(r["indicator"] for r in (res.data or []) if isinstance(r, dict))
+                daily_sets.append(day_set)
+            except Exception:
+                daily_sets.append(set())
+
+        # 연속 등장 일수 계산 (어제부터 역순으로 끊기면 중단)
+        for ind in indicators:
+            count = 0
+            for day_set in daily_sets:
+                if ind in day_set:
+                    count += 1
+                else:
+                    break  # 연속 끊김
+            if count > 0:
+                streak[ind] = count
+
+        return streak
+
     # -------------------------
     # Enrichment cache
     # -------------------------
