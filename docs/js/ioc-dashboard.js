@@ -13,8 +13,8 @@ let sortDir = -1;
 let activeFilters = { risk: new Set(['Critical', 'High', 'Medium', 'Low']), search: '', type: '' };
 
 // ===== Type Icons =====
-const TYPE_ICONS = { cve: '\u{1F6E1}', ip: '\u{1F310}', rule: '\u{1F50D}' };
-const TYPE_LABELS = { cve: 'CVE', ip: 'IP', rule: 'Rule' };
+const TYPE_ICONS = { cve: '\u{1F6E1}', ip: '\u{1F310}', rule: '\u{1F50D}', url: '\u{1F517}', hash: '\u{1F9EC}' };
+const TYPE_LABELS = { cve: 'CVE', ip: 'IP', rule: 'Rule', url: 'URL', hash: 'Hash' };
 
 // ===== Init =====
 async function init() {
@@ -45,6 +45,8 @@ function renderStats() {
   setText('stat-cve', iocMeta.by_type.cve || 0);
   setText('stat-ip', iocMeta.by_type.ip || 0);
   setText('stat-rule', iocMeta.by_type.rule || 0);
+  setText('stat-url', (iocMeta.by_type.url || 0));
+  setText('stat-hash', (iocMeta.by_type.hash || 0));
 
   if (iocMeta.generated_at) {
     var d = new Date(iocMeta.generated_at);
@@ -77,6 +79,8 @@ function renderTypeBars() {
     { key: 'cve', label: 'CVE', color: '#58a6ff', icon: TYPE_ICONS.cve },
     { key: 'ip', label: 'Malicious IP', color: '#FF8800', icon: TYPE_ICONS.ip },
     { key: 'rule', label: 'Detection Rule', color: '#44BB44', icon: TYPE_ICONS.rule },
+    { key: 'url', label: 'Malicious URL', color: '#E040FB', icon: TYPE_ICONS.url },
+    { key: 'hash', label: 'Malware Hash', color: '#FF5252', icon: TYPE_ICONS.hash },
   ];
 
   var maxCount = 1;
@@ -196,9 +200,17 @@ function renderTable() {
 
     var scoreDisplay = item.ioc_type === 'ip' ? (item.score || 0) : (item.score || 0).toFixed(1);
 
-    var indicatorDisplay = item.ioc_type === 'ip'
-      ? '<code>' + escapeHtml(item.indicator) + '</code>'
-      : '<span class="cve-id">' + escapeHtml(item.indicator) + '</span>';
+    var indicatorDisplay;
+    if (item.ioc_type === 'ip') {
+      indicatorDisplay = '<code>' + escapeHtml(item.indicator) + '</code>';
+    } else if (item.ioc_type === 'url') {
+      var shortUrl = item.indicator.length > 60 ? item.indicator.substring(0, 57) + '...' : item.indicator;
+      indicatorDisplay = '<code style="font-size:11px;">' + escapeHtml(shortUrl) + '</code>';
+    } else if (item.ioc_type === 'hash') {
+      indicatorDisplay = '<code style="font-size:11px;">' + escapeHtml(item.indicator.substring(0, 16)) + '...</code>';
+    } else {
+      indicatorDisplay = '<span class="cve-id">' + escapeHtml(item.indicator) + '</span>';
+    }
 
     return '<tr data-severity="' + (item.risk || 'Low') + '" onclick="showDetail(\'' + escapeAttr(item.indicator) + '\')">' +
       '<td><span class="ioc-type-badge ioc-type-' + item.ioc_type + '">' + typeIcon + ' ' + typeLabel + '</span></td>' +
@@ -310,6 +322,38 @@ function showDetail(indicator) {
     if (detail.abuse_reports != null) {
       html += detailRow('Reports', detail.abuse_reports + ' reports');
     }
+  } else if (item.ioc_type === 'url') {
+    html += '<hr style="border-color:var(--border);margin:16px 0;">';
+    html += detailRow('Source', escapeHtml(detail.source || '-'));
+    if (detail.threat) {
+      html += detailRow('Threat', escapeHtml(detail.threat));
+    }
+    if (detail.target) {
+      html += detailRow('Target', escapeHtml(detail.target));
+    }
+    if (detail.tags && detail.tags.length > 0) {
+      html += detailRow('Feed Tags', detail.tags.map(function(t) {
+        return '<span class="ioc-tag-sm">' + escapeHtml(t) + '</span>';
+      }).join(' '));
+    }
+    if (isSafeUrl(item.indicator)) {
+      html += '<div style="margin-top:12px;"><span class="detail-label" style="display:block;margin-bottom:8px;">URL</span>' +
+        '<pre class="rule-preview">' + escapeHtml(item.indicator) + '</pre></div>';
+    }
+  } else if (item.ioc_type === 'hash') {
+    html += '<hr style="border-color:var(--border);margin:16px 0;">';
+    html += detailRow('Source', escapeHtml(detail.source || '-'));
+    if (detail.signature) {
+      html += detailRow('Signature', escapeHtml(detail.signature));
+    }
+    if (detail.file_name) {
+      html += detailRow('File Name', escapeHtml(detail.file_name));
+    }
+    if (detail.file_type) {
+      html += detailRow('File Type', escapeHtml(detail.file_type));
+    }
+    html += '<div style="margin-top:12px;"><span class="detail-label" style="display:block;margin-bottom:8px;">SHA256</span>' +
+      '<pre class="rule-preview">' + escapeHtml(detail.sha256 || item.indicator) + '</pre></div>';
   } else if (item.ioc_type === 'rule') {
     html += '<hr style="border-color:var(--border);margin:16px 0;">';
     html += detailRow('Engine', escapeHtml(detail.engine || '-').toUpperCase());

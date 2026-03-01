@@ -6,11 +6,15 @@ docs/data/*.json 정적 파일로 생성한다.
 브라우저에서 직접 Supabase를 호출하지 않으므로 free tier 안전.
 """
 
+import csv
+import io
 import os
 import sys
 import json
 import datetime as dt
 from collections import defaultdict
+
+import requests
 
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 if _THIS_DIR not in sys.path:
@@ -235,7 +239,177 @@ def _get_recovered_ips(client, yesterday_date: str, today_date: str) -> list:
         return []
 
 
-def export_ioc(cve_data: list, blacklist_data: dict) -> dict:
+# ─────────────────────────────────────────────
+# External IOC Feed Collection (URL / Hash)
+# ─────────────────────────────────────────────
+_FEED_TIMEOUT = 30
+_MAX_ITEMS_PER_FEED = 500
+
+
+def _collect_urlhaus(max_items: int = _MAX_ITEMS_PER_FEED) -> list:
+    """URLhaus 온라인 악성 URL 수집 (CSV)"""
+    url = "https://urlhaus.abuse.ch/downloads/csv_online/"
+    r = requests.get(url, timeout=_FEED_TIMEOUT)
+    r.raise_for_status()
+
+    items = []
+    reader = csv.reader(io.StringIO(r.text))
+    for row in reader:
+        if not row or row[0].startswith("#"):
+            continue
+        if len(row) < 7:
+            continue
+        # columns: id, dateadded, url, url_status, last_online, threat, tags, urlhaus_link, reporter
+        mal_url = row[2].strip().strip('"')
+        if not mal_url or not mal_url.startswith(("http://", "https://")):
+            continue
+        threat = row[5].strip().strip('"')
+        tags_raw = row[6].strip().strip('"')
+        date_added = row[1].strip().strip('"')
+
+        tag_list = [t.strip() for t in tags_raw.split(",") if t.strip()] if tags_raw else []
+        items.append({
+            "ioc_type": "url",
+            "indicator": mal_url,
+            "title": f"URLhaus - {threat}" if threat else "URLhaus - Malicious URL",
+            "risk": "High",
+            "score": 75,
+            "date": date_added,
+            "detail": {
+                "source": "URLhaus",
+                "threat": threat,
+                "tags": tag_list,
+            },
+            "tags": ["URLhaus"] + ([threat] if threat else []),
+            "related_rules": [],
+        })
+        if len(items) >= max_items:
+            break
+
+    return items
+
+
+def _collect_malwarebazaar(max_items: int = _MAX_ITEMS_PER_FEED) -> list:
+    """MalwareBazaar 최근 악성코드 해시 수집 (CSV)"""
+    url = "https://bazaar.abuse.ch/export/csv/recent/"
+    r = requests.get(url, timeout=_FEED_TIMEOUT)
+    r.raise_for_status()
+
+    items = []
+    reader = csv.reader(io.StringIO(r.text))
+    for row in reader:
+        if not row or row[0].startswith("#"):
+            continue
+        if len(row) < 9:
+            continue
+        # columns: first_seen_utc, sha256_hash, md5_hash, sha1_hash, reporter,
+        #          file_name, file_type_guess, mime_type, signature, ...
+        first_seen = row[0].strip().strip('"')
+        sha256 = row[1].strip().strip('"')
+        file_name = row[5].strip().strip('"') if len(row) > 5 else ""
+        file_type = row[6].strip().strip('"') if len(row) > 6 else ""
+        signature = row[8].strip().strip('"') if len(row) > 8 else ""
+
+        if not sha256 or len(sha256) != 64:
+            continue
+
+        title = f"MalwareBazaar - {signature}" if signature else "MalwareBazaar - Malware Sample"
+        tag_list = ["MalwareBazaar"]
+        if signature:
+            tag_list.append(signature)
+        if file_type:
+            tag_list.append(file_type)
+
+        items.append({
+            "ioc_type": "hash",
+            "indicator": sha256,
+            "title": title,
+            "risk": "High",
+            "score": 80,
+            "date": first_seen,
+            "detail": {
+                "source": "MalwareBazaar",
+                "sha256": sha256,
+                "file_name": file_name,
+                "file_type": file_type,
+                "signature": signature,
+            },
+            "tags": tag_list,
+            "related_rules": [],
+        })
+        if len(items) >= max_items:
+            break
+
+    return items
+
+
+def _collect_phishtank(max_items: int = _MAX_ITEMS_PER_FEED) -> list:
+    """PhishTank 온라인 피싱 URL 수집 (CSV)"""
+    url = "http://data.phishtank.com/data/online-valid.csv"
+    r = requests.get(url, timeout=_FEED_TIMEOUT, headers={"User-Agent": "Argus-TI/1.0"})
+    r.raise_for_status()
+
+    items = []
+    reader = csv.reader(io.StringIO(r.text))
+    header_skipped = False
+    for row in reader:
+        if not header_skipped:
+            header_skipped = True
+            continue
+        if not row or len(row) < 8:
+            continue
+        # columns: phish_id, url, phish_detail_url, submission_time, verified,
+        #          verification_time, online, target
+        phish_url = row[1].strip()
+        submission_time = row[3].strip()
+        target = row[7].strip() if len(row) > 7 else ""
+
+        if not phish_url or not phish_url.startswith(("http://", "https://")):
+            continue
+
+        title = f"PhishTank - {target}" if target else "PhishTank - Phishing URL"
+        items.append({
+            "ioc_type": "url",
+            "indicator": phish_url,
+            "title": title,
+            "risk": "Medium",
+            "score": 60,
+            "date": submission_time,
+            "detail": {
+                "source": "PhishTank",
+                "target": target,
+            },
+            "tags": ["PhishTank", "phishing"] + ([target] if target else []),
+            "related_rules": [],
+        })
+        if len(items) >= max_items:
+            break
+
+    return items
+
+
+def collect_external_ioc_feeds() -> list:
+    """URLhaus, MalwareBazaar, PhishTank 피드에서 IOC 수집"""
+    all_items = []
+
+    feeds = [
+        ("URLhaus", _collect_urlhaus),
+        ("MalwareBazaar", _collect_malwarebazaar),
+        ("PhishTank", _collect_phishtank),
+    ]
+
+    for name, collector_fn in feeds:
+        try:
+            items = collector_fn()
+            all_items.extend(items)
+            print(f"  {name}: {len(items)}건 수집", flush=True)
+        except Exception as e:
+            print(f"  [!] {name} 수집 실패 (무시): {e}", flush=True)
+
+    return all_items
+
+
+def export_ioc(cve_data: list, blacklist_data: dict, external_iocs: list = None) -> dict:
     """CVE + IP + 탐지 룰을 통합 IOC 데이터로 변환"""
     now = dt.datetime.now(dt.timezone.utc)
     ioc_items = []
@@ -311,6 +485,10 @@ def export_ioc(cve_data: list, blacklist_data: dict) -> dict:
                 "tags": ["official" if is_official else "ai-generated", engine],
                 "related_rules": [],
             })
+
+    # 4) 외부 IOC 피드 (URLhaus, MalwareBazaar, PhishTank)
+    if external_iocs:
+        ioc_items.extend(external_iocs)
 
     # 날짜 기준 정렬 (최신 우선)
     ioc_items.sort(key=lambda x: x.get("date", ""), reverse=True)
@@ -474,7 +652,7 @@ def main():
         return
 
     # CVE 데이터
-    print("[1/4] CVE 데이터 export...", flush=True)
+    print("[1/5] CVE 데이터 export...", flush=True)
     cve_data = export_cves(client)
     cve_path = os.path.join(data_dir, "cves.json")
     with open(cve_path, "w", encoding="utf-8") as f:
@@ -482,23 +660,28 @@ def main():
     print(f"  CVE: {len(cve_data)}건 → {cve_path}", flush=True)
 
     # 블랙리스트 데이터
-    print("[2/4] 블랙리스트 IP 데이터 export...", flush=True)
+    print("[2/5] 블랙리스트 IP 데이터 export...", flush=True)
     bl_data = export_blacklist(client)
     bl_path = os.path.join(data_dir, "blacklist.json")
     with open(bl_path, "w", encoding="utf-8") as f:
         json.dump(bl_data, f, ensure_ascii=False, indent=2)
     print(f"  Blacklist: {len(bl_data.get('indicators', []))}건 → {bl_path}", flush=True)
 
+    # 외부 IOC 피드 수집 (URLhaus, MalwareBazaar, PhishTank)
+    print("[3/5] 외부 IOC 피드 수집...", flush=True)
+    external_iocs = collect_external_ioc_feeds()
+    print(f"  외부 IOC 합계: {len(external_iocs)}건", flush=True)
+
     # IOC 통합 데이터
-    print("[3/4] IOC 통합 데이터 export...", flush=True)
-    ioc_data = export_ioc(cve_data, bl_data)
+    print("[4/5] IOC 통합 데이터 export...", flush=True)
+    ioc_data = export_ioc(cve_data, bl_data, external_iocs=external_iocs)
     ioc_path = os.path.join(data_dir, "ioc.json")
     with open(ioc_path, "w", encoding="utf-8") as f:
         json.dump(ioc_data, f, ensure_ascii=False, indent=2)
     print(f"  IOC: {ioc_data['total']}건 → {ioc_path}", flush=True)
 
     # 통계
-    print("[4/4] 통계 집계...", flush=True)
+    print("[5/5] 통계 집계...", flush=True)
     stats = export_stats(cve_data, bl_data)
     stats_path = os.path.join(data_dir, "stats.json")
     with open(stats_path, "w", encoding="utf-8") as f:

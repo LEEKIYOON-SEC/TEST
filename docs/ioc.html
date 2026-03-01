@@ -42,6 +42,14 @@
         <div class="label">Detection Rules</div>
         <div class="value" style="color:var(--low)" id="stat-rule">-</div>
       </div>
+      <div class="stat-card">
+        <div class="label">Malicious URL</div>
+        <div class="value" style="color:#E040FB" id="stat-url">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Malware Hash</div>
+        <div class="value" style="color:#FF5252" id="stat-hash">-</div>
+      </div>
     </div>
 
     <!-- Charts Row -->
@@ -68,6 +76,8 @@
         <option value="cve">CVE</option>
         <option value="ip">IP</option>
         <option value="rule">Rule</option>
+        <option value="url">URL</option>
+        <option value="hash">Hash</option>
       </select>
       <div class="severity-filters">
         <button class="severity-btn active" data-severity="Critical">Critical</button>
