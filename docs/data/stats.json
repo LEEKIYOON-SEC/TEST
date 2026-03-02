@@ -1,120 +1,91 @@
 {
-  "generated_at": "2026-03-01T08:51:49.890067+00:00",
+  "generated_at": "2026-03-02T03:36:41.615000+00:00",
   "cve": {
-    "total": 5577,
-    "recent_24h": 7,
-    "kev_count": 16,
+    "total": 15,
+    "recent_24h": 15,
+    "kev_count": 0,
     "severity": {
-      "Medium": 195,
-      "Critical": 23,
-      "High": 139,
-      "None": 5205,
-      "Low": 15
+      "Low": 3,
+      "Medium": 9,
+      "High": 3
     },
     "daily_trend": [
       {
-        "date": "2026-02-17",
-        "count": 4394
-      },
-      {
-        "date": "2026-02-18",
-        "count": 1015
-      },
-      {
-        "date": "2026-02-26",
-        "count": 161
-      },
-      {
-        "date": "2026-02-28",
-        "count": 1
-      },
-      {
         "date": "2026-03-01",
-        "count": 6
+        "count": 8
+      },
+      {
+        "date": "2026-03-02",
+        "count": 7
       }
     ],
     "top_vendors": [
       {
-        "vendor": "n/a",
-        "count": 5062
+        "vendor": "Tenda",
+        "count": 3
       },
       {
-        "vendor": "Microsoft",
-        "count": 138
+        "vendor": "thinkgem",
+        "count": 2
       },
       {
-        "vendor": "MediaTek, Inc.",
-        "count": 32
+        "vendor": "PHPGurukul",
+        "count": 2
       },
       {
-        "vendor": "Linux",
-        "count": 26
+        "vendor": "jarikomppa",
+        "count": 2
       },
       {
-        "vendor": "Smoothwall",
-        "count": 17
+        "vendor": "FascinatedBox",
+        "count": 2
       },
       {
-        "vendor": "NVIDIA",
-        "count": 13
+        "vendor": "YosysHQ",
+        "count": 1
       },
       {
-        "vendor": "Red Hat",
-        "count": 12
+        "vendor": "projectworlds",
+        "count": 1
       },
       {
-        "vendor": "IBM",
-        "count": 10
+        "vendor": "SourceCodester",
+        "count": 1
       },
       {
-        "vendor": "ImageMagick",
-        "count": 7
-      },
-      {
-        "vendor": "arcinfo",
-        "count": 7
+        "vendor": "MaxSite",
+        "count": 1
       }
     ]
   },
   "blacklist": {
-    "total": 33885,
+    "total": 34424,
     "risk": {
-      "Critical": 1538,
-      "High": 1991,
-      "Medium": 30356
+      "Critical": 1539,
+      "High": 1999,
+      "Medium": 29533,
+      "Low": 1353
     },
     "categories": {
       "abuse.ch Feodo C2": 3,
       "ET Block-IPs": 1543,
-      "Spamhaus DROP (CIDR)": 1534,
+      "Spamhaus DROP (CIDR)": 1535,
       "ET compromised-ips": 449,
-      "Blocklist.de (all)": 29189,
-      "Tor exit nodes": 1167
+      "Blocklist.de (all)": 29541,
+      "Tor exit nodes": 1353
     },
     "daily_trend": [
       {
-        "date": "2026-02-26",
-        "total": 28852,
-        "new": 28852,
+        "date": "2026-03-01",
+        "total": 33348,
+        "new": 33348,
         "removed": 0
       },
       {
-        "date": "2026-02-27",
-        "total": 30421,
-        "new": 29546,
-        "removed": 125
-      },
-      {
-        "date": "2026-02-28",
-        "total": 32773,
-        "new": 31949,
-        "removed": 176
-      },
-      {
-        "date": "2026-03-01",
-        "total": 33885,
-        "new": 33095,
-        "removed": 210
+        "date": "2026-03-02",
+        "total": 33865,
+        "new": 33036,
+        "removed": 171
       }
     ],
     "recovered_count": 100,
