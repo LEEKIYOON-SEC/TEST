@@ -182,28 +182,42 @@ def export_blacklist(client, days: int = 7) -> dict:
 def _get_recovered_ips(client, yesterday_date: str, today_date: str) -> list:
     """어제 고위험이었으나 오늘 제거되거나 등급이 하락한 IP 목록"""
     try:
-        # 어제 Critical/High IP 조회
-        yesterday_res = client.table("shield_indicators") \
-            .select("indicator, final_score, risk, category") \
-            .eq("date", yesterday_date) \
-            .in_("risk", ["Critical", "High"]) \
-            .order("final_score", desc=True) \
-            .limit(200) \
-            .execute()
+        # 어제 Critical/High IP 전체 조회 (페이지네이션)
+        yesterday_highrisk: dict = {}
+        page_size = 1000
+        offset = 0
+        while True:
+            yesterday_res = client.table("shield_indicators") \
+                .select("indicator, final_score, risk, category") \
+                .eq("date", yesterday_date) \
+                .in_("risk", ["Critical", "High"]) \
+                .order("final_score", desc=True) \
+                .range(offset, offset + page_size - 1) \
+                .execute()
 
-        yesterday_highrisk = {r["indicator"]: r for r in (yesterday_res.data or [])}
+            rows = yesterday_res.data or []
+            for r in rows:
+                yesterday_highrisk[r["indicator"]] = r
+            if len(rows) < page_size:
+                break
+            offset += page_size
+
         if not yesterday_highrisk:
             return []
 
-        # 오늘 데이터에서 해당 IP들 조회
+        # 오늘 데이터에서 해당 IP들 조회 (IN 쿼리 100개씩 분할)
         today_ips = list(yesterday_highrisk.keys())
-        today_res = client.table("shield_indicators") \
-            .select("indicator, final_score, risk") \
-            .eq("date", today_date) \
-            .in_("indicator", today_ips[:100]) \
-            .execute()
-
-        today_map = {r["indicator"]: r for r in (today_res.data or [])}
+        today_map: dict = {}
+        chunk_size = 100
+        for i in range(0, len(today_ips), chunk_size):
+            chunk = today_ips[i:i + chunk_size]
+            today_res = client.table("shield_indicators") \
+                .select("indicator, final_score, risk") \
+                .eq("date", today_date) \
+                .in_("indicator", chunk) \
+                .execute()
+            for r in (today_res.data or []):
+                today_map[r["indicator"]] = r
 
         recovered = []
         for ip, y_data in yesterday_highrisk.items():
@@ -460,12 +474,13 @@ def export_ioc(cve_data: list, blacklist_data: dict, external_iocs: list = None)
         })
 
     # 3) 탐지 룰 → IOC (CVE에 연결된 룰을 독립 IOC로도 등록)
+    _KNOWN_ENGINES = {"sigma", "snort", "suricata", "yara"}
     for cve in cve_data:
         rules = cve.get("rules", {})
         if not rules:
             continue
         for engine, rule_content in rules.items():
-            if not rule_content:
+            if engine not in _KNOWN_ENGINES or not rule_content:
                 continue
             is_official = cve.get("has_official_rules", False)
             ioc_items.append({
