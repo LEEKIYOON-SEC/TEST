@@ -2,7 +2,7 @@
 
 **AI 기반 위협 인텔리전스 자동화 플랫폼**
 
-CVE 취약점 분석부터 탐지 룰 생성, IP 블랙리스트 관리까지 보안 운영에 필요한 위협 인텔리전스를 자동으로 수집하고 분석하여 Slack으로 전달합니다.
+CVE 취약점 분석부터 탐지 룰 생성, IP 블랙리스트 관리, IOC 통합까지 보안 운영에 필요한 위협 인텔리전스를 자동으로 수집·분석하여 Slack으로 전달하고, GitHub Pages 대시보드로 시각화합니다.
 
 ---
 
@@ -11,6 +11,7 @@ CVE 취약점 분석부터 탐지 룰 생성, IP 블랙리스트 관리까지 �
 - [Overview](#overview)
 - [Architecture](#architecture)
 - [Features](#features)
+- [Dashboard](#dashboard)
 - [Project Structure](#project-structure)
 - [Setup](#setup)
 - [Configuration](#configuration)
@@ -25,19 +26,23 @@ CVE 취약점 분석부터 탐지 룰 생성, IP 블랙리스트 관리까지 �
 
 ## Overview
 
-Argus는 두 개의 독립 파이프라인으로 구성됩니다.
+Argus는 세 개의 독립 파이프라인으로 구성됩니다.
 
 | 파이프라인 | 설명 | 실행 주기 |
 |-----------|------|----------|
-| **Phase 1 - CVE Scanner** | CVE 수집 → AI 분석 → 탐지 룰 생성 → Slack/GitHub Issue | 매 1시간 (UTC, `0 * * * *`) |
+| **Phase 1 - CVE Scanner** | CVE 수집 → AI 분석 → 탐지 룰 생성 → Slack/GitHub Issue | 수동 실행 (`workflow_dispatch`) |
 | **Phase 2 - The Shield** | IP 위협 피드 수집 → 평판 조회 → 스코어링 → 일일 리포트 | 매일 00:00 UTC (`0 0 * * *`) = 09:00 KST |
+| **Phase 3 - IOC Dashboard** | CVE + IP + URL + Hash + Rule → 통합 IOC 시각화 | Phase 1/2 실행 시 자동 export |
 
 ### 핵심 가치
 
 - **자동화**: CVE 발표 → 분석 → 탐지 룰 → 보안 담당자 알림까지 사람 개입 없이 동작
 - **AI 분석**: LLM 기반 근본 원인 분석, 공격 시나리오 생성, 맞춤형 탐지 룰 자동 생성
 - **다중 엔진 룰**: Sigma, Snort 2.9/3, Suricata 5/7, YARA, Nuclei 등 실무 보안 장비에 바로 적용 가능
-- **IP 위험도 관리**: 6개 위협 피드 통합, AbuseIPDB/InternetDB 보강, 방화벽 정책 자동 권고
+- **IP 위험도 관리**: 8개 위협 피드 통합, AbuseIPDB/InternetDB 보강, 기간 기반 가중치, 카테고리별 임계값, 방화벽 정책 자동 권고
+- **IOC 통합**: URLhaus, MalwareBazaar, PhishTank/OpenPhish 피드 연동, 타입별 Lazy-Load 대시보드
+- **스마트 필터링**: 콘텐츠 해시 기반 벌크 커밋 감지로 메타데이터 패치 무시, 실제 변경된 CVE만 처리
+- **Thread-Safe Rate Limiting**: 10개 API 엔드포인트별 속도 제어, 429 자동 대응, 사용률 요약 리포트
 
 ---
 
@@ -46,31 +51,34 @@ Argus는 두 개의 독립 파이프라인으로 구성됩니다.
 ```
                          GitHub Actions (Scheduler)
                                   │
-              ┌───────────────────┴───────────────────┐
-              │                                       │
-     Phase 1: CVE Scanner                  Phase 2: The Shield
-     (매 1시간, UTC)                        (매일 00:00 UTC = 09:00 KST)
-              │                                       │
-     ┌────────┴────────┐                    ┌────────┴────────┐
-     │  1. 데이터 수집   │                    │  1. 피드 수집     │
-     │  - CISA KEV     │                    │  - ET, Spamhaus  │
-     │  - CVE Project  │                    │  - abuse.ch, Tor │
-     │  - EPSS/NVD     │                    │  - Blocklist.de  │
-     ├─────────────────┤                    ├──────────────────┤
-     │  2. AI 분석      │                    │  2. Delta 계산    │
-     │  - Groq LLM     │                    │  - 신규/제거 비교   │
-     │  - 번역 (Gemini) │                    ├──────────────────┤
-     ├─────────────────┤                    │  3. Enrichment    │
-     │  3. 룰 생성      │                    │  - AbuseIPDB (선택)│
-     │  - Sigma/Snort  │                    │  - InternetDB    │
-     │  - YARA/Nuclei  │                    ├──────────────────┤
-     ├─────────────────┤                    │  4. Scoring       │
-     │  4. 알림 & 저장   │                    │  - 0~100점 산정    │
-     │  - Slack        │                    ├──────────────────┤
-     │  - GitHub Issue │                    │  5. 리포트 & 저장   │
-     │  - Supabase     │                    │  - Slack 리포트    │
-     └─────────────────┘                    │  - Supabase 저장  │
-                                            └──────────────────┘
+         ┌────────────────────────┼────────────────────────┐
+         │                        │                        │
+Phase 1: CVE Scanner     Phase 2: The Shield      Phase 3: IOC Export
+(수동 실행)               (매일 09:00 KST)          (자동 연동)
+         │                        │                        │
+┌────────┴────────┐     ┌────────┴────────┐     ┌────────┴────────┐
+│  1. 데이터 수집   │     │  1. 피드 수집     │     │  1. CVE → IOC    │
+│  - CISA KEV     │     │  - ET, Spamhaus  │     │  2. IP → IOC     │
+│  - CVE Project  │     │  - abuse.ch      │     │  3. Rule → IOC   │
+│  - EPSS/NVD     │     │  - Tor (이중화)   │     │  4. URLhaus      │
+│  - 스마트 필터링  │     │  - ThreatFox     │     │  5. MalwareBazaar│
+├─────────────────┤     │  - Blocklist.de  │     │  6. PhishTank    │
+│  2. AI 분석      │     ├──────────────────┤     │     /OpenPhish   │
+│  - Groq LLM     │     │  2. Delta 계산    │     └────────┬────────┘
+│  - 번역 (Gemini) │     │  - 신규/제거 비교   │              │
+├─────────────────┤     ├──────────────────┤     ┌────────┴────────┐
+│  3. 룰 생성      │     │  3. Enrichment    │     │  GitHub Pages    │
+│  - Sigma/Snort  │     │  - AbuseIPDB     │     │  대시보드         │
+│  - YARA/Nuclei  │     │  - InternetDB    │     │  - CVE 대시보드   │
+├─────────────────┤     ├──────────────────┤     │  - IP 대시보드    │
+│  4. 알림 & 저장   │     │  4. Scoring       │     │  - IOC 통합      │
+│  - Slack        │     │  - 카테고리별 임계값 │     └─────────────────┘
+│  - GitHub Issue │     │  - 기간 기반 가중치  │
+│  - Supabase     │     ├──────────────────┤
+└─────────────────┘     │  5. 리포트 & 저장   │
+                        │  - Slack 리포트    │
+                        │  - Supabase 저장  │
+                        └──────────────────┘
 ```
 
 ### 외부 서비스 연동
@@ -89,6 +97,11 @@ Argus는 두 개의 독립 파이프라인으로 구성됩니다.
 | **AbuseIPDB** | IP 평판 조회 (Shield 선택) | API Key |
 | **InternetDB (Shodan)** | 포트/취약점 열거 | 공개 API |
 | **SigmaHQ / ET Open** | 공개 탐지 룰 검색 | 공개 |
+| **URLhaus** | 악성 URL 피드 | 공개 API |
+| **MalwareBazaar** | 악성코드 해시 피드 | 공개 API |
+| **PhishTank** | 피싱 URL 피드 | API Key (선택) |
+| **OpenPhish** | 피싱 URL 피드 (PhishTank fallback) | 공개 |
+| **ThreatFox** | C2/Malware IP 피드 | 공개 API |
 
 ---
 
@@ -98,11 +111,13 @@ Argus는 두 개의 독립 파이프라인으로 구성됩니다.
 
 **데이터 수집**
 - CISA KEV 실시간 추적
-- 최근 2시간 내 발표된 CVE 자동 수집
-- EPSS 점수 일괄 조회
+- 최근 2시간 내 발표된 CVE 자동 수집 (스마트 필터링 적용)
+- 콘텐츠 해시 기반 벌크 커밋 감지 → 메타데이터 패치 무시
+- EPSS 점수 배치 조회
 - NVD CVSS/CWE 보강 (선택)
 - PoC(Proof-of-Concept) 공개 여부 감지
 - VulnCheck KEV 추가 소스 (선택)
+- GitHub Advisory DB 패키지 정보 조회
 
 **AI 분석 (Groq LLM)**
 - 취약점 근본 원인 분석
@@ -127,12 +142,12 @@ Argus는 두 개의 독립 파이프라인으로 구성됩니다.
 - 공식 룰 발견 시 기존 AI 룰을 대체하고 Slack으로 재알림
 
 **알림 트리거 조건**
-| 트리거 | 조건 | 아이콘 |
-|--------|------|--------|
-| `NEW` | 최초 발견된 CVE | `[NEW]` |
-| `KEV` | CISA KEV 등록 | `[KEV]` |
-| `EPSS` | EPSS >= 10% 이고 증가폭 > 5%p | `[EPSS]` |
-| `CVSS` | CVSS 점수가 7.0 이상으로 상승 | `[CVSS]` |
+| 트리거 | 조건 | 설명 |
+|--------|------|------|
+| `신규 취약점` | 최초 발견된 CVE | DB에 없는 새 CVE |
+| `KEV 등재` | CISA KEV 등록 | 기존 CVE가 KEV 등재 |
+| `EPSS 급증` | EPSS >= 10% 이고 증가폭 > 5%p | 익스플로잇 가능성 급증 |
+| `CVSS 위험도 상향` | CVSS 점수가 7.0 이상으로 상승 | 위험도 재평가 |
 
 **자산 매칭 (assets.json)**
 - 1차: CVE `affected` 필드의 구조화된 vendor/product 매칭
@@ -141,19 +156,22 @@ Argus는 두 개의 독립 파이프라인으로 구성됩니다.
 
 ### Phase 2 - The Shield (IP Blacklist)
 
-**위협 피드 수집 (6개 소스)**
+**위협 피드 수집 (8개 소스)**
 | 피드 | 제공자 | 기본 점수 | 설명 |
 |------|--------|----------|------|
 | ET Compromised IPs | Emerging Threats | 60 | 침해된 IP |
 | ET Block IPs | Emerging Threats | 70 | 차단 권고 IP |
 | Spamhaus DROP | Spamhaus | 80 | 스팸/봇넷 CIDR |
 | Feodo C2 | abuse.ch | 90 | C&C 서버 IP |
-| Tor Exit Nodes | TorProject | 40 | Tor 출구 노드 |
+| Tor Exit Nodes (공식) | TorProject | 40 | Tor 출구 노드 |
+| Tor Exit Nodes (dan.me.uk) | dan.me.uk | 40 | Tor 출구 노드 (이중화) |
 | Blocklist.de | Blocklist.de | 50 | 공격 IP 통합 |
+| ThreatFox C2/Malware | abuse.ch | 85 | C2/악성코드 IP |
 
 **위험도 스코어링 (0~100점)**
 ```
-최종 점수 = clamp(기본 점수 + 소스 보너스 + AbuseIPDB 조정 + InternetDB 조정, 0, 100)
+최종 점수 = clamp(기본 점수 + 소스 보너스 + AbuseIPDB 조정
+                  + InternetDB 조정 + 기간 가중치, 0, 100)
 
 - 기본 점수: 피드별 40~90점
 - 소스 보너스: 추가 피드당 +5점 (최대 +15)
@@ -165,19 +183,63 @@ Argus는 두 개의 독립 파이프라인으로 구성됩니다.
 - InternetDB 조정:
     위험 포트 수 * 3 (최대 +15) + 알려진 취약점 수 * 2 (최대 +10)
     (범위: 0 ~ +25)
+- 기간 기반 가중치 (연속 등장 일수):
+    1일(신규): 0, 2일: +2, 3일: +4, ... 7일+: +12 (cap)
+    (범위: 0 ~ +12)
 ```
 
-| 등급 | 점수 | 의미 |
-|------|------|------|
-| Critical | 80+ | 즉시 차단 |
-| High | 60~79 | 차단 권고 |
-| Medium | 40~59 | 모니터링 |
-| Low | 40 미만 | 참고 |
+**카테고리별 임계값 오버라이드**
+
+카테고리에 따라 동일한 점수라도 위험 등급이 달라집니다:
+
+| 카테고리 | Critical | High | Medium | 비고 |
+|---------|----------|------|--------|------|
+| 기본 (글로벌) | 80+ | 60+ | 40+ | 대부분의 카테고리 |
+| botnet/C2/malware | 70+ | 50+ | 30+ | 즉각 차단 필요 |
+| scanner/bruteforce | 75+ | 55+ | 35+ | 탐색/무차별 공격 |
+| tor | 90+ | 75+ | 50+ | 단독으로는 위험 낮음 |
 
 **방화벽 관리 자동 권고**
 - 매일 신규 고위험 IP TOP 10 알림 (방화벽 등록 대상)
 - 피드 제거 감지: 어제 Critical/High → 오늘 모든 피드에서 사라진 IP → 차단 해제 대상
 - 등급 하락 감지: 어제 Critical/High → 오늘 Medium/Low로 하락 → 차단 해제 검토
+
+### Phase 3 - IOC Dashboard & External Feeds
+
+**외부 IOC 피드 연동**
+| 피드 | 유형 | 설명 |
+|------|------|------|
+| URLhaus | URL | abuse.ch 악성 URL (온라인 상태) |
+| MalwareBazaar | Hash | abuse.ch 악성코드 SHA256 해시 |
+| PhishTank | URL | 검증된 피싱 URL |
+| OpenPhish | URL | 피싱 URL (PhishTank 실패 시 fallback) |
+
+**IOC 통합 데이터 구조 (타입별 Lazy-Load)**
+
+대시보드는 전체 IOC를 한 번에 로드하지 않고, 타입별 분리 파일로 필요할 때만 로드합니다:
+
+| 파일 | 내용 |
+|------|------|
+| `ioc-meta.json` | 통계만 포함 (초기 로드용, 경량) |
+| `ioc-cve.json` | CVE IOC 데이터 |
+| `ioc-ip.json` | IP 블랙리스트 IOC 데이터 |
+| `ioc-url.json` | 악성/피싱 URL IOC 데이터 |
+| `ioc-hash.json` | 악성코드 해시 IOC 데이터 |
+| `ioc-rule.json` | 탐지 룰 IOC 데이터 |
+
+---
+
+## Dashboard
+
+GitHub Pages 기반 정적 대시보드로, Supabase 직접 호출 없이 `docs/data/*.json` 파일을 로드합니다.
+
+| 페이지 | URL | 설명 |
+|--------|-----|------|
+| **IOC 통합** (메인) | `/` → `/ioc.html` | CVE, IP, URL, Hash, Rule 통합 뷰 |
+| **CVE 대시보드** | `/cve.html` | CVE 심각도 분포, 벤더 TOP 10, 일별 추이 |
+| **Blacklist IP** | `/blacklist.html` | IP 위험도 분포, 카테고리별 통계, 평판 회복 IP |
+
+> `index.html`은 `ioc.html`로 자동 리디렉트됩니다.
 
 ---
 
@@ -186,33 +248,54 @@ Argus는 두 개의 독립 파이프라인으로 구성됩니다.
 ```
 Argus-AI-Threat-Intelligence/
 ├── .github/workflows/
-│   ├── argus_scheduler.yml           # Phase 1: CVE 스캔 워크플로우
-│   ├── argus_test.yml                # 통합 테스트 워크플로우
-│   └── shield_blacklist_daily.yml    # Phase 2: 일일 IP 블랙리스트
+│   ├── argus.yml                     # Phase 1: CVE 스캔 워크플로우
+│   └── blacklist.yml                 # Phase 2: 일일 IP 블랙리스트
 │
 ├── src/
 │   ├── main.py                       # Phase 1 메인 파이프라인
-│   ├── collector.py                  # CVE 데이터 수집기
+│   ├── collector.py                  # CVE 데이터 수집기 (스마트 필터링)
 │   ├── analyzer.py                   # AI 분석 엔진 (Groq LLM)
 │   ├── rule_manager.py               # 탐지 룰 수집/생성 관리
 │   ├── notifier.py                   # Slack 알림 (CVE 알림, 공식 룰 알림)
 │   ├── database.py                   # Supabase 인터페이스
-│   ├── config.py                     # 설정 관리 (클래스 상수 + 환경변수 검증)
+│   ├── config.py                     # 설정 관리 (ArgusConfig 클래스)
 │   ├── logger.py                     # 로깅
-│   ├── rate_limiter.py               # API 속도 제한 관리
-│   ├── performance_monitor.py        # 성능 모니터링
+│   ├── rate_limiter.py               # Thread-Safe API 속도 제한 (v3.0)
+│   ├── export_dashboard_data.py      # 대시보드 데이터 Export + 외부 IOC 수집
 │   ├── test_argus.py                 # 통합 테스트 스크립트
 │   │
 │   └── blacklist_ip/                 # Phase 2: The Shield
 │       ├── main.py                   # Shield 메인 파이프라인
-│       ├── config.py                 # Shield 설정 로더 (환경변수 기반)
-│       ├── collector_tier1.py        # 피드 수집기 (6개 소스)
-│       ├── enricher_tier2.py         # IP 보강 (AbuseIPDB, InternetDB)
-│       ├── scoring.py                # 위험도 스코어링
+│       ├── config.py                 # Shield 설정 (Settings dataclass)
+│       ├── collector_tier1.py        # 피드 수집기 (8개 소스, ThreatFox JSON 파서 포함)
+│       ├── enricher_tier2.py         # IP 보강 (AbuseIPDB, InternetDB, 분리 캡)
+│       ├── scoring.py                # 위험도 스코어링 (카테고리별 임계값, 기간 가중치)
 │       ├── delta.py                  # 일일 변동 계산
 │       ├── store_supabase.py         # Supabase 저장소
 │       ├── blacklist_ip_notifier.py  # Shield Slack 리포트
-│       └── feeds.yml                 # 위협 피드 설정
+│       └── feeds.yml                 # 위협 피드 설정 (8개)
+│
+├── docs/                             # GitHub Pages 대시보드
+│   ├── index.html                    # → ioc.html 리디렉트
+│   ├── ioc.html                      # IOC 통합 대시보드 (메인)
+│   ├── cve.html                      # CVE 대시보드
+│   ├── blacklist.html                # IP 블랙리스트 대시보드
+│   ├── css/style.css                 # 공통 스타일
+│   ├── js/
+│   │   ├── chart.js                  # 차트 유틸리티
+│   │   ├── cve-dashboard.js          # CVE 대시보드 로직
+│   │   ├── blacklist-dashboard.js    # IP 대시보드 로직
+│   │   └── ioc-dashboard.js          # IOC 통합 대시보드 로직
+│   └── data/                         # Export된 JSON 데이터 (자동 생성)
+│       ├── cves.json
+│       ├── blacklist.json
+│       ├── stats.json
+│       ├── ioc-meta.json             # IOC 통계 (경량)
+│       ├── ioc-cve.json              # CVE IOC
+│       ├── ioc-ip.json               # IP IOC
+│       ├── ioc-url.json              # URL IOC (URLhaus, PhishTank)
+│       ├── ioc-hash.json             # Hash IOC (MalwareBazaar)
+│       └── ioc-rule.json             # Rule IOC
 │
 ├── assets.json                       # 모니터링 대상 자산 정의
 ├── config_prod.json                  # 운영 환경 설정 참조 파일 (*)
@@ -222,7 +305,7 @@ Argus-AI-Threat-Intelligence/
 ```
 
 > **(\*) `config_prod.json` / `config_dev.json` 참고:**
-> 현재 코드는 이 JSON 파일을 런타임에 로드하지 않습니다. Phase 1 설정은 `src/config.py`의 `ArgusConfig` 클래스 상수로, Phase 2 설정은 `src/blacklist_ip/config.py`의 `Settings` dataclass 기본값 + 환경변수로 관리됩니다. JSON 파일은 설정값 레퍼런스 용도로만 존재하며, 향후 파일 기반 설정 로딩 기능 추가 시 활용할 예정입니다.
+> 현재 코드는 이 JSON 파일을 런타임에 로드하지 않습니다. Phase 1 설정은 `src/config.py`의 `ArgusConfig` 클래스 상수로, Phase 2 설정은 `src/blacklist_ip/config.py`의 `Settings` dataclass 기본값 + 환경변수로 관리됩니다.
 
 ---
 
@@ -270,7 +353,7 @@ GitHub 저장소 Settings > Secrets and variables > Actions에 다음 시크릿�
 | `GROQ_API_KEY` | Groq API 키 |
 | `GEMINI_API_KEY` | Google Gemini API 키 |
 
-> **`GITHUB_REPOSITORY`**: GitHub Actions 환경에서 자동 제공됩니다 (`owner/repo` 형식). 로컬 실행 시 이 변수가 없으면 GitHub Issue 생성이 스킵되며, AI 분석과 Slack 알림은 정상 동작합니다. 로컬에서 Issue까지 원하면 `export GITHUB_REPOSITORY="owner/repo"`를 설정하세요.
+> **`GITHUB_REPOSITORY`**: GitHub Actions 환경에서 자동 제공됩니다. 로컬 실행 시 미설정하면 GitHub Issue 생성만 스킵됩니다.
 
 #### 필수 (Phase 2 - The Shield)
 
@@ -288,9 +371,10 @@ Phase 1과 공유하는 3개만 필수입니다:
 
 | Secret | 용도 | 미설정 시 동작 |
 |--------|------|--------------|
-| `ABUSEIPDB_API_KEY` | AbuseIPDB IP 평판 조회 (Free tier: 1,000 조회/일) | AbuseIPDB enrichment 단계 스킵, InternetDB만 사용 |
+| `ABUSEIPDB_API_KEY` | AbuseIPDB IP 평판 조회 (Free tier: 1,000 조회/일) | AbuseIPDB enrichment 스킵, InternetDB만 사용 |
 | `NVD_API_KEY` | NVD API (Phase 1: CVSS/CWE 상세 조회) | NVD 보강 없이 진행 |
 | `VULNCHECK_API_KEY` | VulnCheck API (Phase 1: 확장 KEV 소스) | VulnCheck 소스 없이 진행 |
+| `PHISHTANK_API_KEY` | PhishTank API (IOC 피싱 URL 수집) | API 키 없이 공개 엔드포인트 사용 (실패 시 OpenPhish fallback) |
 
 ---
 
@@ -320,31 +404,50 @@ Phase 1과 공유하는 3개만 필수입니다:
 
 ### Phase 1 설정 (`src/config.py` ArgusConfig 클래스)
 
-Phase 1의 설정값은 `ArgusConfig` 클래스 상수로 하드코딩되어 있습니다. 주요 값:
-
 | 설정 | 현재 값 | 설명 |
 |------|---------|------|
 | `MODEL_PHASE_0` | `gemma-3-27b-it` | 번역/요약용 모델 |
 | `MODEL_PHASE_1` | `openai/gpt-oss-120b` | 심층 분석용 모델 |
 | `max_workers` | 3 | 병렬 CVE 처리 워커 수 |
 | `cve_fetch_hours` | 2 | 최근 N시간 내 CVE 수집 |
+| `max_cves_per_run` | 50 | 한 실행당 최대 처리 CVE 수 |
+| `max_rule_recheck` | 10 | 공식 룰 재확인 배치 크기 |
 | `rule_check_interval_days` | 7 | 공식 룰 재확인 주기 |
-| `github_api calls_per_hour` | 5000 | GitHub API rate limit |
-| `groq_api calls_per_minute` | 30 | Groq API rate limit |
+| `bulk_commit_threshold` | 100 | 벌크 커밋 판단 기준 (파일 수) |
+
+### Phase 1 Rate Limiter (`src/rate_limiter.py`)
+
+Thread-Safe Rate Limiter v3.0이 10개 API 엔드포인트를 관리합니다:
+
+| API | 한도 | 윈도우 | 최소 간격 |
+|-----|------|--------|----------|
+| `github` | 5,000/h | 3,600s | 0.5s |
+| `github_search` | 8/min | 60s | 7.0s |
+| `groq` | 15/min | 60s | 5.0s |
+| `gemini` | 25/min | 60s | 2.5s |
+| `epss` | 60/min | 60s | 1.0s |
+| `kev` | 10/h | 3,600s | 2.0s |
+| `nvd` | 40/30s | 30s | 1.0s |
+| `vulncheck` | 40/min | 60s | 1.5s |
+| `github_advisory` | 100/h | 3,600s | 0.5s |
+| `ruleset_download` | 20/h | 3,600s | 2.0s |
+
+- 사용률 80% 이상 시 속도 조절, 90% 이상 시 추가 대기
+- 429 응답 시 `Retry-After` 헤더 파싱 후 자동 대기
+- 실행 종료 시 API별 사용량 요약 출력
 
 ### Phase 2 설정 (`src/blacklist_ip/config.py` Settings dataclass)
 
-Phase 2의 설정값은 `Settings` dataclass 기본값으로 정의되어 있습니다. 주요 값:
-
 | 설정 | 기본값 | 설명 |
 |------|--------|------|
-| `critical_threshold` | 80 | Critical 등급 기준 |
-| `high_threshold` | 60 | High 등급 기준 |
-| `medium_threshold` | 40 | Medium 등급 기준 |
+| `critical_threshold` | 80 | Critical 등급 기준 (글로벌) |
+| `high_threshold` | 60 | High 등급 기준 (글로벌) |
+| `medium_threshold` | 40 | Medium 등급 기준 (글로벌) |
 | `source_bonus_step` | 5 | 추가 피드당 보너스 점수 |
 | `source_bonus_cap` | 15 | 소스 보너스 최대값 |
-| `max_enrich_count` | 500 | 최대 enrichment 대상 수 (GitHub Actions timeout 방어) |
-| `enrich_workers` | 10 | InternetDB 병렬 워커 수 |
+| `max_enrich_count` | 500 | AbuseIPDB 최대 enrichment 대상 수 |
+| `max_enrich_internetdb` | 5,000 | InternetDB 최대 enrichment 대상 수 |
+| `enrich_workers` | 20 | InternetDB 병렬 워커 수 |
 | `topn_report` | 10 | Slack TOP N 리포트 수 |
 | `abuseipdb_daily_max` | 1,000 | AbuseIPDB 일일 쿼터 |
 | `cache_ttl (AbuseIPDB)` | 24시간 | AbuseIPDB 캐시 TTL |
@@ -359,8 +462,16 @@ feeds:
     format: "plain_ip"
     base_score: 60
     category: "ET compromised-ips"
-  # ... (6개 피드)
+
+  - name: ThreatFox_IP
+    url: "https://threatfox.abuse.ch/export/json/ip-port/recent/"
+    format: "threatfox_json"
+    base_score: 85
+    category: "ThreatFox C2/Malware"
+  # ... (8개 피드)
 ```
+
+지원 포맷: `plain_ip`, `cidr`, `csv_simple`, `threatfox_json`
 
 ---
 
@@ -368,17 +479,9 @@ feeds:
 
 ### Phase 1 - CVE Scanner
 
-**GitHub Actions (권장):**
+**GitHub Actions (수동 실행):**
 
-Actions 탭 > `Argus Threat Intel Scan` > Run workflow
-
-스케줄 (매 1시간, UTC):
-```yaml
-# .github/workflows/argus_scheduler.yml
-on:
-  schedule:
-    - cron: '0 * * * *'
-```
+Actions 탭 > `Argus CVE Monitor` > Run workflow
 
 **로컬 실행:**
 ```bash
@@ -401,7 +504,7 @@ python src/main.py
 
 **GitHub Actions (매일 00:00 UTC = 09:00 KST 자동 실행):**
 
-자동 스케줄 설정 완료 (timeout: 45분). 수동 실행: Actions 탭 > `The Shield - Daily Blacklist IP Report` > Run workflow
+수동 실행: Actions 탭 > `Argus Blacklist IP Monitor` > Run workflow
 
 **로컬 실행:**
 ```bash
@@ -413,10 +516,21 @@ export SUPABASE_KEY="..."
 # 선택 (없으면 AbuseIPDB enrichment 스킵)
 export ABUSEIPDB_API_KEY="..."
 
-PYTHONPATH=src python -m blacklist_ip.main --mode daily --tz Asia/Seoul
+python -m src.blacklist_ip.main --mode daily --tz Asia/Seoul
 ```
 
-> **`PYTHONPATH=src`**: Shield는 `src/blacklist_ip/` 패키지로 실행되므로 `PYTHONPATH=src`를 반드시 지정해야 합니다. GitHub Actions 워크플로우에도 동일하게 설정되어 있습니다.
+### Dashboard Data Export
+
+대시보드 데이터는 Phase 1/2 워크플로우 실행 시 자동으로 export됩니다. 로컬에서 수동 실행:
+
+```bash
+export SUPABASE_URL="..."
+export SUPABASE_KEY="..."
+
+python src/export_dashboard_data.py
+```
+
+> Supabase 자격증명이 없으면 빈 샘플 데이터가 생성되어 대시보드가 에러 없이 로드됩니다.
 
 ---
 
@@ -457,38 +571,12 @@ Apache Struts의 Content-Type 헤더를 통한 OGNL
   ┌─────────────────────────────┐
   │ title: Log4Shell Detection  │
   │ status: stable              │
-  │ logsource:                  │
-  │   product: java             │
-  │ detection:                  │
-  │   selection:                │
-  │     CommandLine|contains:   │
-  │       'jndi:ldap'           │
+  │ ...                         │
   └─────────────────────────────┘
 
   SNORT2 (Public Snort 2.9 ET Open)
   ┌─────────────────────────────┐
   │ alert tcp $EXTERNAL_NET ... │
-  └─────────────────────────────┘
-
-  SNORT3 (Public Snort 3 Community)
-  ┌─────────────────────────────┐
-  │ alert http $EXTERNAL_NET ...│
-  └─────────────────────────────┘
-
-  SURICATA5 (Public Suricata 5 ET Open)
-  ┌─────────────────────────────┐
-  │ alert http $EXTERNAL_NET ...│
-  └─────────────────────────────┘
-
-  SURICATA7 (Public Suricata 7 ET Open)
-  ┌─────────────────────────────┐
-  │ alert http $EXTERNAL_NET ...│
-  └─────────────────────────────┘
-
-  YARA (Public Yara-Rules)
-  ┌─────────────────────────────┐
-  │ rule Log4Shell_Exploit {    │
-  │   ...                       │
   └─────────────────────────────┘
 
 총 6개 엔진의 공식 룰 발견.
@@ -523,12 +611,10 @@ Apache Struts의 Content-Type 헤더를 통한 OGNL
   방화벽 블랙리스트 관리
 
   제거 대상 (2건):
-  어제 고위험 -> 오늘 모든 피드에서 사라짐. 차단 해제하세요.
   - 1.2.3.4 (어제 92점/Critical) - botnet
   - 5.6.7.8 (어제 78점/High) - scanner
 
   등급 하락 검토 (3건):
-  어제 고위험 -> 오늘 Medium/Low로 하락. 차단 해제를 검토하세요.
   - 9.10.11.12 (Critical 85점 -> Medium 45점) - spam
   - 13.14.15.16 (High 72점 -> Low 28점) - scanner
 
@@ -547,34 +633,42 @@ API usage - AbuseIPDB: 287, InternetDB: 287
    └─ 환경 변수 검증 (6개 필수), assets.json 로드
 
 2. 공식 룰 재탐색 (Official Rule Re-discovery)
-   └─ 이전 AI 생성 룰의 CVE에 대해 공식 룰이 새로 발표되었는지 확인
-   └─ 발견 시: GitHub Issue 업데이트 + Slack 알림
+   ├─ AI 룰만 있는 CVE → 공식 룰 교체
+   ├─ 룰 없는 고위험 CVE → 새 공식 룰 적용
+   ├─ 배치 제한: 10건/실행
+   └─ 쿨다운: 성공 7일 / 실패 1일 (빠른 재시도)
 
-3. 데이터 수집
-   ├─ CISA KEV 전체 목록 가져오기
-   ├─ 최근 2시간 CVE 수집 (CVE Project API)
+3. 데이터 수집 (스마트 필터링)
+   ├─ CISA KEV + VulnCheck KEV
+   ├─ 최근 2시간 CVE 수집 (GitHub Commits API)
+   │   ├─ Phase 1: 커밋별 CVE ID 추출 + 벌크 감지
+   │   ├─ Phase 2: 일반 커밋 CVE → 전부 처리
+   │   └─ Phase 3: 벌크 커밋 CVE → 콘텐츠 해시 비교 → 스킵
    └─ EPSS 점수 배치 조회
 
-4. 병렬 CVE 처리 (3 workers)
-   ├─ NVD 보강 (CVSS, CWE) - NVD_API_KEY 있을 때
-   ├─ 자산 매칭 (affected vendor/product → description fallback)
-   ├─ 알림 트리거 판정 (NEW/KEV/EPSS/CVSS)
+4. 우선순위 정렬 + 배치 제한
+   ├─ 신규 CVE 우선 처리
+   └─ 최대 50건/실행
+
+5. 병렬 CVE 처리 (3 workers)
+   ├─ 추가 위협 인텔리전스 (NVD, PoC, Advisory)
+   ├─ 자산 매칭 (affected → description fallback)
+   ├─ 알림 트리거 판정 (신규/KEV/EPSS/CVSS)
    ├─ 한국어 번역 (Google Gemini)
-   ├─ 고위험 시 (CVSS >= 7.0 또는 KEV) GitHub Issue 생성
-   │   ├─ AI 근본 원인 분석
-   │   ├─ 공격 시나리오 (MITRE ATT&CK)
-   │   ├─ 탐지 룰 생성 (Sigma/Snort/Suricata/YARA)
-   │   └─ 대응 방안 권고
-   │   └─ GITHUB_REPOSITORY 미설정 시 Issue 생성만 스킵
-   ├─ Slack 알림 전송
+   ├─ 고위험 시 GitHub Issue + AI 분석 + 룰 생성
+   ├─ Slack 알림
    └─ Supabase DB 업데이트
+
+6. Slack 배치 요약 전송
+
+7. Rate Limit 사용 요약 출력
 ```
 
 ### Phase 2 실행 흐름
 
 ```
 Step 1/5: Tier 1 피드 수집
-   └─ 6개 위협 피드 다운로드 (개별 실패 허용)
+   └─ 8개 위협 피드 다운로드 (개별 실패 허용, ThreatFox JSON 파서)
 
 Step 2/5: Delta 계산
    ├─ 어제 vs 오늘 indicator 세트 비교 (Supabase 기반)
@@ -582,21 +676,30 @@ Step 2/5: Delta 계산
    └─ 어제 고위험 중 제거된 IP 식별
 
 Step 3/5: Tier 2 Enrichment
-   ├─ 신규 IP만 대상 (CIDR 표기 "/" 포함 indicator는 제외)
+   ├─ 신규 IP만 대상 (CIDR 제외)
    ├─ base_score 기준 우선순위 정렬 (높은 점수 우선)
-   ├─ 하드캡 적용: 최대 500개 (max_enrich_count)
-   ├─ AbuseIPDB 순차 조회 (1초 간격, ABUSEIPDB_API_KEY 없으면 스킵)
-   ├─ InternetDB 병렬 조회 (10 workers)
+   ├─ AbuseIPDB 최대 500개 (분리 캡), 순차 조회 (1초 간격)
+   ├─ InternetDB 최대 5,000개 (분리 캡), 병렬 조회 (20 workers)
    └─ 캐시 활용 (AbuseIPDB 24h, InternetDB 72h TTL)
 
 Step 4/5: Scoring
-   ├─ 기본 점수 + 소스 보너스 + AbuseIPDB 조정 + InternetDB 조정
-   ├─ 등급 분류 (Critical 80+ / High 60+ / Medium 40+ / Low)
+   ├─ 기본 점수 + 소스 보너스 + AbuseIPDB + InternetDB + 기간 가중치
+   ├─ 카테고리별 임계값 오버라이드 적용
    └─ 등급 하락 IP 감지 (어제 고위험 → 오늘 중/저위험)
 
 Step 5/5: 저장 + 리포트
    ├─ Supabase에 일별 스냅샷 저장
-   └─ Slack 일일 리포트 전송
+   └─ Slack 일일 리포트 전송 (방화벽 관리 권고 포함)
+```
+
+### Dashboard Export 흐름
+
+```
+Step 1/5: CVE 데이터 export (Supabase → cves.json, 페이지네이션)
+Step 2/5: 블랙리스트 IP export (Supabase → blacklist.json, 평판 회복 IP 포함)
+Step 3/5: 외부 IOC 피드 수집 (URLhaus → MalwareBazaar → PhishTank/OpenPhish)
+Step 4/5: IOC 통합 데이터 export (타입별 분리 파일 생성)
+Step 5/5: 통계 집계 (stats.json)
 ```
 
 ---
@@ -604,10 +707,6 @@ Step 5/5: 저장 + 리포트
 ## Testing
 
 통합 테스트를 통해 각 모듈의 동작을 검증합니다.
-
-### GitHub Actions에서 실행
-
-Actions 탭 > `Argus Phase 1 Test` > 테스트 대상 선택 > Run workflow
 
 ### 로컬에서 실행
 
@@ -648,17 +747,19 @@ python test_argus.py --test D,E
 
 ```sql
 -- CVE 이력
-CREATE TABLE cve_history (
-  cve_id TEXT PRIMARY KEY,
-  first_seen TIMESTAMPTZ,
-  last_updated TIMESTAMPTZ,
-  cvss REAL,
-  epss REAL,
+CREATE TABLE cves (
+  id TEXT PRIMARY KEY,
+  cvss_score REAL,
+  epss_score REAL,
   is_kev BOOLEAN,
-  alert_reasons TEXT[],
-  analysis JSONB,
-  rules JSONB,
-  issue_url TEXT
+  has_official_rules BOOLEAN DEFAULT FALSE,
+  last_alert_at TIMESTAMPTZ,
+  last_alert_state JSONB,
+  rules_snapshot JSONB,
+  report_url TEXT,
+  last_rule_check_at TIMESTAMPTZ,
+  content_hash TEXT,
+  updated_at TIMESTAMPTZ
 );
 ```
 
