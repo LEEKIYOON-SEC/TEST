@@ -205,21 +205,138 @@
   }
 
   /* Architecture diagram */
-  .arch-diagram {
-    background: #0f172a;
-    color: #94a3b8;
-    border-radius: 8px;
-    padding: 20px;
-    overflow-x: auto;
-    margin: 12px 0 20px;
-    font-family: 'JetBrains Mono', 'Fira Code', monospace;
-    font-size: 12px;
-    line-height: 1.5;
-    white-space: pre;
+  .arch {
+    margin: 20px 0 28px;
   }
-  .arch-diagram .hl { color: #60a5fa; }
-  .arch-diagram .hl2 { color: #34d399; }
-  .arch-diagram .hl3 { color: #fbbf24; }
+  .arch-scheduler {
+    text-align: center;
+    margin-bottom: 0;
+  }
+  .arch-scheduler-box {
+    display: inline-block;
+    background: #1e293b;
+    color: #f8fafc;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 8px 24px;
+    border-radius: 8px;
+  }
+  .arch-connector {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+  }
+  .arch-connector .line {
+    width: 2px;
+    height: 24px;
+    background: #cbd5e1;
+  }
+  .arch-connector-h {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    position: relative;
+    height: 24px;
+    margin: 0 60px;
+  }
+  .arch-connector-h::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 2px;
+    height: 12px;
+    background: #cbd5e1;
+  }
+  .arch-connector-h::after {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 16.66%;
+    right: 16.66%;
+    height: 2px;
+    background: #cbd5e1;
+  }
+  .arch-branches {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    height: 14px;
+    margin: 0 60px;
+  }
+  .arch-branches .branch-line {
+    position: absolute;
+    top: 0;
+    width: 2px;
+    height: 14px;
+    background: #cbd5e1;
+  }
+  .arch-branches .branch-line:nth-child(1) { left: 16.66%; }
+  .arch-branches .branch-line:nth-child(2) { left: 50%; }
+  .arch-branches .branch-line:nth-child(3) { left: 83.33%; }
+
+  .arch-phases {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .arch-phase {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .arch-phase.p1 { border-color: #93c5fd; }
+  .arch-phase.p2 { border-color: #6ee7b7; }
+  .arch-phase.p3 { border-color: #c4b5fd; }
+
+  .arch-phase-header {
+    padding: 10px 14px;
+    font-weight: 700;
+    font-size: 13px;
+    text-align: center;
+  }
+  .arch-phase.p1 .arch-phase-header { background: #dbeafe; color: #1e40af; }
+  .arch-phase.p2 .arch-phase-header { background: #dcfce7; color: #166534; }
+  .arch-phase.p3 .arch-phase-header { background: #ede9fe; color: #5b21b6; }
+
+  .arch-phase-sub {
+    font-size: 11px;
+    font-weight: 500;
+    opacity: 0.8;
+    display: block;
+    margin-top: 2px;
+  }
+
+  .arch-step {
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+  }
+  .arch-step-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--heading);
+    margin-bottom: 4px;
+  }
+  .arch-step-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .arch-step-items li {
+    font-size: 12px;
+    color: #475569;
+    padding: 1px 0;
+    padding-left: 14px;
+    position: relative;
+    margin: 0;
+  }
+  .arch-step-items li::before {
+    content: '·';
+    position: absolute;
+    left: 4px;
+    font-weight: 700;
+    color: #94a3b8;
+  }
 
   /* Blockquote / Note */
   blockquote {
@@ -360,7 +477,7 @@
     .header h1 { font-size: 26px; }
     h2 { font-size: 18px; margin-top: 28px; }
     h3 { font-size: 15px; }
-    pre, .arch-diagram, .slack-example, .sql-block, .formula-box, .pipeline {
+    pre, .slack-example, .sql-block, .formula-box, .pipeline {
       font-size: 11px;
       padding: 12px;
     }
@@ -368,6 +485,12 @@
     th, td { padding: 6px 8px; }
     .toc-grid { grid-template-columns: repeat(4, 1fr); }
     .phase-grid { gap: 8px; }
+    .arch-phases { gap: 8px; }
+    .arch-connector-h { margin: 0 40px; }
+    .arch-branches { margin: 0 40px; }
+    .arch-step { padding: 6px 10px; }
+    .arch-step-title { font-size: 11px; }
+    .arch-step-items li { font-size: 11px; }
   }
 </style>
 </head>
@@ -453,36 +576,140 @@
 <!-- Architecture -->
 <h2 id="architecture">Architecture</h2>
 
-<div class="arch-diagram"><span class="hl">                         GitHub Actions (Scheduler)</span>
-                                  │
-         ┌────────────────────────┼────────────────────────┐
-         │                        │                        │
-<span class="hl">Phase 1: CVE Scanner</span>     <span class="hl2">Phase 2: The Shield</span>      <span class="hl3">Phase 3: IOC Export</span>
-(수동 실행)               (매일 09:00 KST)          (자동 연동)
-         │                        │                        │
-┌────────┴────────┐     ┌────────┴────────┐     ┌────────┴────────┐
-│  1. 데이터 수집   │     │  1. 피드 수집     │     │  1. CVE → IOC    │
-│  - CISA KEV     │     │  - ET, Spamhaus  │     │  2. IP → IOC     │
-│  - CVE Project  │     │  - abuse.ch      │     │  3. Rule → IOC   │
-│  - EPSS/NVD     │     │  - Tor (이중화)   │     │  4. URLhaus      │
-│  - 스마트 필터링  │     │  - ThreatFox     │     │  5. MalwareBazaar│
-├─────────────────┤     │  - Blocklist.de  │     │  6. PhishTank    │
-│  2. AI 분석      │     ├──────────────────┤     │     /OpenPhish   │
-│  - Groq LLM     │     │  2. Delta 계산    │     └────────┬────────┘
-│  - 번역 (Gemini) │     │  - 신규/제거 비교   │              │
-├─────────────────┤     ├──────────────────┤     ┌────────┴────────┐
-│  3. 룰 생성      │     │  3. Enrichment    │     │  GitHub Pages    │
-│  - Sigma/Snort  │     │  - AbuseIPDB     │     │  대시보드         │
-│  - YARA         │     │  - InternetDB    │     │  - CVE 대시보드   │
-├─────────────────┤     ├──────────────────┤     │  - IP 대시보드    │
-│  4. 알림 &amp; 저장   │     │  4. Scoring       │     │  - IOC 통합      │
-│  - Slack        │     │  - 카테고리별 임계값 │     └─────────────────┘
-│  - GitHub Issue │     │  - 기간 기반 가중치  │
-│  - Supabase     │     ├──────────────────┤
-└─────────────────┘     │  5. 리포트 &amp; 저장   │
-                        │  - Slack 리포트    │
-                        │  - Supabase 저장  │
-                        └──────────────────┘</div>
+<div class="arch">
+  <!-- Scheduler -->
+  <div class="arch-scheduler">
+    <div class="arch-scheduler-box">GitHub Actions (Scheduler)</div>
+  </div>
+  <div class="arch-connector"><div class="line"></div></div>
+  <div class="arch-connector-h"></div>
+  <div class="arch-branches">
+    <div class="branch-line"></div>
+    <div class="branch-line"></div>
+    <div class="branch-line"></div>
+  </div>
+
+  <!-- 3 Phases -->
+  <div class="arch-phases">
+
+    <!-- Phase 1 -->
+    <div class="arch-phase p1">
+      <div class="arch-phase-header">
+        Phase 1: CVE Scanner
+        <span class="arch-phase-sub">수동 실행</span>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-title">1. 데이터 수집</div>
+        <ul class="arch-step-items">
+          <li>CISA KEV</li>
+          <li>CVE Project</li>
+          <li>EPSS / NVD</li>
+          <li>스마트 필터링</li>
+        </ul>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-title">2. AI 분석</div>
+        <ul class="arch-step-items">
+          <li>Groq LLM</li>
+          <li>번역 (Gemini)</li>
+        </ul>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-title">3. 룰 생성</div>
+        <ul class="arch-step-items">
+          <li>Sigma / Snort</li>
+          <li>YARA</li>
+        </ul>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-title">4. 알림 &amp; 저장</div>
+        <ul class="arch-step-items">
+          <li>Slack</li>
+          <li>GitHub Issue</li>
+          <li>Supabase</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Phase 2 -->
+    <div class="arch-phase p2">
+      <div class="arch-phase-header">
+        Phase 2: The Shield
+        <span class="arch-phase-sub">매일 09:00 KST</span>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-title">1. 피드 수집</div>
+        <ul class="arch-step-items">
+          <li>ET, Spamhaus</li>
+          <li>abuse.ch</li>
+          <li>Tor (이중화)</li>
+          <li>ThreatFox</li>
+          <li>Blocklist.de</li>
+        </ul>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-title">2. Delta 계산</div>
+        <ul class="arch-step-items">
+          <li>신규/제거 비교</li>
+        </ul>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-title">3. Enrichment</div>
+        <ul class="arch-step-items">
+          <li>AbuseIPDB</li>
+          <li>InternetDB</li>
+        </ul>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-title">4. Scoring</div>
+        <ul class="arch-step-items">
+          <li>카테고리별 임계값</li>
+          <li>기간 기반 가중치</li>
+        </ul>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-title">5. 리포트 &amp; 저장</div>
+        <ul class="arch-step-items">
+          <li>Slack 리포트</li>
+          <li>Supabase 저장</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Phase 3 -->
+    <div class="arch-phase p3">
+      <div class="arch-phase-header">
+        Phase 3: IOC Export
+        <span class="arch-phase-sub">자동 연동</span>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-title">IOC 통합</div>
+        <ul class="arch-step-items">
+          <li>CVE → IOC</li>
+          <li>IP → IOC</li>
+          <li>Rule → IOC</li>
+        </ul>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-title">외부 피드</div>
+        <ul class="arch-step-items">
+          <li>URLhaus</li>
+          <li>MalwareBazaar</li>
+          <li>PhishTank / OpenPhish</li>
+        </ul>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-title">GitHub Pages 대시보드</div>
+        <ul class="arch-step-items">
+          <li>CVE 대시보드</li>
+          <li>IP 대시보드</li>
+          <li>IOC 통합</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 <h3>외부 서비스 연동</h3>
 <table>
