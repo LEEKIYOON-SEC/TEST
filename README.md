@@ -37,7 +37,7 @@ Argus는 세 개의 독립 파이프라인으로 구성됩니다.
 
 - **자동화**: CVE 발표 → 분석 → 탐지 룰 → 보안 담당자 알림까지 사람 개입 없이 동작
 - **AI 분석**: LLM 기반 근본 원인 분석, 공격 시나리오 생성, 맞춤형 탐지 룰 자동 생성
-- **다중 엔진 룰**: Sigma, Snort 2.9/3, Suricata 5/7, YARA, Nuclei 등 실무 보안 장비에 바로 적용 가능
+- **다중 엔진 룰**: Sigma, Snort 2.9/3, Suricata 5/7, YARA 등 실무 보안 장비에 바로 적용 가능
 - **IP 위험도 관리**: 8개 위협 피드 통합, AbuseIPDB/InternetDB 보강, 기간 기반 가중치, 카테고리별 임계값, 방화벽 정책 자동 권고
 - **IOC 통합**: URLhaus, MalwareBazaar, PhishTank/OpenPhish 피드 연동, 타입별 Lazy-Load 대시보드
 - **스마트 필터링**: 콘텐츠 해시 기반 벌크 커밋 감지로 메타데이터 패치 무시, 실제 변경된 CVE만 처리
@@ -68,7 +68,7 @@ Phase 1: CVE Scanner     Phase 2: The Shield      Phase 3: IOC Export
 ├─────────────────┤     ├──────────────────┤     ┌────────┴────────┐
 │  3. 룰 생성      │     │  3. Enrichment    │     │  GitHub Pages    │
 │  - Sigma/Snort  │     │  - AbuseIPDB     │     │  대시보드         │
-│  - YARA/Nuclei  │     │  - InternetDB    │     │  - CVE 대시보드   │
+│  - YARA         │     │  - InternetDB    │     │  - CVE 대시보드   │
 ├─────────────────┤     ├──────────────────┤     │  - IP 대시보드    │
 │  4. 알림 & 저장   │     │  4. Scoring       │     │  - IOC 통합      │
 │  - Slack        │     │  - 카테고리별 임계값 │     └─────────────────┘
@@ -130,11 +130,10 @@ Phase 1: CVE Scanner     Phase 2: The Shield      Phase 3: IOC Export
 |------|------------|---------|
 | **Sigma** | SigmaHQ | O |
 | **Snort 2.9** | ET Open, Community | O |
-| **Snort 3** | ET Open, Community | O |
+| **Snort 3** | Community | O |
 | **Suricata 5** | ET Open | O |
 | **Suricata 7** | ET Open | O |
 | **YARA** | Yara-Rules | O |
-| **Nuclei** | Nuclei Templates | - |
 
 - 공개 룰 우선 사용, 없을 경우 AI가 생성
 - AI 생성 룰은 정규식 기반 구문 검증 + 환각 방지 가드 적용
