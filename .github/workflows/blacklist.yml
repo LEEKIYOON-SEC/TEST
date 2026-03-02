@@ -1,9 +1,9 @@
 name: Argus Blacklist IP Monitor
  
 on:
-  schedule:
+  #schedule:
     # 매일 09:00 KST (00:00 UTC) 실행
-    - cron: '0 0 * * *'
+    #- cron: '0 0 * * *'
   workflow_dispatch:
  
 permissions:
