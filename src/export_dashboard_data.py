@@ -257,7 +257,7 @@ def _get_recovered_ips(client, yesterday_date: str, today_date: str) -> list:
 # External IOC Feed Collection (URL / Hash)
 # ─────────────────────────────────────────────
 _FEED_TIMEOUT = 30
-_MAX_ITEMS_PER_FEED = 500
+_MAX_ITEMS_PER_FEED = 2000
 
 
 def _collect_urlhaus(max_items: int = _MAX_ITEMS_PER_FEED) -> list:
@@ -295,7 +295,6 @@ def _collect_urlhaus(max_items: int = _MAX_ITEMS_PER_FEED) -> list:
                 "tags": tag_list,
             },
             "tags": ["URLhaus"] + ([threat] if threat else []),
-            "related_rules": [],
         })
         if len(items) >= max_items:
             break
@@ -349,7 +348,6 @@ def _collect_malwarebazaar(max_items: int = _MAX_ITEMS_PER_FEED) -> list:
                 "signature": signature,
             },
             "tags": tag_list,
-            "related_rules": [],
         })
         if len(items) >= max_items:
             break
@@ -394,7 +392,6 @@ def _collect_phishtank(max_items: int = _MAX_ITEMS_PER_FEED) -> list:
                 "target": target,
             },
             "tags": ["PhishTank", "phishing"] + ([target] if target else []),
-            "related_rules": [],
         })
         if len(items) >= max_items:
             break
@@ -692,7 +689,7 @@ def main():
     ioc_data = export_ioc(cve_data, bl_data, external_iocs=external_iocs)
     ioc_path = os.path.join(data_dir, "ioc.json")
     with open(ioc_path, "w", encoding="utf-8") as f:
-        json.dump(ioc_data, f, ensure_ascii=False, indent=2)
+        json.dump(ioc_data, f, ensure_ascii=False, separators=(",", ":"))
     print(f"  IOC: {ioc_data['total']}건 → {ioc_path}", flush=True)
 
     # 통계
