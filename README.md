@@ -18,7 +18,6 @@ CVE 취약점 분석부터 탐지 룰 생성, IP 블랙리스트 관리, IOC 통
 - [Usage](#usage)
 - [Slack Alert Examples](#slack-alert-examples)
 - [Pipeline Details](#pipeline-details)
-- [Testing](#testing)
 - [Supabase Schema](#supabase-schema)
 - [License](#license)
 
@@ -195,8 +194,8 @@ Phase 1: CVE Scanner     Phase 2: The Shield      Phase 3: IOC Export
 | 카테고리 | Critical | High | Medium | 비고 |
 |---------|----------|------|--------|------|
 | 기본 (글로벌) | 80+ | 60+ | 40+ | 대부분의 카테고리 |
-| botnet/C2/malware | 70+ | 50+ | 30+ | 즉각 차단 필요 |
-| scanner/bruteforce | 75+ | 55+ | 35+ | 탐색/무차별 공격 |
+| botnet/C2/malware/exploit | 70+ | 50+ | 30+ | 즉각 차단 필요 |
+| scanner/bruteforce/compromised | 75+ | 55+ | 35+ | 탐색/무차별 공격/침해 |
 | tor | 90+ | 75+ | 50+ | 단독으로는 위험 낮음 |
 
 **방화벽 관리 자동 권고**
@@ -701,43 +700,6 @@ Step 3/5: 외부 IOC 피드 수집 (URLhaus → MalwareBazaar → PhishTank/Open
 Step 4/5: IOC 통합 데이터 export (타입별 분리 파일 생성)
 Step 5/5: 통계 집계 (stats.json)
 ```
-
----
-
-## Testing
-
-통합 테스트를 통해 각 모듈의 동작을 검증합니다.
-
-### 로컬에서 실행
-
-```bash
-cd src
-
-# 전체 테스트
-python test_argus.py
-
-# 개별 테스트
-python test_argus.py --test A    # Observable Gate 검증
-python test_argus.py --test B    # AI 룰 생성 (실제 API 호출)
-python test_argus.py --test C    # 공개 룰 검색
-python test_argus.py --test D    # 공식 룰 Slack 알림
-python test_argus.py --test E    # 전체 파이프라인
-python test_argus.py --test F    # get_rules 흐름 검증
-
-# 복수 테스트
-python test_argus.py --test D,E
-```
-
-### 테스트 항목
-
-| 테스트 | 설명 | API 호출 |
-|--------|------|----------|
-| **A** | Observable Gate: AI 룰 생성 가능 여부 판단 | 없음 |
-| **B** | AI 룰 생성: Groq API로 Sigma/Snort/YARA 생성 | Groq |
-| **C** | 공개 룰 검색: SigmaHQ, ET Open 등에서 룰 탐색 | GitHub |
-| **D** | Slack 알림: 모든 엔진 공식 룰 발견 시뮬레이션 | Slack |
-| **E** | 전체 파이프라인: 수집→분석→룰→Slack | 전체 |
-| **F** | get_rules 흐름: skip_reasons, nuclei 포함 검증 | Groq, GitHub |
 
 ---
 
