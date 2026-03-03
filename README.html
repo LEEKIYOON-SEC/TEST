@@ -546,7 +546,7 @@
   <div class="phase-card p1">
     <div class="phase-name">Phase 1 - CVE Scanner</div>
     <div class="phase-desc">CVE 수집 → AI 분석 → 탐지 룰 생성 → Slack/GitHub Issue</div>
-    <div class="phase-schedule">수동 실행 (workflow_dispatch)</div>
+    <div class="phase-schedule">매 시 정각 자동 실행</div>
   </div>
   <div class="phase-card p2">
     <div class="phase-name">Phase 2 - The Shield</div>
@@ -596,7 +596,7 @@
     <div class="arch-phase p1">
       <div class="arch-phase-header">
         Phase 1: CVE Scanner
-        <span class="arch-phase-sub">수동 실행</span>
+        <span class="arch-phase-sub">매 시 정각</span>
       </div>
       <div class="arch-step">
         <div class="arch-step-title">1. 데이터 수집</div>
@@ -1052,7 +1052,7 @@ cd Argus-AI-Threat-Intelligence</code></pre>
 <h2 id="usage">Usage</h2>
 
 <h3>Phase 1 - CVE Scanner</h3>
-<p><strong>GitHub Actions (수동 실행):</strong> Actions 탭 &gt; <code>Argus CVE Monitor</code> &gt; Run workflow</p>
+<p><strong>GitHub Actions:</strong> 매 시 정각 자동 실행 (수동 실행도 가능: Actions 탭 &gt; <code>Argus CVE Monitor</code> &gt; Run workflow)</p>
 <p><strong>로컬 실행:</strong></p>
 <pre><code>export GH_TOKEN="..."
 export SUPABASE_URL="..."
@@ -1104,7 +1104,22 @@ Apache Struts의 Content-Type 헤더를 통한 OGNL
 
   <span class="s-link">[AI 상세 분석 리포트 →]</span>  (GitHub Issue 링크)</div>
 
-<h3>2. 공식 룰 발견 알림</h3>
+<h3>2. CVE 배치 요약 알림</h3>
+<div class="slack-example"><span class="s-title">  Argus CVE 배치 요약</span>
+<span class="s-sep">───────────────────────────────</span>
+총 탐지: <span class="s-value">12건</span>
+
+  <span class="s-red">Critical</span>  <span class="s-value">High</span>     <span class="s-blue">Medium</span>   <span class="s-label">Low</span>
+     3          5          3         1
+<span class="s-sep">───────────────────────────────</span>
+고위험 CVE:
+  1. CVE-2024-12345 (<span class="s-red">CVSS 9.8</span>) - Apache Struts RCE
+  2. CVE-2024-67890 (<span class="s-red">CVSS 9.1</span>) - OpenSSL Buffer Overflow
+  3. CVE-2024-11111 (<span class="s-red">CVSS 8.8</span>) - Linux Kernel LPE
+
+  <span class="s-link">[📊 대시보드에서 전체 확인 →]</span>  (GitHub Pages 링크)</div>
+
+<h3>3. 공식 룰 발견 알림</h3>
 <div class="slack-example"><span class="s-title">  공식 룰 발견: CVE-2021-44228</span>
 <span class="s-sep">───────────────────────────────</span>
 이전에 AI 생성 룰로 보고된 취약점에 대한
@@ -1127,7 +1142,7 @@ Apache Struts의 Content-Type 헤더를 통한 OGNL
 
   <span class="s-link">[전체 룰 + 상세 리포트 보기 →]</span></div>
 
-<h3>3. The Shield 일일 리포트</h3>
+<h3>4. The Shield 일일 리포트</h3>
 <div class="slack-example"><span class="s-title">  The Shield 일일 위협 IP 리포트 (2025-02-17)</span>
 <span class="s-sep">───────────────────────────────</span>
 총 수집: <span class="s-value">4,521</span>개
@@ -1196,6 +1211,7 @@ Apache Struts의 Content-Type 헤더를 통한 OGNL
    └─ Supabase DB 업데이트
 
 6. Slack 배치 요약 전송
+   └─ 대시보드 바로가기 버튼 포함 (GitHub Pages)
 
 7. Rate Limit 사용 요약 출력</div>
 
