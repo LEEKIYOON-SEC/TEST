@@ -7,8 +7,17 @@ description: >-
   웹 레퍼런스 사이트
 
 # GitHub Pages 배포 설정
+# ============================================================
+# [이전 작업] K-SecGuide 리포로 이전 시:
+#   1. 아래 TEST용 2줄 삭제
+#   2. 그 아래 K-SecGuide용 2줄 주석 해제
+# ============================================================
+# --- 현재 TEST 리포용 (이전 시 삭제) ---
 baseurl: "/TEST"
 url: "https://leekiyoon-sec.github.io"
+# --- K-SecGuide 리포용 (이전 시 주석 해제) ---
+# baseurl: "/K-SecGuide"
+# url: "https://leekiyoon-sec.github.io"
 
 # 테마 설정 (GitHub Pages는 remote_theme 사용)
 remote_theme: just-the-docs/just-the-docs
