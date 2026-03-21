@@ -22,7 +22,7 @@ url: "https://leekiyoon-sec.github.io"
 # 테마 설정 (GitHub Pages는 remote_theme 사용)
 # v0.8.2: GitHub Pages sassc와 호환되는 마지막 버전
 remote_theme: just-the-docs/just-the-docs@v0.8.2
-color_scheme: default
+color_scheme: light
 
 # 한국어 설정
 lang: ko
