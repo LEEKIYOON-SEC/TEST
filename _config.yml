@@ -53,7 +53,6 @@ exclude:
   - Gemfile.lock
   - node_modules/
   - vendor/
-  - Argus/
 
 # 플러그인
 plugins:

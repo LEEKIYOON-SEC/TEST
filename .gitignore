@@ -20,6 +20,3 @@ Thumbs.db
 
 # Node (lunr.js 등)
 node_modules/
-
-# Argus (별도 프로젝트, 로컬 보관용)
-Argus/
