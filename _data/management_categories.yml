@@ -1,0 +1,211 @@
+- id: policy
+  name: 정보보호 정책
+  field: admin
+  count: 7
+  codes:
+  - A-1
+  - A-2
+  - A-3
+  - A-4
+  - A-5
+  - A-6
+  - A-7
+- id: organization
+  name: 정보보호 조직
+  field: admin
+  count: 2
+  codes:
+  - A-8
+  - A-9
+- id: asset
+  name: 자산분류
+  field: admin
+  count: 5
+  codes:
+  - A-10
+  - A-11
+  - A-12
+  - A-13
+  - A-14
+- id: risk
+  name: 위험관리
+  field: admin
+  count: 3
+  codes:
+  - A-15
+  - A-16
+  - A-17
+- id: audit
+  name: 감사
+  field: admin
+  count: 3
+  codes:
+  - A-18
+  - A-19
+  - A-20
+- id: hr_security
+  name: 인적보안
+  field: admin
+  count: 6
+  codes:
+  - A-21
+  - A-22
+  - A-23
+  - A-24
+  - A-25
+  - A-26
+- id: external_security
+  name: 외부자보안
+  field: admin
+  count: 7
+  codes:
+  - A-27
+  - A-28
+  - A-29
+  - A-30
+  - A-31
+  - A-32
+  - A-33
+- id: training
+  name: 교육 및 훈련
+  field: admin
+  count: 5
+  codes:
+  - A-34
+  - A-35
+  - A-36
+  - A-37
+  - A-38
+- id: auth
+  name: 인증 및 권한관리
+  field: admin
+  count: 4
+  codes:
+  - A-39
+  - A-40
+  - A-41
+  - A-42
+- id: access_control
+  name: 접근통제
+  field: admin
+  count: 15
+  codes:
+  - A-43
+  - A-44
+  - A-45
+  - A-46
+  - A-47
+  - A-48
+  - A-49
+  - A-50
+  - A-51
+  - A-52
+  - A-53
+  - A-54
+  - A-55
+  - A-56
+  - A-57
+- id: operation
+  name: 운영관리
+  field: admin
+  count: 28
+  codes:
+  - A-58
+  - A-59
+  - A-60
+  - A-61
+  - A-62
+  - A-63
+  - A-64
+  - A-65
+  - A-66
+  - A-67
+  - A-68
+  - A-69
+  - A-70
+  - A-71
+  - A-72
+  - A-73
+  - A-74
+  - A-75
+  - A-76
+  - A-77
+  - A-78
+  - A-79
+  - A-80
+  - A-81
+  - A-82
+  - A-83
+  - A-84
+  - A-85
+- id: security_mgmt
+  name: 보안관리
+  field: admin
+  count: 18
+  codes:
+  - A-86
+  - A-87
+  - A-88
+  - A-89
+  - A-90
+  - A-91
+  - A-92
+  - A-93
+  - A-94
+  - A-95
+  - A-96
+  - A-97
+  - A-98
+  - A-99
+  - A-100
+  - A-101
+  - A-102
+  - A-103
+- id: incident
+  name: 사고대응
+  field: admin
+  count: 10
+  codes:
+  - A-104
+  - A-105
+  - A-106
+  - A-107
+  - A-108
+  - A-109
+  - A-110
+  - A-111
+  - A-112
+  - A-113
+- id: continuity
+  name: 업무 연속성
+  field: admin
+  count: 5
+  codes:
+  - A-114
+  - A-115
+  - A-116
+  - A-117
+  - A-118
+- id: physical_security
+  name: 물리보안
+  field: physical
+  count: 18
+  codes:
+  - P-1
+  - P-2
+  - P-3
+  - P-4
+  - P-5
+  - P-6
+  - P-7
+  - P-8
+  - P-9
+  - P-10
+  - P-11
+  - P-12
+  - P-13
+  - P-14
+  - P-15
+  - P-16
+  - P-17
+  - P-18

@@ -1,0 +1,631 @@
+- section_id: unix
+  section_name: UNIX 서버
+  category: 1. 계정 관리
+  count: 13
+  codes:
+  - U-01
+  - U-02
+  - U-03
+  - U-04
+  - U-05
+  - U-06
+  - U-07
+  - U-08
+  - U-09
+  - U-10
+  - U-11
+  - U-12
+  - U-13
+- section_id: unix
+  section_name: UNIX 서버
+  category: 2. 파일 및 디렉토리 관리
+  count: 20
+  codes:
+  - U-14
+  - U-15
+  - U-16
+  - U-17
+  - U-18
+  - U-19
+  - U-20
+  - U-21
+  - U-22
+  - U-23
+  - U-24
+  - U-25
+  - U-26
+  - U-27
+  - U-28
+  - U-29
+  - U-30
+  - U-31
+  - U-32
+  - U-33
+- section_id: unix
+  section_name: UNIX 서버
+  category: 3. 서비스 관리
+  count: 30
+  codes:
+  - U-34
+  - U-35
+  - U-36
+  - U-37
+  - U-38
+  - U-39
+  - U-40
+  - U-41
+  - U-42
+  - U-43
+  - U-44
+  - U-45
+  - U-46
+  - U-47
+  - U-48
+  - U-49
+  - U-50
+  - U-51
+  - U-52
+  - U-53
+  - U-54
+  - U-55
+  - U-56
+  - U-57
+  - U-58
+  - U-59
+  - U-60
+  - U-61
+  - U-62
+  - U-63
+- section_id: unix
+  section_name: UNIX 서버
+  category: 4. 패치 관리
+  count: 1
+  codes:
+  - U-64
+- section_id: unix
+  section_name: UNIX 서버
+  category: 5. 로그 관리
+  count: 3
+  codes:
+  - U-65
+  - U-66
+  - U-67
+- section_id: windows
+  section_name: Windows 서버
+  category: 1. 계정 관리
+  count: 14
+  codes:
+  - W-01
+  - W-02
+  - W-03
+  - W-04
+  - W-05
+  - W-06
+  - W-07
+  - W-08
+  - W-09
+  - W-10
+  - W-11
+  - W-12
+  - W-13
+  - W-14
+- section_id: windows
+  section_name: Windows 서버
+  category: 2. 서비스 관리
+  count: 23
+  codes:
+  - W-15
+  - W-16
+  - W-17
+  - W-18
+  - W-19
+  - W-20
+  - W-21
+  - W-22
+  - W-23
+  - W-24
+  - W-25
+  - W-26
+  - W-27
+  - W-28
+  - W-29
+  - W-30
+  - W-31
+  - W-32
+  - W-33
+  - W-34
+  - W-35
+  - W-36
+  - W-37
+- section_id: windows
+  section_name: Windows 서버
+  category: 3. 패치 관리
+  count: 2
+  codes:
+  - W-38
+  - W-39
+- section_id: windows
+  section_name: Windows 서버
+  category: 4. 로그 관리
+  count: 4
+  codes:
+  - W-40
+  - W-41
+  - W-42
+  - W-43
+- section_id: windows
+  section_name: Windows 서버
+  category: 5. 보안 관리
+  count: 21
+  codes:
+  - W-44
+  - W-45
+  - W-46
+  - W-47
+  - W-48
+  - W-49
+  - W-50
+  - W-51
+  - W-52
+  - W-53
+  - W-54
+  - W-55
+  - W-56
+  - W-57
+  - W-58
+  - W-59
+  - W-60
+  - W-61
+  - W-62
+  - W-63
+  - W-64
+- section_id: web_service
+  section_name: 웹 서비스
+  category: 1. 계정 관리
+  count: 3
+  codes:
+  - WEB-01
+  - WEB-02
+  - WEB-03
+- section_id: web_service
+  section_name: 웹 서비스
+  category: 2. 서비스 관리
+  count: 15
+  codes:
+  - WEB-04
+  - WEB-05
+  - WEB-06
+  - WEB-07
+  - WEB-08
+  - WEB-09
+  - WEB-10
+  - WEB-11
+  - WEB-12
+  - WEB-13
+  - WEB-14
+  - WEB-15
+  - WEB-16
+  - WEB-17
+  - WEB-18
+- section_id: web_service
+  section_name: 웹 서비스
+  category: 3. 보안 설정
+  count: 6
+  codes:
+  - WEB-19
+  - WEB-20
+  - WEB-21
+  - WEB-22
+  - WEB-23
+  - WEB-24
+- section_id: web_service
+  section_name: 웹 서비스
+  category: 4. 패치 및 로그 관리
+  count: 2
+  codes:
+  - WEB-25
+  - WEB-26
+- section_id: security_device
+  section_name: 보안 장비
+  category: 1. 계정 관리
+  count: 5
+  codes:
+  - S-01
+  - S-02
+  - S-03
+  - S-04
+  - S-05
+- section_id: security_device
+  section_name: 보안 장비
+  category: 2. 접근 관리
+  count: 3
+  codes:
+  - S-06
+  - S-07
+  - S-08
+- section_id: security_device
+  section_name: 보안 장비
+  category: 3. 패치 관리
+  count: 1
+  codes:
+  - S-09
+- section_id: security_device
+  section_name: 보안 장비
+  category: 4. 로그 관리
+  count: 5
+  codes:
+  - S-10
+  - S-11
+  - S-12
+  - S-13
+  - S-14
+- section_id: security_device
+  section_name: 보안 장비
+  category: 5. 기능 관리
+  count: 9
+  codes:
+  - S-15
+  - S-16
+  - S-17
+  - S-18
+  - S-19
+  - S-20
+  - S-21
+  - S-22
+  - S-23
+- section_id: network
+  section_name: 네트워크 장비
+  category: 1. 계정 관리
+  count: 5
+  codes:
+  - N-01
+  - N-02
+  - N-03
+  - N-04
+  - N-05
+- section_id: network
+  section_name: 네트워크 장비
+  category: 2. 접근 관리
+  count: 6
+  codes:
+  - N-06
+  - N-07
+  - N-08
+  - N-09
+  - N-10
+  - N-11
+- section_id: network
+  section_name: 네트워크 장비
+  category: 3. 패치 관리
+  count: 1
+  codes:
+  - N-12
+- section_id: network
+  section_name: 네트워크 장비
+  category: 4. 로그 관리
+  count: 4
+  codes:
+  - N-13
+  - N-14
+  - N-15
+  - N-16
+- section_id: network
+  section_name: 네트워크 장비
+  category: 5. 기능 관리
+  count: 22
+  codes:
+  - N-17
+  - N-18
+  - N-19
+  - N-20
+  - N-21
+  - N-22
+  - N-23
+  - N-24
+  - N-25
+  - N-26
+  - N-27
+  - N-28
+  - N-29
+  - N-30
+  - N-31
+  - N-32
+  - N-33
+  - N-34
+  - N-35
+  - N-36
+  - N-37
+  - N-38
+- section_id: control_system
+  section_name: 제어시스템
+  category: 1. 계정 관리
+  count: 6
+  codes:
+  - C-01
+  - C-02
+  - C-03
+  - C-04
+  - C-05
+  - C-06
+- section_id: control_system
+  section_name: 제어시스템
+  category: 2. 서비스 관리
+  count: 10
+  codes:
+  - C-07
+  - C-08
+  - C-09
+  - C-10
+  - C-11
+  - C-12
+  - C-13
+  - C-14
+  - C-15
+  - C-16
+- section_id: control_system
+  section_name: 제어시스템
+  category: 3. 패치 관리
+  count: 4
+  codes:
+  - C-17
+  - C-18
+  - C-19
+  - C-20
+- section_id: control_system
+  section_name: 제어시스템
+  category: 4. 네트워크 접근통제
+  count: 6
+  codes:
+  - C-21
+  - C-22
+  - C-23
+  - C-24
+  - C-25
+  - C-26
+- section_id: control_system
+  section_name: 제어시스템
+  category: 5. 물리적 접근 통제
+  count: 2
+  codes:
+  - C-27
+  - C-28
+- section_id: control_system
+  section_name: 제어시스템
+  category: 6. 보안위협 탐지
+  count: 2
+  codes:
+  - C-29
+  - C-30
+- section_id: control_system
+  section_name: 제어시스템
+  category: 7. 복구 대응
+  count: 12
+  codes:
+  - C-31
+  - C-32
+  - C-33
+  - C-34
+  - C-35
+  - C-36
+  - C-37
+  - C-38
+  - C-39
+  - C-40
+  - C-41
+  - C-42
+- section_id: control_system
+  section_name: 제어시스템
+  category: 8. 보안 관리
+  count: 4
+  codes:
+  - C-43
+  - C-45
+  - C-49
+  - C-50
+- section_id: control_system
+  section_name: 제어시스템
+  category: 8. 복구 대응
+  count: 4
+  codes:
+  - C-44
+  - C-46
+  - C-47
+  - C-48
+- section_id: control_system
+  section_name: 제어시스템
+  category: 9. 교육훈련
+  count: 1
+  codes:
+  - C-51
+- section_id: pc
+  section_name: PC
+  category: 1. 계정 관리
+  count: 2
+  codes:
+  - PC-01
+  - PC-02
+- section_id: pc
+  section_name: PC
+  category: 1. 계정관리
+  count: 1
+  codes:
+  - PC-03
+- section_id: pc
+  section_name: PC
+  category: 2. 서비스 관리
+  count: 6
+  codes:
+  - PC-04
+  - PC-05
+  - PC-06
+  - PC-07
+  - PC-08
+  - PC-09
+- section_id: pc
+  section_name: PC
+  category: 3. 패치 관리
+  count: 2
+  codes:
+  - PC-10
+  - PC-11
+- section_id: pc
+  section_name: PC
+  category: 4. 보안 관리
+  count: 7
+  codes:
+  - PC-12
+  - PC-13
+  - PC-14
+  - PC-15
+  - PC-16
+  - PC-17
+  - PC-18
+- section_id: dbms
+  section_name: DBMS
+  category: 1. 계정 관리
+  count: 9
+  codes:
+  - D-01
+  - D-02
+  - D-03
+  - D-04
+  - D-05
+  - D-06
+  - D-07
+  - D-08
+  - D-09
+- section_id: dbms
+  section_name: DBMS
+  category: 2. 접근 관리
+  count: 7
+  codes:
+  - D-10
+  - D-11
+  - D-12
+  - D-13
+  - D-14
+  - D-15
+  - D-16
+- section_id: dbms
+  section_name: DBMS
+  category: 3.옵션 관리
+  count: 1
+  codes:
+  - D-17
+- section_id: dbms
+  section_name: DBMS
+  category: 3. 옵션 관리
+  count: 7
+  codes:
+  - D-18
+  - D-19
+  - D-20
+  - D-21
+  - D-22
+  - D-23
+  - D-24
+- section_id: dbms
+  section_name: DBMS
+  category: 4. 패치 관리
+  count: 2
+  codes:
+  - D-25
+  - D-26
+- section_id: mobile
+  section_name: 이동통신
+  category: 1. 운영 관리
+  count: 4
+  codes:
+  - M-01
+  - M-02
+  - M-03
+  - M-04
+- section_id: virtualization
+  section_name: 가상화 장비
+  category: 1. 계정 관리
+  count: 7
+  codes:
+  - HV-01
+  - HV-02
+  - HV-03
+  - HV-04
+  - HV-05
+  - HV-06
+  - HV-07
+- section_id: virtualization
+  section_name: 가상화 장비
+  category: 2. 시스템 서비스 관리
+  count: 9
+  codes:
+  - HV-08
+  - HV-09
+  - HV-10
+  - HV-11
+  - HV-12
+  - HV-13
+  - HV-14
+  - HV-15
+  - HV-16
+- section_id: virtualization
+  section_name: 가상화 장비
+  category: 3. 가상머신 관리
+  count: 4
+  codes:
+  - HV-17
+  - HV-18
+  - HV-19
+  - HV-20
+- section_id: virtualization
+  section_name: 가상화 장비
+  category: 3. 가상 머신 관리
+  count: 1
+  codes:
+  - HV-21
+- section_id: virtualization
+  section_name: 가상화 장비
+  category: 4. 가상 네트워크 관리
+  count: 4
+  codes:
+  - HV-22
+  - HV-23
+  - HV-24
+  - HV-25
+- section_id: cloud
+  section_name: 클라우드
+  category: 1. 계정 관리
+  count: 4
+  codes:
+  - CA-01
+  - CA-02
+  - CA-03
+  - CA-04
+- section_id: cloud
+  section_name: 클라우드
+  category: 2. 권한 관리
+  count: 2
+  codes:
+  - CA-05
+  - CA-06
+- section_id: cloud
+  section_name: 클라우드
+  category: 3. 가상 리소스 관리
+  count: 4
+  codes:
+  - CA-07
+  - CA-08
+  - CA-09
+  - CA-10
+- section_id: cloud
+  section_name: 클라우드
+  category: 4. 운영 관리
+  count: 9
+  codes:
+  - CA-11
+  - CA-12
+  - CA-13
+  - CA-14
+  - CA-15
+  - CA-16
+  - CA-17
+  - CA-18
+  - CA-19
