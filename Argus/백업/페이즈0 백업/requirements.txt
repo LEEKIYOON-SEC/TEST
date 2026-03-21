@@ -1,6 +1,0 @@
-requests
-supabase
-pytz
-tenacity
-groq
-google-genai
