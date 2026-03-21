@@ -1,0 +1,60 @@
+/* K-SecGuide Custom Styles */
+
+/* 공공누리 Footer */
+.footer-gonggong-nuri {
+  margin-top: 2rem;
+  padding-top: 1rem;
+}
+
+.gonggong-nuri-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: #495057;
+}
+
+.gonggong-nuri-logo {
+  width: 120px;
+  flex-shrink: 0;
+}
+
+.gonggong-nuri-notice p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* 중요도 뱃지 (기술 항목용 - Step 4에서 사용) */
+.badge-high {
+  display: inline-block;
+  padding: 0.15em 0.5em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+  background-color: #dc3545;
+  border-radius: 3px;
+}
+
+.badge-medium {
+  display: inline-block;
+  padding: 0.15em 0.5em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+  background-color: #fd7e14;
+  border-radius: 3px;
+}
+
+.badge-low {
+  display: inline-block;
+  padding: 0.15em 0.5em;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+  background-color: #28a745;
+  border-radius: 3px;
+}

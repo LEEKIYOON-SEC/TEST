@@ -1,0 +1,22 @@
+# Jekyll 빌드 결과물
+_site/
+.jekyll-cache/
+.jekyll-metadata
+
+# Ruby
+Gemfile.lock
+vendor/
+.bundle/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node (lunr.js 등)
+node_modules/
