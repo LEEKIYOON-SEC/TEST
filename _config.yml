@@ -10,8 +10,8 @@ description: >-
 baseurl: "/TEST"
 url: "https://leekiyoon-sec.github.io"
 
-# 테마 설정
-theme: just-the-docs
+# 테마 설정 (GitHub Pages는 remote_theme 사용)
+remote_theme: just-the-docs/just-the-docs
 color_scheme: default
 
 # 한국어 설정
@@ -57,4 +57,5 @@ exclude:
 
 # 플러그인
 plugins:
+  - jekyll-remote-theme
   - jekyll-seo-tag
