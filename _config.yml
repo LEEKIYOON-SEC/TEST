@@ -20,7 +20,8 @@ url: "https://leekiyoon-sec.github.io"
 # url: "https://leekiyoon-sec.github.io"
 
 # 테마 설정 (GitHub Pages는 remote_theme 사용)
-remote_theme: just-the-docs/just-the-docs
+# v0.8.2: GitHub Pages sassc와 호환되는 마지막 버전 (v0.9+ 는 Dart Sass @use 문법 사용)
+remote_theme: just-the-docs/just-the-docs@v0.8.2
 color_scheme: default
 
 # 한국어 설정
@@ -67,3 +68,4 @@ exclude:
 plugins:
   - jekyll-remote-theme
   - jekyll-seo-tag
+  - jekyll-include-cache
