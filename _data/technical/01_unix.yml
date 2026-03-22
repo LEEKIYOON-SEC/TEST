@@ -961,3 +961,87 @@ items:
           Step 1) /etc/services 파일 소유자 및 권한 변경
           # chown root /etc/services
           # chmod 644 /etc/services
+
+  - id: "U-23"
+    title: "SUID, SGID, Sticky bit 설정 파일 점검"
+    domain: "2. 파일 및 디렉토리 관리"
+    severity: "상"
+    description:
+      check_content: "불필요하거나 악의적인 파일에 SUID, SGID, Sticky bit 설정 여부 점검"
+      check_purpose: "불필요한 SUID, SGID, Sticky bit 설정 제거로 악의적인 사용자의 권한 상승을 방지하기 위함"
+      threat: "SUID, SGID, Sticky bit 설정이 적절하지 않을 경우, SUID, SGID, Sticky bit가 설정된 파일로 특정 명령어를 실행하여 root 권한 획득이 가능한 위험이 존재함"
+      reference:
+        - "※ SUID: 설정된 파일 실행 시, 특정 작업 수행을 위하여 일시적으로 파일 소유자의 권한을 얻게 됨"
+        - "※ SGID: 설정된 파일 실행 시, 특정 작업 수행을 위하여 일시적으로 파일 소유 그룹의 권한을 얻게 됨"
+        - "※ Sticky bit: 설정된 파일의 수정/삭제는 소유자만 가능한 권한"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "주요 실행 파일의 권한에 SUID와 SGID에 대한 설정이 부여되어 있지 않은 경우"
+      vulnerable: "주요 실행 파일의 권한에 SUID와 SGID에 대한 설정이 부여된 경우"
+    action: |
+      불필요한 SUID, SGID 권한 또는 해당 파일 제거하도록 설정
+      애플리케이션에서 생성한 파일이나 사용자가 임의로 생성한 파일 등 의심스럽거나 특이한 파일에 SUID 권한이 부여된 경우 제거하도록 설정
+    impact: "SUID, SGID, Sticky bit 설정 파일 제거 시, OS 및 응용프로그램 등 서비스 정상 작동 확인 필요"
+    examples:
+      - os: "SOLARIS, LINUX, AIX, HP-UX"
+        content: |
+          Step 1) SUID, SGID가 설정된 파일 확인
+          # find / -user root -type f \( -perm -04000 -o -perm -02000 \) -xdev -exec ls -al {} \;
+          Step 2) 불필요한 특수 권한 제거
+          # chmod -s <파일 이름>
+          Step 3) 반드시 사용이 필요한 경우 특정 그룹에서만 사용하도록 제한하여 일반 사용자의 Setuid 사용 제한
+          # chgrp <그룹 이름> <SUID를 설정할 파일>
+          # chmod 4750 <SUID를 설정할 파일>
+
+  - id: "U-24"
+    title: "사용자, 시스템 환경변수 파일 소유자 및 권한 설정"
+    domain: "2. 파일 및 디렉토리 관리"
+    severity: "상"
+    description:
+      check_content: "홈 디렉터리 내의 환경변수 파일에 대한 소유자 및 접근 권한이 관리자 또는 해당 계정으로 설정 여부 점검"
+      check_purpose: "비인가자의 환경변수 조작으로 인한 보안 위험이 존재함"
+      threat: "홈 디렉터리 내의 사용자 파일 및 사용자별 시스템 시작 파일 등과 같은 환경변수 파일의 접근 권한 설정이 적절하지 않을 경우, 비인가자가 환경변수 파일을 변조하여 정상 사용 중인 사용자의 서비스가 제한될 수 있는 위험이 존재함"
+      reference:
+        - "※ 환경변수 파일 종류: .profile, .kshrc, .cshrc, .bashrc, .bash_profile, .login, .exrc, .netrc 등"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "홈 디렉터리 환경변수 파일 소유자가 root 또는 해당 계정으로 지정되어 있고, 홈 디렉터리 환경변수 파일에 root 계정과 소유자만 쓰기 권한이 부여된 경우"
+      vulnerable: "홈 디렉터리 환경변수 파일 소유자가 root 또는 해당 계정으로 지정되지 않거나, 홈 디렉터리 환경변수 파일에 root 계정과 소유자 외에 쓰기 권한이 부여된 경우"
+    action: "환경변수 파일의 일반 사용자 쓰기 권한 제거하도록 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS, LINUX, AIX, HP-UX"
+        content: |
+          Step 1) 홈 디렉터리 환경변수 파일 소유자 및 권한 확인
+          # ls -l <홈 디렉터리 환경변수 파일>
+          환경변수 파일 종류: .profile, .kshrc, .cshrc, .bashrc, .bash_profile, .login, .exrc, .netrc 등
+          Step 2) 홈 디렉터리 환경변수 파일 소유자 및 권한 변경
+          # chown <root 또는 파일 소유자> <홈 디렉터리 환경변수 파일>
+          # chmod o-w <홈 디렉터리 환경변수 파일>
+
+  - id: "U-25"
+    title: "world writable 파일 점검"
+    domain: "2. 파일 및 디렉토리 관리"
+    severity: "상"
+    description:
+      check_content: "불필요한 world writable 파일 여부 점검"
+      check_purpose: "world writable 파일을 이용한 시스템 접근 및 악의적인 코드 실행을 방지하기 위함"
+      threat: "시스템 파일과 같은 중요 파일에 world writable이 적용될 경우, 일반 사용자 및 비인가자가 해당 파일을 임의로 수정, 제거할 위험이 존재함"
+      reference:
+        - "※ world writable 파일: 모든 사용자에게 쓰기 권한이 부여된 파일 (예시 : -rwxrwxrwx root root <파일명>)"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "world writable 파일이 존재하지 않거나, 존재 시 설정 이유를 인지하고 있는 경우"
+      vulnerable: "world writable 파일이 존재하나 설정 이유를 인지하지 못하고 있는 경우"
+    action: "world writable 파일 존재 여부를 확인하고 불필요한 경우 제거하도록 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS, LINUX, AIX, HP-UX"
+        content: |
+          [일반 사용자 쓰기 권한 제거]
+          Step 1) world writable 파일 확인
+          # find / -type f -perm -2 -exec ls -l {} \;
+          Step 2) 일반 사용자 쓰기 권한 제거
+          # chmod o-w <파일 이름>
+          Step 3) 불필요한 world writable 파일 제거
+          # rm <파일 이름>
