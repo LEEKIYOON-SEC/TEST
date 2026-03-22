@@ -1045,3 +1045,193 @@ items:
           # chmod o-w <파일 이름>
           Step 3) 불필요한 world writable 파일 제거
           # rm <파일 이름>
+
+  - id: "U-26"
+    title: "/dev에 존재하지 않는 device 파일 점검"
+    domain: "2. 파일 및 디렉토리 관리"
+    severity: "상"
+    description:
+      check_content: "허용할 호스트에 대한 접속 IP주소 제한 및 포트 제한 설정 여부 점검"
+      check_purpose: "허용한 호스트만 서비스를 사용하게 하여 서비스 취약점을 이용한 외부자 공격을 방지하기 위함"
+      threat: "공격자는 rootkit 설정 파일들을 서버 관리자가 쉽게 발견하지 못하도록 /dev 디렉터리에 device 파일인 것처럼 위장하는 수법을 사용하는 위험이 존재함"
+      reference:
+        - "※ /dev 디렉터리: 논리적 장치 파일을 담고 있는 디렉터리이며 /devices 디렉터리에 있는 물리적 장치 파일에 대한 심볼릭 링크임. 예를 들어 rmt0를 rmto로 잘못 입력한 경우, rmto 파일이 새로 생성되는 것과 같이 디바이스 이름 입력 오류 시 root 파일 시스템이 에러를 일으킬 때까지 /dev 디렉터리에 계속해서 파일을 생성함"
+        - "※ /dev 디렉터리 내 mqueue, shm 파일은 시스템에서 생성 또는 제거가 주기적으로 일어나므로 예외"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "/dev 디렉터리에 대한 파일 점검 후 존재하지 않는 device 파일을 제거한 경우"
+      vulnerable: "/dev 디렉터리에 대한 파일 미점검 또는 존재하지 않는 device 파일을 방치한 경우"
+    action: "major, minor number를 가지지 않는 device 파일 제거하도록 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS, LINUX, AIX, HP-UX"
+        content: |
+          Step 1) /dev 디렉터리 내 불필요하거나 존재하지 않는 device 파일 확인 및 삭제
+          # find /dev -type f -exec ls -l {} \;
+          # rm <파일 이름>
+
+  - id: "U-27"
+    title: "$HOME/.rhosts, hosts.equiv 사용 금지"
+    domain: "2. 파일 및 디렉토리 관리"
+    severity: "상"
+    description:
+      check_content: "$HOME/.rhosts 및 /etc/hosts.equiv 파일에 대해 적절한 소유자 및 접근 권한 설정 여부 점검"
+      check_purpose: "r-command를 통한 별도의 인증 없는 관리자 권한 원격 접속을 차단하기 위함"
+      threat: |
+        r-command(rlogin, rsh 등)에 보안 설정이 적용되지 않을 경우, 원격지의 공격자가 관리자 권한으로 목표 시스템상 임의의 명령을 수행시킬 수 있으며, 명령어 원격실행을 통해 중요 정보유출 및 시스템 장애를 유발 또는 공격자의 백도어 등으로도 활용될 수 있는 위험이 존재함
+        해당 파일은 r-command 서비스의 접근통제에 관련된 파일이며, 권한 설정이 부적절한 경우 r-command 서비스 사용 권한을 임의로 등록하여 무단 사용 위험이 존재함
+      reference:
+        - "※ /etc/hosts.equiv: 서버 설정 파일"
+        - "※ $HOME/.rhosts: 개별 사용자의 설정 파일"
+        - "※ + +: 모든 호스트의 계정 신뢰"
+        - "※ + <사용자 이름>: 모든 호스트의 해당 사용자 계정 신뢰"
+        - "※ <호스트 이름> +: 해당 호스트의 모든 계정 신뢰"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: |
+        rlogin, rsh, rexec 서비스를 사용하지 않거나, 사용 시 아래와 같은 설정이 적용된 경우
+        1. /etc/hosts.equiv 및 $HOME/.rhosts 파일 소유자가 root 또는 해당 계정인 경우
+        2. /etc/hosts.equiv 및 $HOME/.rhosts 파일 권한이 600 이하인 경우
+        3. /etc/hosts.equiv 및 $HOME/.rhosts 파일 설정에 "+" 설정이 없는 경우
+      vulnerable: |
+        rlogin, rsh, rexec 서비스를 사용하며 아래와 같은 설정이 적용되지 않은 경우
+        1. /etc/hosts.equiv 및 $HOME/.rhosts 파일 소유자가 root 또는 해당 계정이 아닌 경우
+        2. /etc/hosts.equiv 및 $HOME/.rhosts 파일 권한이 600을 초과한 경우
+        3. /etc/hosts.equiv 및 $HOME/.rhosts 파일 설정에 "+" 설정이 존재하는 경우
+    action: "/etc/hosts.equiv, $HOME/.rhosts 파일 소유자 및 권한 변경, 허용 호스트 및 계정 등록 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS, LINUX, AIX, HP-UX"
+        content: |
+          Step 1) /etc/hosts.equiv, $HOME/.rhosts 파일 소유자 및 권한 변경
+          # chown <root 또는 해당 계정> /etc/hosts.equiv
+          # chmod 600 /etc/hosts.equiv
+          # chown <root 또는 해당 계정> $HOME/.rhosts
+          # chmod 600 $HOME/.rhosts
+          Step 2) /etc/hosts.equiv, $HOME/.rhosts 파일 내 "+" 옵션이 부여된 계정 확인
+          Step 3) /etc/hosts.equiv, vi $HOME/.rhosts 파일 내 "+" 옵션 제거 후 허용 호스트 및 계정 등록
+
+  - id: "U-28"
+    title: "접속 IP 및 포트 제한"
+    domain: "2. 파일 및 디렉토리 관리"
+    severity: "상"
+    description:
+      check_content: "허용할 호스트에 대한 접속 IP주소 제한 및 포트 제한 설정 여부 점검"
+      check_purpose: "허용한 호스트만 서비스를 사용하게 하여 서비스 취약점을 이용한 외부자 공격을 방지하기 위함"
+      threat: "허용할 호스트에 대한 IP 및 포트 제한이 적용되지 않을 경우, Telnet, FTP 같은 보안에 취약한 네트워크 서비스를 통하여 불법적인 접근 및 시스템 침해사고가 발생할 수 있는 위험이 존재함"
+      reference:
+        - "※ TCP Wrapper: 네트워크 서비스에 관련한 트래픽을 제어하고 모니터링할 수 있는 UNIX 기반의 방화벽 툴"
+        - "※ IPFilter: 유닉스 계열에서 사용하는 공개형 방화벽 프로그램으로써 Packet Filter로 시스템 및 네트워크 보안에 아주 강력한 기능을 보유한 프로그램"
+        - "※ IPtables: 리눅스 커널 방화벽이 제공하는 테이블들과 그것을 저장하는 체인, 규칙들을 구성할 수 있게 해주는 응용프로그램"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "접속을 허용할 특정 호스트에 대한 IP주소 및 포트 제한을 설정한 경우"
+      vulnerable: "접속을 허용할 특정 호스트에 대한 IP주소 및 포트 제한을 설정하지 않은 경우"
+    action: "OS에 기본으로 제공하는 방화벽 애플리케이션이나 TCP Wrapper와 같은 호스트별 서비스 제한 애플리케이션을 사용하여 접근 허용 IP 등록 설정"
+    impact: "허용되지 않은 IP는 서비스 사용이 불가함"
+    examples:
+      - os: "SOLARIS"
+        content: |
+          [TCP Wrapper]
+          Step 1) TCP Wrapper에 설정된 접근제한 확인
+          Step 2) 서비스 차단 및 허용 설정값 수정
+          # vi /etc/hosts.deny
+          ALL:ALL
+          # vi /etc/hosts.allow
+          <허용할 서비스> : <허용할 IP주소>
+          예시) sshd : 192.168.18.129, 192.168.18.180
+          ※ TCP Wrapper 접근제어 가능 서비스 : SYSTAT, FINGER, FTP, TELNET, RLOGIN, RSH, TALK, EXEC, TFTP, SSH
+          ※ hosts.allow, hosts.deny 두 파일이 존재하지 않는 경우 모든 접근을 허용함
+
+          [Packet Filter]
+          Step 1) Packet Filter에 설정된 접근제한 확인 및 수정
+          Step 2) /etc/firewall/pf.conf 파일에 허용할 IP 및 포트 정책 추가
+          예시) SSH 서비스 제한
+          # pass in quick proto tcp from 192.168.1.0/24 to any port = 22 keep state
+          # block in quick proto tcp from any to any port = 22 keep state
+          Step 3) 설정한 접근제한 정책 적용
+          # svcadm refresh svc:/network/firewall:default
+      - os: "LINUX"
+        content: |
+          [TCP Wrapper]
+          Step 1) TCP Wrapper에 설정된 접근제한 확인
+          Step 2) 서비스 차단 및 허용 설정값 수정
+          # vi /etc/hosts.deny
+          ALL:ALL
+          # vi /etc/hosts.allow
+          <허용할 서비스> : <허용할 IP주소>
+          예시) sshd : 192.168.18.129, 192.168.18.180
+          ※ TCP Wrapper 접근제어 가능 서비스 : SYSTAT, FINGER, FTP, TELNET, RLOGIN, RSH, TALK, EXEC, TFTP, SSH
+          ※ hosts.allow, hosts.deny 두 파일이 존재하지 않는 경우 모든 접근을 허용함
+
+          [Iptables]
+          Step 1) Iptables에 설정된 접근제한 확인
+          # iptables -L
+          Step 2) Iptables에 허용할 IP 및 포트 정책 추가
+          # iptables -A INPUT -p <프로토콜> -s <IP주소> --dport <목적지 포트> -j ACCEPT
+          Step 3) 설정한 접근제한 정책 적용
+          # iptables-save
+
+          [Firewalld]
+          Step 1) Firewalld에 설정된 접근제한 확인
+          # firewall-cmd --list-all
+          Step 2) 허용할 IP 및 포트 정책 추가
+          # firewall-cmd --permanent --add-rich-rule="rule family="ipv4" source address="<IP주소>" port protocol="<프로토콜>" port="<포트 번호>" accept"
+          Step 3) 설정한 접근제한 정책 적용
+          # firewall-cmd --reload
+
+          [UFW]
+          Step 1) UFW에 설정된 접근제한 확인
+          # ufw status numbered
+          Step 2) 허용할 IP 및 포트 정책 추가
+          # ufw allow from <IP주소> to any <포트 번호>
+          Step 3) 설정한 접근제한 정책 적용
+          # ufw reload
+      - os: "AIX"
+        content: |
+          [TCP Wrapper]
+          Step 1) TCP Wrapper에 설정된 접근제한 확인
+          Step 2) 서비스 차단 및 허용 설정값 수정
+          # vi /etc/hosts.deny
+          ALL:ALL
+          # vi /etc/hosts.allow
+          <허용할 서비스> : <허용할 IP주소>
+          예시) sshd : 192.168.18.129, 192.168.18.180
+          ※ TCP Wrapper 접근제어 가능 서비스 : SYSTAT, FINGER, FTP, TELNET, RLOGIN, RSH, TALK, EXEC, TFTP, SSH
+          ※ hosts.allow, hosts.deny 두 파일이 존재하지 않는 경우 모든 접근을 허용함
+
+          [IPfilter]
+          Step 1) IPfilter에 설정된 접근제한 확인 및 수정
+          # vi /etc/ipf/ipf.conf
+          Step 2) /etc/ipf/ipf.conf 파일에 허용할 IP 및 포트 정책 추가
+          예시) SSH 서비스 제한
+          # pass in quick proto tcp from 192.168.1.0/24 to any port = 22 keep state
+          # block in quick proto tcp from any to any port = 22 keep state
+          Step 3) IPfilter 서비스 재시작
+      - os: "HP-UX"
+        content: |
+          [/var/adm/inetd.sec]
+          Step 1) inetd.sec에 설정된 접근제한 확인 및 수정
+          # vi /var/adm/inetd.sec
+          Step 2) 아래와 같이 수정 또는 삽입
+          특정 서비스로의 모든 IP 접근 차단 시 : <서비스>  deny *.*.*.*
+          특정 서비스로의 일부 IP 접근 허용 시 : <서비스>  allow <접속을 허용할 IP주소>
+
+          [TCP Wrapper]
+          Step 1) TCP Wrapper에 설정된 접근제한 확인
+          Step 2) 서비스 차단 및 허용 설정값 수정
+          # vi /etc/hosts.deny
+          ALL:ALL
+          # vi /etc/hosts.allow
+          <허용할 서비스> : <허용할 IP주소>
+          예시) sshd : 192.168.18.129, 192.168.18.180
+          ※ TCP Wrapper 접근제어 가능 서비스 : SYSTAT, FINGER, FTP, TELNET, RLOGIN, RSH, TALK, EXEC, TFTP, SSH
+          ※ hosts.allow, hosts.deny 두 파일이 존재하지 않는 경우 모든 접근을 허용함
+
+          [IPfilter]
+          Step 1) IPfilter에 설정된 접근제한 확인
+          Step 2) /etc/ipf/ipf.conf 파일에 허용할 IP 및 포트 정책 추가
+          예시) SSH 서비스 제한
+          # pass in quick proto tcp from 192.168.1.0/24 to any port = 22 keep state
+          # block in quick proto tcp from any to any port = 22 keep state
+          Step 3) IPfilter 서비스 재시작
