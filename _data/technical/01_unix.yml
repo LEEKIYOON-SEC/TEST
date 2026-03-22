@@ -3688,3 +3688,165 @@ items:
           version <경고 메시지>;
           Step 2) DNS 서비스 실행
           # kill -1 <PID>
+
+  - id: "U-63"
+    title: "sudo 명령어 접근 관리"
+    domain: "3. 서비스 관리"
+    severity: "중"
+    description:
+      check_content: "/etc/sudoers 파일 권한 적절성 여부 점검"
+      check_purpose: "비인가자가 관리자 권한을 남용하여 시스템 손상, 악성 코드 실행, 민감한 데이터 유출 등의 보안 위협을 방지하기 위함"
+      threat: "sudo 명령어 접근을 제한하지 않을 경우, 비인가자가 관리자 권한으로 허가되지 않은 명령어를 사용하여 루트 권한 오용, 악성 코드 실행, 데이터 유출 등의 시도를 할 위험이 존재함"
+      reference:
+        - "※ sudo(SuperUser DO): root 권한으로 명령어를 실행함"
+        - "※ /etc/sudoers: sudo 명령을 사용하여 다른 명령을 실행할 수 있는 사용자를 지정하는 파일"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "/etc/sudoers 파일 소유자가 root이고, 파일 권한이 640인 경우"
+      vulnerable: "/etc/sudoers 파일 소유자가 root가 아니거나, 파일 권한이 640을 초과하는 경우"
+    action: "/etc/sudoers 파일 소유자 및 권한 변경 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS, LINUX, AIX, HP-UX"
+        content: |
+          Step 1) /etc/sudoers 파일 소유자 및 권한 확인
+          # ls -l /etc/sudoers
+          Step 2) /etc/sudoers 파일 소유자를 root, 권한 640으로 변경
+          # chown root /etc/sudoers
+          # chmod 640 /etc/sudoers
+
+  - id: "U-64"
+    title: "주기적 보안 패치 및 벤더 권고사항 적용"
+    domain: "4. 패치 관리"
+    severity: "상"
+    description:
+      check_content: "시스템에서 최신 패치가 적용 여부 점검"
+      check_purpose: "주기적인 패치 적용을 통해 시스템 안정성 및 보안성을 확보하기 위함"
+      threat: "최신 보안패치가 적용되지 않을 경우, 이미 알려진 취약점을 통하여 공격자에 의해 시스템 침해사고 발생할 위험이 존재함"
+      reference:
+        - "※ 최신 버전의 Kernel을 사용하도록 권고하고 있으나, 시스템 운영상 적용이 어려운 경우 최신 버전이 아닌 취약점이 존재하지 않는 Kernel 버전도 허용하고 있음"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "패치 적용 정책을 수립하여 주기적으로 패치 관리를 하고 있으며, 패치 관련 내용을 확인하고 적용하였을 경우"
+      vulnerable: "패치 적용 정책을 수립하지 않고 주기적으로 패치 관리를 하지 않거나, 패치 관련 내용을 확인하지 않고 적용하지 않고 있는 경우"
+    action: "OS 관리자, 서비스 개발자가 패치 적용에 따른 서비스 영향 정도를 파악하여 OS 관리자 및 벤더에서 적용하도록 설정\n※ OS 패치의 경우 지속해서 취약점이 발표되고 있으므로 O/S 관리자, 서비스 개발자가 패치 적용에 따른 서비스 영향 정도를 정확히 파악하여 주기적인 패치 적용 정책을 수립하여 적용해야 함"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS"
+        content: |
+          [Oracle support이 존재하지 않는 경우]
+          Step 1) IFO에 'i'가 있는 곳에 설치된 패키지 확인
+          # pkg list -af entire | head -5 IFO
+          Step 2) 최신 패키지 확인
+          # pkg list -af entire@latest
+          Step 3) OS 버전으로 업데이트 후 재부팅
+          # pkg update --accept
+
+          [Oracle support이 존재하는 경우]
+          Step 1) IFO에 'i' 가 있는 곳에 설치된 패키지 확인
+          # pkg list -af entire | head -5
+          Step 2) 최신 패키지 확인
+          # pkg list -af entire@latest
+          Step 3) 업데이트 프리뷰
+          # pkg update –nv entire@버전 이름
+          Step 4) 업데이트 후 재부팅
+          # pkg update —accept entire@버전 이름
+          ※ Oracle support 있는지 구분하려면 pkg publisher 명령어를 사용하여 support 리포지토리(repository)가 있어야 https://pkg.oracle.com/solaris/support/
+          ※ Oracle support 없으면 분기별로만 업데이트가 가능함
+          ※ Oracle support 있다면 매달 업데이트(SRU)와 Critical Patch Updates가 support 리포지토리에 담겨 있음
+      - os: "LINUX"
+        content: |
+          Step 1) OS 및 커널 버전 확인
+          # hostnamectl
+          Step 2) EOL 상태가 아닌 Linux OS 버전으로 업데이트
+          Step 3) 최신 보안 패치가 적용된 Kernel 버전으로 업데이트
+      - os: "AIX"
+        content: |
+          [패치 적용 방법]
+          Step 1) 설치된 OS 또는 버전 확인
+          # oslevel -s
+          Step 2) 서버에 적용되어 있는 패치 리스트 확인
+          # instfix -i | grep ML
+          # instfix -i | grep SP
+          Step 3) 아래 사이트에 접속하여 최신 패치를 찾아 업데이트
+          https://www.ibm.com/support/fixcentral
+          Step 4) 최신 패치를 다운로드 받은 후 OS 패치 설치 진행
+          # smitty installp
+          Step 5) Install Software 선택 후 INPUT device / directory for software 항목에 패치 파일 경로 입력
+          Step 6) SOFTWARE to install 항목에서 all-latest 선택
+          Step 7) ACCEPT new license agreements 항목을 yes로 설정 후 설치 진행
+          ※ 패치 진행 중 문제가 발생한 경우, Apply 설치만 기본 버전으로 재설정 가능
+          ※ Apply, Commit 된 패키지 확인은 lslpp -l 명령어로 확인 가능
+
+          [패치 롤백 적용 방법]
+          Step 1) 설치된 OS 또는 버전 확인
+          # oslevel -s
+          Step 2) 서버에 적용되어 있는 패치 리스트 확인
+          # instfix -i | grep ML
+          # instfix -i | grep SP
+          Step 3) OS 패치 롤백 진행
+          # smitty install_reject
+          Step 4) SOFTWARE name 항목에서 Apply 설치된 OS Patch 선택
+          Preview 항목 Yes로 설정
+          Step 5) 소프트웨어 제거에 문제가 없는지 확인 후 진행
+      - os: "HP-UX"
+        content: |
+          [패치 적용 방법]
+          Step 1) 서버에 적용된 패치 리스트 확인
+          # swlist –l product
+          Step 2) 아래 사이트에 접속 후 패치를 찾아 업데이트
+          https://support.hpe.com/hpsc/patch/content?action=home
+          Step 3) patch 파일을 /tmp 디렉터리 내 저장
+          예시) /tmp/patch_10
+          Step 4) HP-UX에서 shell archive를 품
+          # sh patch_10
+          - patch_10.depot, patch_10.text가 생성됨
+          Step 5) patch_10.depot 설치
+          # swinstall -s /tmp/patch_10.depot (절대경로 입력)
+          # swinstall -x autoreboot=true -x patch_match_target=true \ -s /tmp/patch_10.depot
+
+  - id: "U-65"
+    title: "NTP 및 시각 동기화 설정"
+    domain: "5. 로그 관리"
+    severity: "중"
+    description:
+      check_content: "NTP 및 시각 동기화 설정 여부 점검"
+      check_purpose: "인증 및 감사 목적을 위한 시간 동기화는 필수적이며, 안전하고 승인된 NTP 서비스와 동기화하기 위함"
+      threat: "시스템 간 시간 동기화 미흡으로 보안 사고 및 장애 발생 시 로그에 대한 신뢰도 확보 미흡 위험이 존재함"
+      reference: []
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "NTP 및 시각 동기화 설정이 기준에 따라 적용된 경우"
+      vulnerable: "NTP 및 시각 동기화 설정이 기준에 따라 적용되어 있지 않은 경우"
+    action: "NTP 설정 및 동기화 주기 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS, AIX, HP-UX"
+        content: |
+          Step 1) 동기화된 NTP 서버 확인
+          # ntpq -pn
+          Step 2) /etc/ntp.conf 파일 내의 NTP 설정값 수정(필요시 기존 서버 제거 후 새로운 NTP 서버 추가)
+          server <NTP 서버>
+          Step 3) NTP 서비스 재시작
+      - os: "LINUX"
+        content: |
+          [NTP]
+          Step 1) NTP 서비스 활성화 여부 확인
+          # systemctl list-units --type=service | grep ntp
+          Step 2) 동기화된 NTP 서버 확인
+          # ntpq -pn
+          Step 3) /etc/ntp.conf 파일 내에 NTP 서버 추가
+          server <NTP 서버>
+          Step 4) 설정 적용 및 재시작
+          # systemctl restart ntp
+          ※ Redhat 계열 리눅스는 RHEL 8 버전부터 Chrony 서비스로 변경
+
+          [Chrony]
+          Step 1) Chrony 서비스 활성화 여부 확인
+          # systemctl list-units --type=service | grep chrony
+          Step 2) 동기화된 Chrony 서버 확인
+          # chronyc sources
+          Step 3) /etc/chrony.conf 파일 내에 NTP 서버 추가
+          server <NTP 서버>
+          Step 4) 설정 적용 및 재시작
+          # systemctl restart chrony
