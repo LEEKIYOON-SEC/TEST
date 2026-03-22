@@ -2108,3 +2108,206 @@ items:
           # kill -9 <PID>
           Step 3) /etc/rc.config.d/nfsconf  파일 수정
           AUTOFS=0
+
+  - id: "U-42"
+    title: "불필요한 RPC 서비스 비활성화"
+    domain: "3. 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "불필요한 RPC 서비스의 실행 여부 점검"
+      check_purpose: "많은 취약점(버퍼 오버플로우, DoS, 원격 실행 등)이 존재하는 RPC 서비스를 비활성화하여 시스템의 보안성을 높이기 위함"
+      threat: "RPC 서비스의 취약점을 통해 비인가자가 root 권한 획득 및 각종 공격을 시도할 위험이 존재함"
+      reference:
+        - "※ 불필요한 RPC 서비스: rpc.cmsd, rpc.ttdbserverd, sadmind, rusersd, walld, sprayd, rstatd, rpc.nisd, rexd, rpc.pcnfsd, rpc.statd, rpc.ypupdated, rpc.rquotad, kcms_server, cachefsd"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "불필요한 RPC 서비스가 비활성화된 경우"
+      vulnerable: "불필요한 RPC 서비스가 활성화된 경우"
+    action: "불필요한 RPC 서비스 중지 및 비활성화 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS"
+        content: |
+          Step 1) RPC 서비스 관련 데몬 확인
+          # inetadm | grep rpc | grep enabled | egrep "ttdbserver|rex|rstart|rusers|spray|wall|rquota"
+          Step 2) 불필요한 RPC 서비스 확인
+          # inetadm | egrep "ttbd|rex|rstat|ruser|spray|wall|rquoata
+          Step 3) 서비스 데몬 중지
+          # svcadm disable <서비스 데몬>
+      - os: "LINUX"
+        content: |
+          [inetd]
+          Step 1) /etc/inetd.conf 파일 내 불필요한 RPC 서비스 활성화 여부 확인
+          # cat /etc/inetd.conf
+          Step 2) etc/inetd.conf  파일 수정(주석 처리)
+          #rpc.cmsd/2-4 dgram rpc/udp wait root /usr/dt/bin/rpc.cmsd rpc.cmsd
+          Step 3) inetd 서비스 재시작
+          # systemctl restart inetd
+
+          [xinetd]
+          Step 1) /etc/xinetd.d/ 디렉터리 내 존재하는 불필요한 RPC 서비스 활성화 여부 확인
+          #cat /etc/xinetd.d/<파일명>
+          예시) service rpc-statd{
+          disable         = no
+          ...
+          }
+          Step 2) /etc/xinetd.d/ 디렉터리 내 존재하는 불필요한 rpc 파일을 열어 disable 설정값 수정
+          disable = yes
+          Step 3) 설정 적용 및 서비스 재시작
+          # systemctl restart xinetd
+
+          [systemd]
+          Step 1) 불필요한 RPC 서비스 활성화 여부 확인
+          # systemctl list-units --type=service | grep rpc
+          Step 2) 불필요한 RPC 서비스 중지
+          # systemctl stop <서비스명>
+          Step 3) 불필요한 RPC 서비스 비활성화
+          # systemctl disable <서비스명>
+      - os: "AIX, HP-UX"
+        content: |
+          Step 1) /etc/inetd.conf 파일 내 불필요한 RPC 서비스 활성화 여부 확인
+          Step 2) /etc/inetd.conf 파일 수정(주석 처리)
+          # rexd   sunrpc_tcp      tcp     wait   root    /usr/sbin/rpc.rexd rexd 100017 1
+          # rstatd  sunrpc_udp     udp     wait   root  /usr/sbin/rpc.rstatd rstatd 100001 1-3
+          Step 3) inetd 설정 적용
+          [AIX]
+          refresh –s inetd
+          [HP-UX]
+          inetd –c
+
+  - id: "U-43"
+    title: "NIS, NIS+ 점검"
+    domain: "3. 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "안전하지 않은 NIS 서비스의 비활성화, 안전한 NIS+ 서비스의 활성화 여부 점검"
+      check_purpose: "안전하지 않은 NIS 서비스를 비활성화하고 안전한 NIS+ 서비스를 활성화하여 시스템의 보안성을 높이기 위함"
+      threat: "NIS 서비스가 활성화된 경우, 비인가자가 타 시스템의 root 권한까지 탈취할 수 있는 위험이 존재함"
+      reference:
+        - "※ NIS 주 서버는 정보표를 소유하여 NIS 대응 파일들로 변환하고, 이 대응 파일들이 네트워크를 통해 제공됨으로써 모든 컴퓨터에 정보가 갱신되도록 함. 네트워크를 통한 공유로부터 관리자와 사용자들에게 일관성 있는 시스템 환경을 제공함"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "NIS 서비스가 비활성화되어 있거나, 불가피하게 사용 시 NIS+ 서비스를 사용하는 경우"
+      vulnerable: "NIS 서비스가 활성화된 경우"
+    action: "NIS 관련 서비스 비활성화 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS"
+        content: |
+          Step 1)  NIS 서비스 데몬 구동 여부 확인
+          # svcs -a |grep nis
+          Step 2) NIS 관련 서비스 데몬 확인
+          # svcs -a | grep nis
+          Step 3) NIS 서비스 데몬 중지
+          # svcadm disable <서비스 데몬>
+      - os: "LINUX"
+        content: |
+          Step 1)  NIS 관련 서비스 데몬 활성화 여부 확인
+          # systemctl list-units --type=service | grep –E "ypserv|ypbind|ypxfrd|rpc.yppasswdd|rpc.ypupdated"
+          Step 2) NIS 관련 서비스 데몬 중지
+          # systemctl stop <서비스명>
+          Step 3) NIS 관련 서비스 데몬 비활성화
+          # systemctl disable <서비스명>
+          ※ Redhat 계열 리눅스는 RHEL 8 버전부터 NIS(yp rpms) 패키지가 제거되었음
+      - os: "AIX"
+        content: |
+          [process 점검]
+          Step 1) NIS 관련 서비스 데몬 활성화 여부 확인
+          # ps -ef | grep -E "ypserv|ypbind|ypxfrd|rpc.yppasswdd|rpc.ypupdated"
+          Step 2) NIS 관련 서비스 중지
+          # kill –9 <PID>
+          Step 3) NIS 관련 서비스 시동 스크립트 위치 확인
+          # ls -al /etc/rc.d/rc*.d/* | grep –E "ypserv|ypbind|ypxfrd|rpc.yppasswdd|rpc.ypupdated"
+          Step 4) NIS 관련 서비스 시동 스크립트 이름 변경
+          # mv /etc/rc.d/rc2.d/S73ypbind /etc/rc.d/rc2.d/_S73ypbind
+
+          [service 점검]
+          Step 1) NIS 관련 서비스 데몬 활성화 여부 확인
+          # lssrc -a | grep -E "ypserv|ypbind|ypxfrd|rpc.yppasswdd|rpc.ypupdated"
+          Step 2) NIS 관련 서비스 중지
+          # stopsrc -s <NIS 관련 서비스명>
+          Step 3) etc/inittab 파일 수정(주석 처리)
+          #ypserv:2:wait:/usr/lib/netsvc/yp/ypserv >> /dev/console 2>&1
+          #ypbind:2:wait:/usr/lib/netsvc/yp/ypbind >> /dev/console 2>&1
+          Step 4) /etc/inittab 파일 설정 적용
+          # init q
+      - os: "HP-UX"
+        content: |
+          Step 1) NIS 관련 서비스 데몬 활성화 여부 확인
+          # ps -ef | grep -E "ypserv|ypbind|ypxfrd|rpc.yppasswdd|rpc.ypupdated"
+          Step 2) NIS 관련 서비스 중지
+          # kill -9 <PID>
+          Step 3) etc/rc.config.d/namesrvs 파일 수정
+          NIS_MASTER_SERVER=0
+          NIS_SLAVE_SERVER=0
+          NIS_CLIENT_SERVER=0
+
+  - id: "U-44"
+    title: "tftp, talk 서비스 비활성화"
+    domain: "3. 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "tftp, talk, ntalk 서비스의 활성화 여부 점검"
+      check_purpose: "안전하지 않거나 불필요한 서비스를 제거함으로써 시스템 보안성 및 리소스의 효율적 운용하기 위함"
+      threat: "사용하지 않는 서비스나 취약점이 발표된 서비스 운용 시 공격 시도 가능한 위험이 존재함"
+      reference:
+        - "※ tftp: 파일 전송을 위한 프로토콜로서 FTP 서비스보다 구조가 단순하며 적은 양의 데이트를 보낼 때 사용됨. 주로 원격의 부팅 파일을 불러오거나 설치 프로세스를 시작하기 위한 초기 데이터 호출 용도로 사용. 서비스 사용 시 인증 절차가 없어 보안에 취약함"
+        - "※ talk: 사용자가 시스템에 원격으로 연결하여 다른 시스템에 로그인하고 있는 사용자와 대화 세션을 시작할 수 있음"
+        - "※ ntalk: 서로 다른 시스템 간에 채팅을 가능하게 하는 서비스"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "tftp, talk, ntalk 서비스가 비활성화된 경우"
+      vulnerable: "tftp, talk, ntalk 서비스가 활성화된 경우"
+    action: "불필요한 tftp, talk, ntalk 서비스 비활성화 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS"
+        content: |
+          Step 1) tftp, talk 서비스 활성화 여부 확인
+          # inetadm | egrep "tftp|talk"
+          Step 2) 불필요한 서비스 데몬 중지
+          # inetadm -d <서비스 데몬명>
+      - os: "LINUX"
+        content: |
+          [inetd]
+          Step 1) /etc/inetd.conf 파일 내 tftp, talk, ntalk 서비스 활성화 여부 확인
+          # cat /etc/inetd.conf
+          Step 2) /etc/inetd.conf 파일 수정(주석 처리)
+          #tftp   dgram  udp  nobody   /usr/sbin/tftpd  tftpd -n
+          #talk   stream  tcp  wait  root    /usr/sbin/talkd  talkd
+          #ntalk  dgram  udp  wait  root    /usr/sbin/talkd  talkd
+          Step 3) inetd 서비스 재시작
+          # systemctl restart inetd
+
+          [xinetd]
+          Step 1)  /etc/xinetd.d/ 디렉터리 내 존재하는 tftp, talk, ntalk 파일에 대해 서비스 활성화 여부 확인
+          예시) service tftp{
+          disable         = no
+          ...
+          }
+          Step 2) /etc/xinetd.d/ 디렉터리 내 존재하는 tftp, talk, ntalk 파일에 대한 설정값 변경
+          disable = yes
+          Step 3) 설정 적용 및 서비스 재시작
+          # systemctl restart xinetd
+
+          [systemd]
+          Step 1) 서비스 활성화 여부 확인
+          # systemctl list-units --type=service | grep -E "tftp|talk|ntalk"
+          Step 2) tftp, talk,  ntalk 서비스 중지
+          systemctl stop <서비스명>
+          Step 3) tftp, talk,  ntalk 서비스 비활성화
+          # systemctl disable <서비스명>
+          ※ Redhat 계열 리눅스는 RHEL 7 버전부터 talk 패키지가 제거되었음
+      - os: "AIX, HP-UX"
+        content: |
+          Step 1) 서비스 활성화 여부 확인
+          # /etc/inetd.conf | grep -E "tftp|talk|ntalk" tftp, talk, ntalk
+          Step 2) /etc/inetd.conf 파일 수정(주석 처리)
+          #tftp    dgram   udp6    SRC    nobody  /usr/sbin/tftpd       tftpd -n
+          #talk    dgram   udp     wait    root     /usr/sbin/talkd       talkd
+          #ntalk   dgram   udp     wait    root     /usr/sbin/talkd       talkd
+          Step 3) intetd 설정 적용
+          [AIX]
+          refresh –s inetd
+          [HP-UX]
+          inetd –c
