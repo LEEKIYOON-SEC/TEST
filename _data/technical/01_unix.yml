@@ -1235,3 +1235,876 @@ items:
           # pass in quick proto tcp from 192.168.1.0/24 to any port = 22 keep state
           # block in quick proto tcp from any to any port = 22 keep state
           Step 3) IPfilter 서비스 재시작
+
+  - id: "U-29"
+    title: "hosts.lpd 파일 소유자 및 권한 설정"
+    domain: "2. 파일 및 디렉토리 관리"
+    severity: "하"
+    description:
+      check_content: "/etc/hosts.lpd 파일의 제거 및 권한 적절성 여부 점검"
+      check_purpose: "비인가자의 임의적인 /etc/hosts.lpd 변조를 막기 위해 /etc/hosts.lpd 파일 제거 또는 소유자 및 권한 관리하기 위함"
+      threat: "/etc/hosts.lpd 파일의 접근 권한이 적절하지 않을 경우, 비인가자가 /etc/hosts.lpd 파일을 수정하여 허용된 사용자의 서비스를 방해할 수 있으며, 호스트 정보를 획득할 수 있는 위험이 존재함"
+      reference:
+        - "※ /etc/hosts.lpd 파일: 로컬 프린트 서비스를 사용할 수 있는 허가된 호스트(사용자) 정보를 담고 있는 파일 (hostname 또는 IP주소를 포함하고 있음)"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "/etc/hosts.lpd 파일이 존재하지 않거나, 불가피하게 사용 시 /etc/hosts.lpd 파일의 소유자가 root이고, 권한이 600 이하인 경우"
+      vulnerable: "/etc/hosts.lpd 파일이 존재하며, 파일의 소유자가 root가 아니거나, 권한이 600 이하가 아닌 경우"
+    action: "/etc/hosts.lpd 파일 제거 또는 /etc/hosts.lpd 파일 소유자 및 권한 변경 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS, LINUX, AIX, HP-UX"
+        content: |
+          Step 1) /etc/hosts.lpd 파일 소유자 및 권한 확인 및 수정
+          # ls –l /etc/hosts.lpd
+          # chown root /etc/hosts.lpd
+          # chmod 600 /etc/hosts.lpd
+
+  - id: "U-30"
+    title: "UMASK 설정 관리"
+    domain: "2. 파일 및 디렉토리 관리"
+    severity: "중"
+    description:
+      check_content: "시스템 UMASK 값이 022 이상 설정 여부 점검"
+      check_purpose: "잘못 설정된 UMASK 값으로 인해 신규 파일에 대한 권한이 과도하게 부여되는 것을 방지하기 위함"
+      threat: "잘못 설정된 UMASK로 인해 파일 및 디렉터리 생성 시 과도한 권한이 부여되어 무단 액세스 및 데이터 유출의 위험이 존재함"
+      reference:
+        - "※ UMASK: 파일 및 디렉터리 생성 시 기본 권한을 지정해 주는 명령어"
+        - "※ 시스템 내에서 사용자가 새로 생성하는 파일의 접근 권한은 UMASK 값에 따라 정해지며, 계정의 환경설정 파일에 설정을 변경하면 사용자가 로그인한 후에도 변경된 UMASK 값을 적용받게 됨"
+        - "※ Start Profile: /etc/profile, /etc/default/login, .cshrc, .kshrc, .bashrc, .login, .profile 등"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "UMASK 값이 022 이상으로 설정된 경우"
+      vulnerable: "UMASK 값이 022 미만으로 설정된 경우"
+    action: "설정 파일에 UMASK 값을 022로 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS"
+        content: |
+          [/etc/profile]
+          Step 1) /etc/profile 파일 내 UMASK 설정 확인 및 수정
+          # vi /etc/profile
+          umask 022
+          export umask
+
+          [/etc/default/login]
+          Step 1) /etc/default/login 파일 내 UMASK 설정 확인 및 수정
+          # vi /etc/default/login
+          UMASK=022
+      - os: "LINUX"
+        content: |
+          [/etc/profile]
+          Step 1) /etc/profile 파일 내 UMASK 설정 확인 및 수정
+          # vi /etc/profile
+          umask 022
+          export umask
+
+          [/etc/login.defs]
+          Step 1) /etc/login.defs 파일 내 UMASK 설정 확인 및 수정
+          # vi /etc/login.defs
+          UMASK 022
+      - os: "AIX"
+        content: |
+          [/etc/profile]
+          Step 1) /etc/profile 파일 내 UMASK 설정 확인 및 수정
+          # vi /etc/profile
+          umask 022
+          export umask
+
+          [/etc/security/user]
+          Step 1) /etc/security/user 파일 내 UMASK 설정 확인 및 수정
+          # vi /etc/security/user
+          default : umask = 022 또는 <사용자 이름> : umask = 022
+      - os: "HP-UX"
+        content: |
+          [/etc/profile]
+          Step 1) /etc/profile 파일 내 UMASK 설정 확인 및 수정
+          # vi /etc/profile
+          umask 022
+          export umask
+
+          [/etc/default/securitz]
+          Step 1) /etc/default/securitz 파일 내 UMASK 설정 수정
+          UMASK = 022
+      - os: "공통"
+        content: |
+          [FTP UMASK 설정]
+          [vsFTP]
+          Step 1) {설치경로}/vsftpd.conf 파일 내 UMASK 설정 확인 및 수정
+          # cat vsftpd.conf | grep local_umask
+          local_umask=022
+
+          [ProFTP]
+          Step 2) {설치경로}/proftpd.conf 파일 내 UMASK 설정 확인 및 수정
+          # cat proftpd.conf | grep umask
+          Umask      022
+
+  - id: "U-31"
+    title: "홈디렉토리 소유자 및 권한 설정"
+    domain: "2. 파일 및 디렉토리 관리"
+    severity: "중"
+    description:
+      check_content: "홈 디렉토리의 소유자 외 타 사용자가 해당 홈 디렉토리를 수정할 수 없도록 제한 설정 여부 점검"
+      check_purpose: "사용자 홈 디렉토리 내 설정 파일이 비인가자에 의한 변조를 방지하기 위함"
+      threat: "홈 디렉토리 내 설정 파일 변조 시 정상적인 서비스 이용이 제한될 위험이 존재함"
+      reference: []
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "홈 디렉토리 소유자가 해당 계정이고, 타 사용자 쓰기 권한이 제거된 경우"
+      vulnerable: "홈 디렉토리 소유자가 해당 계정이 아니거나, 타 사용자 쓰기 권한이 부여된 경우"
+    action: "사용자별 홈 디렉토리 소유주를 해당 계정으로 변경하고, 타 사용자의 쓰기 권한 제거하도록 설정 (/etc/passwd 파일에서 홈 디렉토리 확인, 사용자 홈 디렉토리 외 개별적으로 만들어 사용하는 사용자 디렉토리 존재 여부 확인하여 점검)"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS, LINUX, AIX, HP-UX"
+        content: |
+          Step 1) 사용자별 홈 디렉토리 확인
+          # cat /etc/passwd
+          Step 2) 사용자별 홈 디렉토리 소유자 및 권한 확인
+          # ls -ald <사용자 홈 디렉토리>
+          Step 3) 사용자별 홈 디렉토리 소유자를 해당 사용자로 변경 및 일반 사용자 권한 제거
+          # chown <사용자 이름> <사용자 홈 디렉토리>
+          # chmod o-w <사용자 홈 디렉토리>
+
+  - id: "U-32"
+    title: "홈 디렉토리로 지정한 디렉토리의 존재 관리"
+    domain: "2. 파일 및 디렉토리 관리"
+    severity: "중"
+    description:
+      check_content: "사용자 계정과 홈 디렉토리의 일치 여부 점검"
+      check_purpose: "/home 디렉토리 이외의 사용자의 홈 디렉토리 존재 여부를 점검하여 비인가자가 시스템 명령어의 무단 사용을 방지하기 위함"
+      threat: "/etc/passwd 파일에 설정된 홈 디렉토리가 존재하지 않는 경우, 해당 계정으로 로그인 시 홈 디렉토리가 루트 디렉토리(/)로 할당되어 접근이 가능한 위험이 존재함"
+      reference:
+        - "※ 홈 디렉토리: 사용자가 로그인한 후 작업을 수행하는 디렉토리"
+        - "※ 일반 사용자의 홈 디렉토리 위치: /home/<user 명>"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "홈 디렉토리가 존재하지 않는 계정이 발견되지 않는 경우"
+      vulnerable: "홈 디렉토리가 존재하지 않는 계정이 발견된 경우"
+    action: "홈 디렉토리가 존재하지 않는 계정에 홈 디렉토리 설정 또는 계정 제거하도록 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS, LINUX, AIX, HP-UX"
+        content: |
+          Step 1) 사용자별 홈 디렉토리 확인
+          # cat /etc/passwd
+          Step 2) 홈 디렉토리가 존재하지 않는 사용자 계정이 불필요한 계정일 경우, 해당 계정 삭제
+          # userdel <사용자 이름>
+          Step 3) 사용중인 계정일 시, 해당 계정의 홈 디렉토리 설정
+          # vi /etc/passwd
+          예시) example:x:1000:1000::/home/example:/bin/bash
+
+  - id: "U-33"
+    title: "숨겨진 파일 및 디렉토리 검색 및 제거"
+    domain: "2. 파일 및 디렉토리 관리"
+    severity: "하"
+    description:
+      check_content: "숨겨진 파일 및 디렉토리 내 의심스러운 파일 존재 여부 점검"
+      check_purpose: "숨겨진 파일 및 디렉토리 중 의심스러운 내용은 정상 사용자가 아닌 공격자에 의해 생성되었을 가능성이 높으므로 이를 제거하여 보안 위협을 방지하기 위함"
+      threat: "숨겨진 파일 및 디렉토리를 방치할 경우, 비인가자가 생성한 악성 파일 또는 백도어 등을 탐지하지 못할 위험이 존재함"
+      reference: []
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "불필요하거나 의심스러운 숨겨진 파일 및 디렉토리를 제거한 경우"
+      vulnerable: "불필요하거나 의심스러운 숨겨진 파일 및 디렉토리를 제거하지 않은 경우"
+    action: "ls -al 명령어로 숨겨진 파일 존재 파악 후 불법적이거나 의심스러운 파일을 제거하도록 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS, LINUX, AIX, HP-UX"
+        content: |
+          Step 1) 특정 디렉토리 내 불필요한 파일 확인
+          # ls -al <디렉토리 이름>
+          Step 2) 숨겨진 파일 및 디렉토리 확인
+          # find / -type f –name ".*"
+          # find / -type d -name ".*"
+          Step 3) 불필요하거나 의심스러운 숨겨진 파일 및 디렉토리 제거
+          # rm <파일 이름>
+          # rm -r <디렉토리 이름>
+
+  - id: "U-34"
+    title: "Finger 서비스 비활성화"
+    domain: "3. 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "Finger 서비스 비활성화 여부 점검"
+      check_purpose: "Finger 서비스를 통해 네트워크 외부에서 해당 시스템에 등록된 사용자 정보를 확인할 수 있어 비인가자에게 사용자 정보가 조회되는 것을 방지하기 위함"
+      threat: "Finger 서비스가 활성화되어 있을 경우, 비인가자가 Finger 서비스를 사용하여 사용자 정보를 조회한 후 비밀번호 공격을 통해 계정을 탈취할 위험이 존재함"
+      reference:
+        - "※ Finger(사용자 정보 확인 서비스): who 명령어가 현재 사용 중인 사용자들에 대한 간단한 정보만을 보여주는 데 반해 Finger 명령은 옵션에 따른 시스템에 등록된 사용자뿐만 아니라 네트워크를 통하여 연결되어 있는 다른 시스템에 등록된 사용자들에 대한 자세한 정보를 보여줌"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "Finger 서비스가 비활성화된 경우"
+      vulnerable: "Finger 서비스가 활성화된 경우"
+    action: "Finger 서비스 비활성화 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS(5.9 이하 버전)"
+        content: |
+          Step 1) /etc/inetd.conf 파일 내 Finger 서비스 활성화 여부 확인 및 비활성화
+          Finger 서비스 항목 주석 처리
+          예시) #finger stream tcp nowait bin /usr/lbin/fingered fingerd
+          Step 2) inetd 서비스 재시작
+      - os: "SOLARIS(5.10 이상 버전)"
+        content: |
+          Step 1) Finger 서비스 활성화 여부 확인
+          # inetadm | grep finger
+          Step 2) Finger 서비스 데몬 중지
+          #inetadm -d svc:/network/finger:default
+      - os: "LINUX"
+        content: |
+          [inetd]
+          Step 1) /etc/inetd.conf 파일 내 Finger 서비스 활성화 여부 확인 및 비활성화
+          Finger 서비스 항목 주석 처리
+          예시) #finger stream tcp nowait bin /usr/lbin/fingered fingerd
+          Step 2) inetd 서비스 재시작
+
+          [xinetd]
+          Step 1) /etc/xinetd.d/finger 파일 내 Finger 서비스 활성화 여부 확인 및 비활성화
+          finger의 disable 옵션을 yes로 수정
+          Step 2) 설정 적용 및 xinetd 서비스 재시작
+          # systemctl restart xinetd
+      - os: "AIX, HP-UX"
+        content: |
+          Step 1) /etc/inetd.conf 파일 내 Finger 서비스 활성화 여부 확인 및 비활성화
+          Finger 서비스 항목 주석 처리
+          예시) #finger stream tcp nowait bin /usr/lbin/fingered fingerd
+          Step 2) inetd 서비스 재시작
+
+  - id: "U-35"
+    title: "공유 서비스에 대한 익명 접근 제한 설정"
+    domain: "3. 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "공유 서비스의 익명 접근 제한 설정 여부 점검"
+      check_purpose: "공유 서비스의 익명 접근을 제한하여 중요 정보의 노출을 방지하기 위함"
+      threat: "공유 서비스의 익명 접근을 허용할 경우, 비인가자의 무단 접근으로 인한 중요 정보 탈취 또는 변조, 악성 코드 유포 등의 위험이 존재함"
+      reference:
+        - "※ 익명 접속이 허용된 서버에 익명 사용자에 대해 쓰기 권한이 부여되어 있는 경우, 정상 파일에 대해 변조가 가능하므로 공개된 디렉터리 내 중요 데이터 여부를 주기적으로 확인해야 함"
+        - "※ 공유 서비스를 사용하지 않는 경우 양호 또는 N/A"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "공유 서비스에 대해 익명 접근을 제한한 경우"
+      vulnerable: "공유 서비스에 대해 익명 접근을 허용한 경우"
+    action: "공유 서비스의 익명 접근 제한 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS"
+        content: |
+          [기본 FTP]
+          Step 1) FTP 계정 확인
+          # cat /etc/passwd | grep ftp
+          # cat /etc/passwd | grep anonymous
+          Step 2) FTP 계정 제거
+          # userdel ftp
+          # userdel anonymous
+
+          [vsFTP]
+          Step 1) Anonymous FTP 활성화 여부 확인
+          # cat /etc/vsftpd/vsftpd.conf | grep anonymous_enable
+          Step 2) Anonymous FTP 비활성화
+          # vi /etc/vsftpd/vsftpd.conf
+          anonymous_enable 옵션을 NO로 수정
+
+          [ProFTP]
+          Step 1) Anonymous FTP 활성화 여부 확인
+          # sed –n '/<Anonymous ~ftp>/,/<\/Anonymous>/p' /etc/proftpd/proftpd.conf
+          Step 2) Anonymous FTP 비활성화
+          # vi /etc/proftpd/proftpd.conf
+          Anonymous 필드 주석 처리
+          ※ User, UserAlias 옵션이 설정된 경우 익명 접근이 활성화되어 있는 상태
+
+          [NFS]
+          Step 1) 익명 접근 활성화 여부 확인
+          # cat /etc/dfs/dfstab | grep anon
+          Step 2) 익명 접근 비활성화
+          # vi /etc/dfs/dfstab
+          anon 옵션을 -1로 수정
+          예시) share -F nfs -o rw, anon=-1 /home/example
+          Step 3) NFS 서비스 재시작
+          # exportfs –u
+          # exportfs –a
+
+          [Samba]
+          Step 1) 익명 접근 허용 여부 확인
+          # cat /etc/samba/smb.conf | grep "guset ok"
+          Step 2) 익명 사용자 접근 비활성화
+          # vi /etc/samba/smb.conf
+          guest ok 옵션을 no로 수정
+          Step 3) 변경된 설정 적용 및 재시작
+          # svcadm refresh samba
+      - os: "LINUX"
+        content: |
+          [기본 FTP]
+          Step 1) FTP 계정 확인
+          # cat /etc/passwd | grep ftp
+          # cat /etc/passwd | grep anonymous
+          Step 2) FTP 계정 제거
+          # userdel ftp
+          # userdel anonymous
+
+          [vsFTP]
+          Step 1) Anonymous FTP 활성화 여부 확인
+          # cat /etc/vsftpd.conf | grep anonymous_enable
+          # cat /etc/vsftpd/vsftpd.conf | grep anonymous_enable
+          Step 2) Anonymous FTP 비활성화
+          # vi /etc/vsftpd/vsftpd.conf
+          anonymous_enable 옵션을 NO로 수정
+          Step 3) 변경된 설정 적용 및 재시작
+          # systemctl restart vsftpd
+
+          [ProFTP]
+          Step 1) Anonymous FTP 활성화 여부 확인
+          # sed -n '/<Anonymous ~ftp>/,/<\/Anonymous>/p' /etc/proftpd.conf
+          # sed –n '/<Anonymous ~ftp>/,/<\/Anonymous>/p' /etc/proftpd/proftpd.conf
+          Step 2) Anonymous FTP 비활성화
+          # vi /etc/proftpd/proftpd.conf
+          Anonymous 필드 주석 처리
+          Step 3) 변경된 설정 적용 및 재시작
+          # systemctl restart proftpd
+          ※ User, UserAlias 옵션이 설정된 경우 익명 접근이 활성화되어 있는 상태
+
+          [NFS]
+          Step 1) 익명 접근 활성화 여부 확인
+          # cat /etc/exports | grep -E "anonuid|anongid"
+          Step 2) 익명 접근 비활성화
+          # vi /etc/exports
+          anon 옵션값 삭제
+          예시) /home/nfs-server *(rw,sync,no_subtree_check)
+          Step 3) NFS 서비스 재시작
+          # exportfs –ra
+          ※ anon 옵션이 설정된 경우 익명 접근이 활성화되어 있는 상태
+
+          [Samba]
+          Step 1) 익명 접근 허용 여부 확인
+          # cat /etc/samba/smb.conf | grep "guset ok"
+          Step 2) 익명 사용자 접근 비활성화
+          # vi /etc/samba/smb.conf
+          guest ok 옵션을 no로 수정
+          Step 3) 변경된 설정 적용 및 재시작
+          # smbcontrol all reload-config
+      - os: "AIX"
+        content: |
+          [기본 FTP]
+          Step 1) FTP 계정 확인
+          # cat /etc/passwd | grep ftp
+          # cat /etc/passwd | grep anonymous
+          Step 2) FTP 계정 제거
+          # rmuser ftp
+          # rmuser anonymous
+
+          [vsFTP]
+          Step 1) Anonymous FTP 활성화 여부 확인
+          # cat /etc/vsftpd.conf | grep anonymous_enable
+          Step 2) Anonymous FTP 비활성화
+          # vi /etc/vsftpd.conf
+          anonymous_enable 옵션을 NO로 수정
+          Step 3) 서비스 재시작
+          # kill -1 <PID>
+
+          [ProFTP]
+          Step 1) Anonymous FTP 활성화 여부 확인
+          # sed -n '/<Anonymous ~ftp>/,/<\/Anonymous>/p' /etc/proftpd.conf
+          Step 2) Anonymous FTP 비활성화
+          # vi /etc/proftpd.conf
+          Anonymous 필드 주석 처리
+          Step 3) 서비스 재시작
+          # kill –1 <PID>
+          ※ User, UserAlias 옵션이 설정된 경우 익명 접근이 활성화되어 있는 상태
+
+          [NFS]
+          Step 1) 익명 접근 활성화 여부 확인
+          # cat /etc/exports | grep anon
+          Step 2) 익명 접근 비활성화
+          # vi /etc/exports
+          anon 옵션을 -1로 수정
+          예시) /home/example -sec=sys:krb5p:krb5i:krb5:dh,ro=host1, access=host1, anon=-1
+          Step 3) NFS 서비스 재시작
+          # exportfs –u
+          # exportfs –a
+          ※ anon 옵션이 -1이 아닌 경우 익명 접근이 활성화되어 있는 상태
+
+          [Samba]
+          Step 1) 익명 접근 허용 여부 확인
+          # cat /usr/lib/smb.conf | grep "guset ok"
+          Step 2) 익명 사용자 접근 비활성화
+          # vi /usr/lib/smb.conf
+          guest ok 옵션을 no로 수정
+          Step 3) Samba 서비스 중지 및 재실행
+          # stopsrc –s smbd
+          # startsrc -s smbd
+      - os: "HP-UX"
+        content: |
+          [기본 FTP]
+          Step 1) FTP 계정 확인
+          # cat /etc/passwd | grep ftp
+          # cat /etc/passwd | grep anonymous
+          Step 2) FTP 계정 제거
+          # userdel ftp
+          # userdel anonymous
+
+          [vsFTP]
+          Step 1) Anonymous FTP 활성화 여부 확인
+          # cat /etc/vsftpd.conf | grep anonymous_enable
+          Step 2) Anonymous FTP 비활성화
+          # vi /etc/vsftpd.conf
+          anonymous_enable 옵션을 NO로 수정
+          Step 3) 서비스 재시작
+          # kill -1 <PID>
+
+          [ProFTP]
+          Step 1) Anonymous FTP 활성화 여부 확인
+          # sed -n '/<Anonymous ~ftp>/,/<\/Anonymous>/p' /etc/proftpd.conf
+          Step 2) Anonymous FTP 비활성화
+          # vi /etc/proftpd.conf
+          Anonymous 필드 주석 처리
+          Step 3) 서비스 재시작
+          # kill –1 <PID>
+
+          [NFS]
+          Step 1) 익명 접근 활성화 여부 확인
+          # cat /etc/exports | grep anon
+          # cat /etc/dfs/dfstab | grep anon
+          Step 2) 익명 접근 비활성화
+          # vi /etc/exports
+          # vi /etc/dfs/dfstab
+          anon 옵션을 -1로 수정
+          예시) /home/example –access=bear,anon=-1,ro
+          예시) share -F nfs -o rw, anon=-1 /home/example
+          Step 3) NFS 서비스 재시작
+          # exportfs –u
+          # exportfs –a
+          ※ HP-UX 11i v3에서는 /etc/dfs/dfstab 파일을 사용함
+          ※ anon 옵션이 -1이 아닌 경우 익명 접근이 활성화되어 있는 상태
+
+          [Samba]
+          Step 1) 익명 접근 허용 여부 확인
+          # cat /usr/lib/smb.conf | grep "guset ok"
+          Step 2) 익명 사용자 접근 비활성화
+          # vi /usr/lib/smb.conf
+          guest ok 옵션을 no로 수정
+          Step 3) 서비스 재시작
+          # kill –1 <PID>
+
+  - id: "U-36"
+    title: "r 계열 서비스 비활성화"
+    domain: "3. 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "r-command 서비스 비활성화 여부 점검"
+      check_purpose: "r-command 사용을 통한 원격 접속은 NET Backup 또는 클러스터링 등 용도로 사용되기도 하나, 인증 없이 관리자 원격 접속이 가능하여 이에 대한 보안 위협을 방지하기 위함"
+      threat: "rlogin, rsh, rexec 등의 r-command를 이용하여 원격에서 인증 절차 없이 터미널 접속, 쉘 명령어를 실행이 가능한 위험이 존재함"
+      reference:
+        - "※ r-command: 인증 없이 관리자의 원격 접속을 가능하게 하는 명령어들로 rsh(remsh), rlogin, rexec, rsync 등이 있음"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "불필요한 r 계열 서비스가 비활성화된 경우"
+      vulnerable: "불필요한 r 계열 서비스가 활성화된 경우"
+    action: "불필요한 r 계열 서비스 중지 및 비활성화 설정\n※ NET Backup 등 특별한 용도로 사용하지 않는다면 shell(514), login(513), exec(512) 서비스 중지\n※ rlogin, rsh, rexec 서비스는 backup, 클러스터링 등의 용도로 종종 사용되고 있으므로 해당 서비스 사용 유무를 확인하여 미사용시 서비스 중지\n※ /etc/hosts.equiv 또는 $HOME/.rhosts 파일을 통해 해당 서비스 사용 여부 확인 (파일이 존재하지 않거나 해당 파일 내에 설정이 없다면 사용하지 않는 것으로 간주)"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS(5.9 이하 버전)"
+        content: |
+          Step 1) /etc/inetd.conf 파일 내 불필요한 r 계열 서비스 활성화 여부 확인
+          # vi /etc/inetd.conf
+          Step 2) 불필요한 r 계열 서비스 관련 필드 주석처리
+          예시) #shell  stream  tcp   nowait  root  /usr/sbin/in.rshd    in.rshd
+          Step 3) 서비스 재시작
+          # kill -HUP [inetd PID]
+      - os: "SOLARIS(5.10 이상 버전)"
+        content: |
+          Step 1) 불필요한 r 계열 서비스 활성화 여부 확인
+          # inetadm | egrep "shell|rlogin|rexec"
+          Step 2) 불필요한 r 계열 서비스 데몬 중지
+          # inetadm -d <rcommand 데몬>
+      - os: "LINUX"
+        content: |
+          [inetd]
+          Step 1) /etc/inetd.conf 파일 내 불필요한 r 계열 서비스 활성화 여부 확인
+          Step 2) 불필요한 r 계열 서비스 관련 필드 주석 처리
+          # vi /etc/inetd.conf
+          예시) # rlogin  stream  tcp  nowait  root  /usr/sbin/in.rlogind  in.rlogind
+          Step 3) inetd 서비스 재시작
+
+          [xinetd]
+          Step 1) /etc/xinetd.d/<파일 이름> 파일 내 불필요한 r 계열 서비스 활성화 여부 확인
+          Step 2) 불필요한 r 계열 서비스 비활성화
+          disable 값을 yes로 수정
+          Step 3) 설정 적용 및 서비스 재시작
+          # systemctl restart xinetd
+
+          [systemd]
+          Step 1) 불필요한 r 계열 서비스 활성화 여부 확인
+          # systemctl list-units --type=service | grep –E "rlogin|rsh|rexec"
+          Step 2) 현재 가동되고 있는 r 계열 서비스 중지
+          # systemctl stop <서비스 이름>
+          Step 3) 불필요한 r 계열 서비스 비활성화
+          # systemctl disable <서비스 이름>
+      - os: "AIX, HP-UX"
+        content: |
+          [inetd]
+          Step 1) /etc/inetd.conf 파일 내 불필요한 r 계열 서비스 활성화 여부 확인
+          Step 2) 불필요한 r 계열 서비스 관련 필드 주석 처리
+          # vi /etc/inetd.conf
+          예시) #login   stream  tcp6    nowait  root    /usr/sbin/rlogind      rlogind
+          Step 3) 변경된 설정 적용
+          - AIX : # refresh –s inetd
+          -HP-UX : # inetd -c
+
+          [r-command]
+          Step 1) /etc/inetd.conf 파일 내 불필요한 r 계열 서비스 활성화 여부 확인
+          Step 2) /etc/hosts.equiv, $HOME/.rhosts 파일에 접근을 허용할 사용자 이름 또는 IP주소 설정
+          Step 3) /etc/hosts.equiv, $HOME/.rhosts 파일 권한을  600 이하로 설정
+
+  - id: "U-37"
+    title: "crontab 설정파일 권한 설정 미흡"
+    domain: "3. 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "crontab 및 at 서비스 관련 파일의 권한 적절성 여부 점검"
+      check_purpose: "관리자 외에는 서비스를 사용할 수 없도록 설정하고 있는지 점검하기 위함"
+      threat: "일반 사용자가 crontab 및 at 서비스를 사용할 수 있을 경우, 고의 또는 실수로 불법적인 예약 파일 실행으로 시스템 피해를 일으킬 수 있는 위험이 존재함"
+      reference:
+        - "※ cron 시스템: 특정 작업을 정해진 시간에 주기적이고 반복적으로 실행하기 위한 데몬 및 설정"
+        - "※ cron.allow: 사용자 ID를 등록하면 등록된 사용자는 crontab 명령어 사용이 가능함"
+        - "※ cron.deny: 사용자 ID를 등록하면 등록된 사용자는 crontab 명령어 사용이 불가능함"
+        - "※ at 서비스(일회성 작업 예약): 지정한 시간에 어떠한 작업이 실행될 수 있도록 작업 스케줄을 예약 처리해 주는 기능을 제공함. /etc/at.allow 파일에 등록된 사용자만이 at 명령을 사용할 수 있음"
+        - "※ 기반시설 시스템에서 at 서비스의 이용은 원칙적으로 금지하나, 불가피하게 사용 시 소유자 및 권한 설정 등의 보안 조치를 반드시 적용해야 함"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "crontab 및 at 명령어에 일반 사용자 실행 권한이 제거되어 있으며, cron 및 at 관련 파일 권한이 640 이하인 경우"
+      vulnerable: "crontab 및 at 명령어에 일반 사용자 실행 권한이 부여되어 있으며, cron 및 at 관련 파일 권한이 640 이상인 경우"
+    action: "crontab 및 at 명령어 파일 권한 750 이하, cron 및 at 관련 파일 소유자 및 파일 권한 640 이하 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS"
+        content: |
+          Step 1) crontab, cron 작업 목록 파일, cron 관련 파일 소유자 및 권한 확인
+          # ls –l /usr/bin/crontab
+          # ls -l /var/spool/cron/crontabs/<cron 작업 목록 파일>
+          # ls -l /etc/cron.d/<cron 관련 파일>
+          Step 2) at, at 작업 목록 파일 소유자 및 권한 확인
+          # ls –l /usr/bin/at
+          # ls -l /var/spool/cron/atjobs/<at 작업 목록 파일>
+          Step 3) crontab 파일 및 at 파일 소유자를 root로, 파일 권한을 750으로 변경
+          Step 4) cron 작업 목록 파일, cron 관련 파일 및 at 작업 목록 파일 소유자를 root로, 파일 권한을 640으로 변경
+          ※ crontab 및 at 명령어는 SUID가 설정되어 있으므로 SUID 설정 제거 필요
+      - os: "LINUX"
+        content: |
+          Step 1) crontab, cron 작업 목록 파일, cron 관련 파일 소유자 및 권한 확인
+          # ls –l /usr/bin/crontab
+          # ls -l /var/spool/cron/<cron 작업 목록 파일>, # ls -l /var/spool/cron/crontabs/<cron 작업 목록 파일>
+          # ls -l /etc/<cron 관련 파일>
+          Step 2) at, at 작업 목록 파일 소유자 및 권한 확인
+          # ls –l /usr/bin/at
+          # ls -l /var/spool/at/<at 작업 목록 파일>, # ls -l /var/spool/cron/atjobs/<at 작업 목록 파일>
+          Step 3) crontab 파일 및 at 파일 소유자를 root로, 파일 권한을 750으로 변경
+          Step 4) cron 작업 목록 파일, cron 관련 파일 및 at 작업 목록 파일 소유자를 root로, 파일 권한을 640으로 변경
+          ※ crontab 및 at 명령어는 SUID가 설정되어 있으므로 SUID 설정 제거 필요
+      - os: "AIX, HP-UX"
+        content: |
+          Step 1) crontab, cron 작업 목록 파일, cron 관련 파일 소유자 및 권한 확인
+          # ls –l /usr/bin/crontab
+          # ls -l /var/spool/cron/crontabs/<cron 작업 목록 파일>
+          # ls -l /var/adm/cron/<cron 관련 파일>
+          Step 2) at, at 작업 목록 파일 소유자 및 권한 확인
+          # ls –l /usr/bin/at
+          # ls -l /var/spool/cron/atjobs/<at 작업 목록 파일>
+          Step 3) crontab 파일 및 at 파일 소유자를 root로, 파일 권한을 750으로 변경
+          Step 4) cron 작업 목록 파일, cron 관련 파일 및 at 작업 목록 파일 소유자를 root로, 파일 권한을 640으로 변경
+          ※ crontab 및 at 명령어는 SUID가 설정되어 있으므로 SUID 설정 제거 필요
+
+  - id: "U-38"
+    title: "DoS 공격에 취약한 서비스 비활성화"
+    domain: "3. 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "사용하지 않는 DoS 공격에 취약한 서비스의 실행 여부 점검"
+      check_purpose: "많은 취약점을 가진 echo, discard, daytime, chargen, ntp, snmp 등의 서비스를 중지하여 시스템의 보안성을 높이기 위함"
+      threat: "해당 서비스가 활성화된 경우, 시스템 정보 유출 및 DoS 공격의 대상이 될 수 있는 위험이 존재함"
+      reference:
+        - "※ DoS(Denial of Service attack): 시스템을 악의적으로 공격해 해당 시스템의 자원을 부족하게 하여 원래 의도된 용도로 사용하지 못하게 하는 공격. 특정 서버에게 수많은 접속 시도를 만들어 다른 이용자가 정상적으로 서비스 이용을 하지 못하게 하거나, 서버의 TCP 연결을 바닥내는 등의 공격이 이 범위에 포함됨"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "DoS 공격에 취약한 서비스가 비활성화된 경우"
+      vulnerable: "DoS 공격에 취약한 서비스가 활성화된 경우"
+    action: "echo, discard, daytime, chargen, ntp, dns, snmp 등의 서비스 비활성화 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS"
+        content: |
+          Step 1) 서비스 데몬 활성화 여부 확인
+          # inetadm | grep enable | egrep "echo|discard|daytime|chargen"
+          Step 2) 불필요한 서비스 데몬 중지
+          # inetadm -d <중지하고자 하는 서비스 데몬>
+      - os: "LINUX"
+        content: |
+          [inetd]
+          Step 1) /etc/inetd.conf 파일 내 서비스 활성화 여부 확인
+          서비스 대상: echo, discard, daytime, chargen
+          Step 2) /etc/inetd.conf  파일 수정(주석 제거)
+          예시) echo  stream  tcp  nowait  root  internal
+          Step 3) inetd 서비스 재시작
+          # inetd
+
+          [xinetd]
+          Step 1) /etc/xinetd.d/<파일명> 파일 내 서비스 활성화 여부 확인
+          예시) service echo{
+          disable         = no
+          ...
+          }
+          Step 2) 서비스 비활성화
+          disable = yes
+          Step 3) 설정 적용 및 서비스 재시작
+          # service xinetd restart
+
+          [systemd]
+          Step 1) 서비스 활성화 여부 확인
+          # systemctl list-units --type=service | grep -E "echo|discard|daytime|chargen"
+          Step 2) 서비스 중지
+          # systemctl stop <서비스명>
+          Step 3) 서비스 비활성화
+          # systemctl disable <서비스명>
+      - os: "AIX, HP-UX"
+        content: |
+          Step 1) /etc/inetd.conf 파일 내 서비스 활성화 여부 확인
+          대상 서비스: echo, discard, daytime, chargen
+          Step 2) /etc/inetd.conf 파일 수정(주석 처리)
+          # echo stream  tcp     nowait  root    internal
+          # discard stream  tcp     nowait  root    internal
+          # chargen stream  tcp     nowait  root    internal
+          # daytime stream  tcp     nowait  root    internal
+          # echo dgram   udp     wait    root    internal
+          # discard dgram   udp     wait    root    internal
+          # chargen dgram   udp     wait    root    internal
+          # daytime dgram   udp     wait    root    internal
+          Step 3) 설정 적용
+          [AIX]
+          refresh –s inetd
+          [HP-UX]
+          inetd -c
+
+  - id: "U-39"
+    title: "불필요한 NFS 서비스 비활성화"
+    domain: "3. 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "불필요한 NFS 서비스 사용 여부 점검"
+      check_purpose: "NFS(Network File System) 서비스는 한 서버의 파일을 많은 서비스 서버들이 공유하여 사용할 때 이용하는 서비스지만 이를 이용한 침해사고 위험성이 높으므로 사용하지 않는 경우 중지하기 위함"
+      threat: "NFS 서비스는 서버의 디스크를 클라이언트와 공유하는 서비스로 적정한 보안 설정이 적용되어 있지 않다면 불필요한 파일 공유로 인한 유출 위험이 존재함"
+      reference:
+        - "※ NFS(Network File System): 원격 컴퓨터의 파일 시스템을 로컬 시스템에 마운트하여 로컬 파일 시스템처럼 사용할 수 있는 프로그램"
+        - "※ NFS 서비스 사용은 원칙적으로 금지되어 있지만 불가피하게 사용 시 필요한 경우 U-40 항목을 참조하여 통제해야 함"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "불필요한 NFS 서비스 관련 데몬이 비활성화된 경우"
+      vulnerable: "불필요한 NFS 서비스 관련 데몬이 활성화된 경우"
+    action: "NFS 서비스를 사용하지 않는 경우 서비스 중지 및 비활성화 설정\n※ 로컬 서버에 마운트 되어 있는 디렉터리 제거 및 공유 디렉터리 제거 후 서비스 중지 가능"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS"
+        content: |
+          Step 1) NFS 서비스 데몬 활성화 확인
+          # inetadm | egrep "nfs|statd|lockd"
+          Step 2) 불필요한 서비스 데몬 중지
+          # inetadm -d <중지하고자 하는 서비스 데몬>
+      - os: "LINUX"
+        content: |
+          Step 1) NFS 서비스 활성화 여부 확인
+          # systemctl list-units --type=service | grep nfs
+          Step 2) 불필요한 NFS 서비스 중지
+          # systemctl stop <서비스명>
+          Step 3) NFS 서비스 비활성화
+          # systemctl disable <서비스명>
+      - os: "AIX"
+        content: |
+          [process 점검]
+          Step 1) NFS 프로세스 활성화 여부 확인
+          # ps -ef | grep nfsd
+          Step 2) NFS 서비스 관련 데몬 중지
+          # kill –9 <PID>
+          Step 3) NFS 시동 스크립트 위치 확인
+          # ls -al /etc/rc.d/rc*.d/* | grep nfs
+          Step 4) NFS 시동 스크립트 이름 변경
+          # mv /etc/rc.d/rc2.d/S60nfs /etc/rc.d/rc2.d/_S60nfs
+
+          [service 점검]
+          Step 1) NFS 서비스 활성화 여부 확인
+          # lssrc -a | grep nfs
+          Step 2) NFS 서비스 관련 데몬 중지
+          # stopsrc -g nfs
+          Step 3) /etc/inittab 파일 수정(주석 처리)
+          # rcnfs:23456789:wait:/etc/rc.nfs > /dev/console
+          # Start NFS Daemons
+          Step 4) /etc/inittab 파일 설정 적용
+          #init q
+      - os: "HP-UX"
+        content: |
+          Step 1) NFS 서비스 활성화 여부 확인 및 관련 데몬 PID 확인
+          # ps -ef | grep -E "nfsd|statd|lockd"
+          Step 2) NFS 서비스 관련 데몬 중지
+          # kill -9 <PID>
+          Step 3) /etc/rc.config.d/nfsconf 파일 수정
+          NFS_SERVER=0
+          Step 4) 설정 적용
+          # /usr/sbin/nfs.server start
+
+  - id: "U-40"
+    title: "NFS 접근 통제"
+    domain: "3. 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "NFS(Network File System)의 접근 통제 설정 적용 여부 점검"
+      check_purpose: "접근 권한이 없는 비인가자의 접근을 통제하기 위함"
+      threat: "접근 통제 설정이 적절하지 않을 경우, 인증 절차 없이 비인가자가 디렉터리나 파일의 접근이 가능하며, 해당 공유 시스템에 원격으로 마운트하여 중요 파일을 변조하거나 유출할 위험이 존재함"
+      reference:
+        - "※ NFS 서비스 사용 금지가 원칙이나, 불가피하게 사용 시 NFS v2, v3는 평문으로 전송되는 취약점이 있으므로 암호화되는 v4를 사용하는 것을 권고함"
+        - "※ NFS 서비스를 사용해야 하는 경우, NFS 설정 파일에 꼭 필요한 디렉터리만 설정하고, 허가된 사용자만 접근할 수 있도록 올바른 접근 통제를 설정해야 함"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "접근 통제가 설정되어 있으며 NFS 설정 파일 접근 권한이 644 이하인 경우"
+      vulnerable: "접근 통제가 설정되어 있지 않고 NFS 설정 파일 접근 권한이 644를 초과하는 경우"
+    action: "NFS 서비스를 사용하지 않는 경우 서비스 중지 및 비활성화 설정\n불가피하게 사용 시 접근 통제 설정 및 NFS 설정 파일 접근 권한 644 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS"
+        content: |
+          Step 1) 파일 소유자 및 권한 확인
+          # ls -l /etc/dfs/dfstab
+          # ls -l /etc/dfs/sharetab
+          Step 2) /etc/dfs/dfstab 파일 내 공유 중인 디렉터리에 접근할 수 있는 사용자 및 부여 권한 확인
+          Step 3) 파일 소유자를 root로 변경
+          # chown root /etc/dfs/dfstab
+          Step 4) 파일 권한을 644로 변경
+          # chmod 644 /etc/dfs/dfstab
+          Step 5) /etc/dfs/dfstab 파일에 디렉터리 공유를 허용할 사용자 및 해당 사용자의 권한 설정
+          예시) 사용자의 읽기, 쓰기 권한 접속 허용 : share -F nfs -o rw, ro /export/home/example
+          사용자의 권한 접속 제한 : share -F nfs -o rw=client1:client2, ro=client1:client2 /export/home/example
+          Step 6) NFS 서비스 설정 적용
+          # shareall
+          ※ 읽기(ro), 쓰기(rw) 권한에 각각 사용자를 설정하여야 읽기, 쓰기 권한 모두 제한 가능
+      - os: "LINUX"
+        content: |
+          Step 1) 파일 소유자 및 권한 확인
+          # ls -l /etc/exports
+          Step 2) /etc/exports 파일 내 공유 중인 디렉터리에 접근할 수 있는 사용자 및 부여 권한 확인
+          # cat /etc/exports
+          Step 3) 파일 소유자를 root로 변경
+          # chown root /etc/exports
+          Step 4) 파일 권한을 644로 변경
+          # chmod 644 /etc/exports
+          Step 5) /etc/exports 파일에 디렉터리 공유를 허용할 사용자 및 해당 사용자의 권한 설정
+          예시) /home/example host1 (ro, root_squash)
+          Step 6) NFS 서비스 설정 적용
+          # exportfs -ra
+      - os: "AIX"
+        content: |
+          Step 1) 파일 소유자 및 권한 확인
+          # ls -l /etc/exports
+          Step 2) /etc/exports 파일 내 공유 중인 디렉터리에 접근할 수 있는 사용자 및 부여 권한 확인
+          # cat /etc/exports
+          Step 3) 파일 소유자를 root로 변경
+          # chown root /etc/exports
+          Step 4) 파일 권한을 644로 변경
+          # chmod 644 /etc/exports
+          Step 5) /etc/exports 파일에 디렉터리 공유를 허용할 사용자 및 해당 사용자의 권한 설정
+          예시) /home/example –sec=sys:krb5p:krb5i:krb5:dh,ro=host1, access=host1
+          Step 6) NFS 서비스 재시작
+          # exportfs -u, exportfs –a
+      - os: "HP-UX"
+        content: |
+          [/etc/dfs/dfstab]
+          Step 1) 파일 소유자 및 권한 확인
+          # ls -l /etc/dfs/dfstab
+          # ls -l /etc/dfs/sharetab
+          Step 2) /etc/dfs/dfstab 파일 내 공유 중인 디렉터리에 접근할 수 있는 사용자 및 부여 권한 확인
+          # cat /etc/dfs/dfstab
+          Step 3) 파일 소유자를 root로 변경
+          # chown root /etc/dfs/dfstab
+          Step 4) 파일 권한을 644로 변경
+          # chmod 644 /etc/dfs/dfstab
+          Step 5) /etc/dfs/dfstab 파일에 디렉터리 공유를 허용할 사용자 및 해당 사용자의 권한 설정
+          예시) 사용자의 읽기, 쓰기 권한 접속 허용 : share -F nfs -o rw, ro /export/home/example
+          사용자의 권한 접속 제한 : share -F nfs -o rw=client1:client2, ro=client1:client2 /export/home/example
+          Step 6) NFS 서비스 설정 적용
+          # shareall
+          ※ 읽기(ro), 쓰기(rw) 권한에 각각 사용자를 설정하여야 읽기, 쓰기 권한 모두 제한 가능
+
+          [/etc/exports]
+          Step 1) 파일 소유자 및 권한 확인
+          # ls -l /etc/exports
+          Step 2) /etc/exports 파일 내 디렉터리에 접근할 수 있는 사용자 및 부여 권한 확인
+          # cat /etc/exports
+          Step 3) 파일 소유자를 root로 변경
+          # chown root /etc/exports
+          Step 4) 파일 권한을 644로 변경
+          # chmod 644 /etc/exports
+          Step 5) /etc/exports 파일에 디렉터리 공유를 허용할 사용자 및 해당 사용자의 권한 설정
+          예시) /home/example host1 (ro, root_squash)
+          Step 6) NFS 서비스 설정 적용
+          # exportfs -ra
+
+  - id: "U-41"
+    title: "불필요한 automountd 제거"
+    domain: "3. 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "automountd 서비스 데몬의 실행 여부 점검"
+      check_purpose: "로컬 공격자가 automountd 데몬에 RPC(Remote Procedure Call)를 보낼 수 있는 취약점이 존재하기 때문에 해당 서비스를 중지시키기 위함"
+      threat: "파일 시스템의 마운트 옵션을 변경하여 root 권한을 획득할 수 있으며, 로컬 공격자가 automountd 프로세스 권한으로 임의의 명령을 실행할 수 있는 위험이 존재함"
+      reference:
+        - "※ automountd: 클라이언트에서 자동으로 서버에 마운트를 시키고 일정 시간 사용하지 않으면 unmount 시켜 주는 기능을 말함"
+        - "※ RPC(Remote Procedure Call): 별도의 원격 제어를 위한 코딩 없이 다른 주소 공간에서 함수나 프로시저를 실행할 수 있게 하는 프로세스 간 프로토콜"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "automountd 서비스가 비활성화된 경우"
+      vulnerable: "automountd 서비스가 활성화된 경우"
+    action: "automountd 서비스 비활성화 설정"
+    impact: "NFS 및 삼바(Samba) 서비스에서 사용 시 automountd 사용 여부 확인이 필요하며, 적용 시 CD-ROM의 자동 마운트는 이뤄지지 않음 (/etc/auto.*, /etc/auto_* 파일을 확인하여 필요 여부 확인)"
+    examples:
+      - os: "SOLARIS"
+        content: |
+          Step 1) automount 서비스 데몬 확인
+          #svcs -a | grep autofs
+          Step 2) autofs 서비스 데몬 확인
+          # svcs -l svc:/system/filesystem/autofs:default
+          Step 3) 서비스 데몬 중지
+          # svcadm disable <중지하고자 하는 서비스 데몬>
+          Step 4) autumount 또는 autofs 데몬 제거
+          # pkg uninstall <삭제할 관련 데몬의 패키지명>
+      - os: "LINUX"
+        content: |
+          Step 1) automount 또는 autofs 서비스 활성화 여부 확인
+          # systemctl list-units --type=service | grep -E "automount|autofs"
+          Step 2) automount 또는 autofs 서비스 중지
+          # systemctl stop <서비스명>
+          Step 3) automount 또는 autofs 서비스 비활성화
+          # systemctl disable <서비스명>
+      - os: "AIX"
+        content: |
+          [process 점검]
+          Step 1) automount 또는 autofs 서비스 활성화 여부 확인
+          # ps -ef | grep automountd
+          # ps -ef | grep autofs
+          Step 2) autumount 또는 autofs 서비스 중지
+          # kill -9 <PID>
+          Step 3)  autumount 또는 autofs 데몬 제거
+          # installp –u <삭제할 관련 데몬의 패키지명>
+
+          [service 점검]
+          Step 1) automount 또는 autofs 서비스 활성화 여부 확인
+          # lssrc -a | grep -E "automountd|autofs"
+          Step 2) automount 또는 autofs 서비스 중지
+          # stopsrc –s automountd
+          # stopsrc -s autofs
+          Step 3) /etc/inittab 파일 수정(주석 처리)
+          #automountd:2:once:/usr/sbin/automountd > /dev/console 2>$1
+          Step 4) /etc/inittab 파일 설정 적용
+          # init q
+      - os: "HP-UX"
+        content: |
+          Step 1) automount 또는 autofs 서비스 활성화 여부 확인
+          # ps -ef | grep automountd
+          # ps -ef | grep autofs
+          Step 2) autumount 또는 autofs 서비스 중지
+          # kill -9 <PID>
+          Step 3) /etc/rc.config.d/nfsconf  파일 수정
+          AUTOFS=0
