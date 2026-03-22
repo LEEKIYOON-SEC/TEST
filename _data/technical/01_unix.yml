@@ -407,3 +407,133 @@ items:
           [ /etc/passwd 파일 구조 ]
           ※ ":"(콜론)을 사용하여 필드를 구분함
           ※ 세 번째 필드(UID)가 0인 경우 슈퍼 유저 권한을 가지며, 0 이외의 계정은 일반, 시스템 계정으로 볼 수 있음
+
+  - id: "U-06"
+    title: "사용자 계정 su 기능 제한"
+    domain: "1. 계정 관리"
+    severity: "상"
+    description:
+      check_content: "su 명령어 사용을 허용하는 사용자를 지정한 그룹이 설정 여부 점검"
+      check_purpose: "su 관련 그룹만 su 명령어 사용 권한이 부여되어 있는지 점검하여 su 그룹에 포함되지 않은 일반 사용자의 su 명령 사용을 원천적으로 차단하는지 확인하기 위함"
+      threat: "무분별한 사용자 변경으로 타 사용자 소유의 파일을 변경할 수 있으며 root 계정으로 변경하는 경우 관리자 권한을 획득할 수 있는 위험이 존재함"
+      reference: []
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "su 명령어를 특정 그룹에 속한 사용자만 사용하도록 제한된 경우 ※ 일반 사용자 계정 없이 root 계정만 사용하는 경우 su 명령어 사용 제한 불필요"
+      vulnerable: "su 명령어를 모든 사용자가 사용하도록 설정된 경우"
+    action: "PAM 모듈 설정 또는 su 명령어 허용 그룹 생성 후 su 명령어 일반 사용자 권한 제거하도록 설정"
+    impact: "그룹에 추가된 계정들은 모든 Session 종료 후 재 로그인 시 su 명령어 사용 가능"
+    examples:
+      - os: "SOLARIS, AIX, HP-UX"
+        content: |
+          Step 1) /etc/group 파일 내 wheel 그룹 (su 명령어 사용 그룹) 및 그룹 내 구성원 존재 여부 확인
+          Step 2) ls –l /usr/bin/su 입력 후 wheel 그룹이 su 명령어를 사용할 수 있는지 설정 여부 확인
+          Step 3) wheel group 생성 (wheel 그룹이 존재하지 않는 경우)
+          # groupadd wheel
+          su 명령 그룹 변경
+          # chgrp wheel /usr/bin/su
+          su 명령어 권한 변경
+          # chmod 4750 /usr/bin/su
+          wheel 그룹에 su 명령 허용 계정 등록
+          # usermod -G wheel <username>
+          또는 직접 /etc/group 파일을 수정하여 필요한 계정 등록
+          wheel:x:10: -> wheel:x:10:root,admin
+      - os: "LINUX"
+        content: |
+          [PAM 모듈 이용 중이지 않을 경우]
+          Step 1) /etc/group 파일 내 wheel 그룹(su 명령어 사용 그룹) 확인
+          Step 2) ls 명령어를 이용하여 # ls -l /usr/bin/su 입력 후 su 명령어 그룹과 권한 확인
+          Step 3) wheel group 생성 (wheel 그룹이 존재하지 않는 경우)
+          # groupadd wheel
+          su 명령 그룹 변경
+          # chgrp wheel /usr/bin/su
+          su 명령어 권한 변경
+          # chmod 4750 /usr/bin/su
+          wheel 그룹에 su 명령 허용 계정 등록
+          # usermod -G wheel <username>
+          ※ /etc/group 파일에서 기본 그룹의 경우 사용자 이름은 생략되며 자동으로 포함됨
+
+          [PAM 모듈 이용 중인 경우]
+          Step 1) /etc/group 입력 후 wheel 그룹(su 명령어 사용 그룹) 확인
+          예시) wheel:x:1002:
+          Step 2) etc/pam.d/su 파일 내 su 명령어 허용 그룹 확인
+          Step 3) usr/bin/su 파일 내 su 명령어 그룹과 권한 확인
+          Step 4) /etc/pam.d/su 파일에 모듈 값 수정
+          auth required pam_wheel.so use_uid
+          또는
+          auth required pam_wheel.so group=wheel
+
+  - id: "U-07"
+    title: "불필요한 계정 제거"
+    domain: "1. 계정 관리"
+    severity: "하"
+    description:
+      check_content: "시스템 계정 중 불필요한 계정(퇴직, 전직, 휴직 등의 이유로 사용하지 않는 계정 및 장기적으로 사용하지 않는 계정 등)이 존재 여부 점검"
+      check_purpose: "불필요한 계정이 존재하는지 점검하여 관리되지 않은 계정에 의한 침입에 대비하는지 확인하기 위함"
+      threat: "로그인이 가능하고 현재 사용하지 않는 불필요한 계정은 사용 중인 계정보다 상대적으로 관리가 취약하여 공격자의 목표가 되어 계정이 탈취될 수 있는 위험이 존재함(퇴직, 전직, 휴직 등의 사유 발생 시 즉시 권한을 회수하는 것을 권고함)"
+      reference:
+        - "※ 기본 계정: OS나 Package 설치 시 기본적으로 생성되는 계정(lp, uucp, nuucp 등)"
+        - "※ 불필요한 기본 계정 제거 시 발생할 업무 영향도를 파악한 후 제거 권고"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "불필요한 계정이 존재하지 않는 경우"
+      vulnerable: "불필요한 계정이 존재하는 경우"
+    action: "시스템에 존재하는 계정 확인 후 불필요한 계정 제거하도록 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS, LINUX, AIX, HP-UX"
+        content: |
+          [/etc/passwd 파일을 이용하여 점검]
+          Step 1) /etc/passwd 파일 내 계정을 확인 후 "# userdel <사용자 이름>" 명령으로 불필요한 사용자 계정 제거
+          ※ AIX 경우 rmuser 명령어 사용
+          ※ /etc/passwd 파일에서 계정 앞에 #을 삽입하여도 주석으로 처리되지 않으므로 조치 시에는 반드시 계정을 제거하도록 권고함
+
+          [log를 이용하여 점검]
+          Step 1) last 명령어로 불필요한 계정 확인 후 제거
+
+  - id: "U-08"
+    title: "관리자 그룹에 최소한의 계정 포함"
+    domain: "1. 계정 관리"
+    severity: "중"
+    description:
+      check_content: "시스템 관리자 그룹에 최소한(root 계정과 시스템 관리에 허용된 계정)의 계정만 존재 여부 점검"
+      check_purpose: "관리자 그룹에 최소한의 필요 계정만 존재하는지 확인하여 불필요한 권한 남용을 점검하기 위함"
+      threat: "시스템을 관리하는 root 계정이 속한 그룹은 시스템 운영 파일에 대한 접근 권한이 부여되어 있으므로 해당 관리자 그룹에 속한 계정이 비인가자에게 유출될 경우, 관리자 권한으로 시스템에 접근하여 계정정보 유출, 환경설정 파일 및 디렉터리 변조 등의 위험이 존재함"
+      reference: []
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "관리자 그룹에 불필요한 계정이 등록되어 있지 않은 경우"
+      vulnerable: "관리자 그룹에 불필요한 계정이 등록된 경우"
+    action: "관리자 그룹에 등록된 계정 확인 후 불필요한 계정 제거하도록 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS, LINUX, AIX, HP-UX"
+        content: |
+          Step 1) /etc/group 파일에 root 그룹에 포함된 계정 확인
+          Step 2) 불필요한 계정을 그룹원에서 제거
+          # gpasswd -d <사용자 이름> root
+          ※ AIX의 경우 chgrpmem -m - <사용자 이름> root 명령어 사용
+
+  - id: "U-09"
+    title: "계정이 존재하지 않는 GID 금지"
+    domain: "1. 계정 관리"
+    severity: "하"
+    description:
+      check_content: "그룹 설정 파일(/etc/group)에 불필요한 그룹이 존재 여부 점검"
+      check_purpose: "시스템에 불필요한 그룹이 존재하는지 점검하여 불필요한 그룹의 소유권으로 설정된 파일의 노출로 인해 발생할 수 있는 위험에 대해 대비를 하기 위함"
+      threat: "계정이 존재하지 않거나 불필요한 그룹이 존재하는 경우, 해당 그룹의 소유로 설정된 파일을 통한 권한 남용 또는 의도치 않은 권한 부여, 보안 감사 및 관리의 어려움 등의 위험이 존재함"
+      reference:
+        - "※ GID(Group Identification): 다수의 사용자가 특정 개체를 공유할 수 있게 연계시키는 특정 그룹의 이름으로 주로 계정처리 목적으로 사용되며, 한 사용자는 여러 개의 GID를 가질 수 있음"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "시스템 관리나 운용에 불필요한 그룹이 제거된 경우"
+      vulnerable: "시스템 관리나 운용에 불필요한 그룹이 존재하는 경우"
+    action: "불필요한 그룹이 존재하는 경우 관리자와 검토하여 제거하도록 설정 ※ /etc/group 파일과 /etc/passwd 파일을 비교하여 점검하기를 권고함"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS, LINUX, AIX, HP-UX"
+        content: |
+          Step 1) /etc/group, /etc/gshadow 파일에 계정이 존재하지 않거나, 불필요한 그룹 확인
+          Step 2) 불필요한 그룹 제거
+          # groupdel <그룹 이름>
+          ※ 해당 그룹 제거 시 그룹 권한으로 존재하는 파일이 존재하는지 확인이 필요하며, 사용자가 없는 그룹이더라도 추후 권한 할당을 위해 그룹을 먼저 생성하였을 가능성도 존재하므로 확인 필요
