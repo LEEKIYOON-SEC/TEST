@@ -874,3 +874,86 @@
           Step 4) SMTP 서비스 재시작
           - 명령어: net stop smtpsvc (중지)
           - 명령어: net start smtpsvc (시작)
+
+  - id: "W-34"
+    title: "Telnet 서비스 비활성화"
+    domain: "2. 서비스 관리"
+    severity: "중"
+    description:
+      check_content: "Telnet 서비스 활성화 및 취약한 인증 사용 여부 점검"
+      check_purpose: "취약 프로토콜인 Telnet 서비스의 사용을 원칙적으로 금지하고, 부득이 이용할 경우 네트워크상으로 비밀번호를 전송하지 않는 NTLM 인증을 사용하도록 하여 인증 정보의 노출을 차단하기 위함"
+      threat: "Telnet 서비스는 평문으로 데이터를 송수신하기 때문에 비밀번호 방식으로 인증을 수행할 경우 ID 및 비밀번호가 외부로 노출될 위험이 존재함"
+      reference:
+        - "※ Windows 서버의 Telnet 서비스의 두 가지 인증 방법\nNTLM 인증: 암호를 전송하지 않고 negotiate/challenge/response 절차로 인증 수행\nPassword 인증: 관리자 및 Telnet Clients 그룹에 포함된 ID/PW로 인증 수행"
+        - "※ Windows 2016 이상 버전에서는 보안상 이슈로 인해 Telnet 서버 설치 제공하지 않음"
+    target: "Windows NT, 2000, 2003, 2008, 2012"
+    criteria:
+      good: "Telnet 서비스가 구동되어 있지 않거나 인증 방법이 NTLM인 경우"
+      vulnerable: "Telnet 서비스가 구동되어 있으며 인증 방법이 NTLM이 아닌 경우"
+    action: "불필요 시 서비스 중지/사용 안 함 설정, 사용 시 인증 방법으로 NTLM만 사용"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Windows NT, 2000"
+        content: |
+          Step 1) 시작 > 설정 > 제어판 > 관리 도구 > 텔넷 서버 설정
+          Step 2) NTLM 인증 방식만 사용
+      - os: "Windows 2003, 2008, 2012"
+        content: |
+          Step 1) 시작 > 실행 > cmd > tlntadmn config
+          Step 2) tlntadmn config sec = +NTLM -passwd (passwd 인증 방식을 제외하고 NTLM 방식만 사용)
+          Step 3) 불필요 시 해당 서비스 중지
+          시작 > 실행 > SERVICES.MSC > Telnet > 속성 [일반] 탭에서 "시작 유형"을 "사용 안 함"으로 설정한 후 Telnet 서비스 중지
+
+  - id: "W-35"
+    title: "불필요한 ODBC/OLE-DB 데이터 소스와 드라이브 제거"
+    domain: "2. 서비스 관리"
+    severity: "중"
+    description:
+      check_content: "불필요한 ODBC/OLE-DB 데이터 소스와 드라이브 제거 여부 점검"
+      check_purpose: "불필요한 데이터 소스 및 드라이버를 ODBC 데이터 소스 관리자 도구를 이용해 제거하여 비인가자에 의한 데이터베이스 접속 및 자료 유출을 차단하기 위함"
+      threat: "불필요한 ODBC/OLE-DB 데이터 소스를 통한 비인가자에 의한 데이터베이스 접속 및 자료 유출이 존재함"
+      reference:
+        - "※ 특정 샘플 응용프로그램은 샘플 데이터베이스를 위해 ODBC 데이터 소스를 설치하거나 불필요한 ODBC/OLE-DB 데이터베이스 드라이버를 설치하므로 불필요한 데이터 소스나 드라이버는 ODBC 데이터 소스 관리자 도구를 이용해서 제거하는 것이 바람직함"
+    target: "Windows NT, 2000, 2003, 2008, 2012, 2016, 2019, 2022"
+    criteria:
+      good: "시스템 DSN 부분의 데이터 소스를 현재 사용하고 있는 경우"
+      vulnerable: "시스템 DSN 부분의 데이터 소스를 현재 사용하고 있지 않은 경우"
+    action: "사용하지 않는 불필요한 ODBC 데이터 소스 제거"
+    impact: "응용프로그램에서 사용할 경우 양호"
+    examples:
+      - os: "Windows NT"
+        content: |
+          Step 1) 시작 > 설정 > 제어판 > 데이터 원본(ODBC) > 시스템 DSN > 해당 드라이브 클릭
+          Step 2) 사용하지 않은 데이터 소스 제거
+      - os: "Windows 2000, 2003, 2008, 2012, 2016, 2019, 2022"
+        content: |
+          Step 1) 시작 > 제어판 > 관리 도구 > ODBC 데이터 원본 > 시스템 DSN > 해당 드라이브 클릭
+          Step 2) 사용하지 않는 데이터 소스 제거
+
+  - id: "W-36"
+    title: "원격터미널 접속 타임아웃 설정"
+    domain: "2. 서비스 관리"
+    severity: "중"
+    description:
+      check_content: "원격터미널 접속 Timeout 설정 여부 점검"
+      check_purpose: "조직에서 부득이 원격터미널 접속을 허용해야 할 경우, 원격터미널 접속 후 일정 시간 동안 이벤트가 발생하지 않은 호스트의 접속을 차단하여 비인가자의 불필요한 접근을 차단하고 정보의 노출을 방지하기 위함"
+      threat: "접속 Timeout 값이 설정되지 않으면 유휴 시간 내 비인가자의 시스템 접근으로 인해 불필요한 내부 정보의 노출 위험이 존재함"
+      reference:
+        - "※ 기반시설 시스템에서 원격터미널 서비스의 이용은 원칙적으로 금지하나, 부득이하게 해당 기능을 활용해야 하는 경우 접속 Timeout 설정 등의 보안 설정을 적용해야 함"
+    target: "Windows 2000, 2003, 2008, 2012, 2016, 2019, 2022"
+    criteria:
+      good: "원격 제어 시 Timeout 제어 설정을 30분 이하로 설정한 경우"
+      vulnerable: "원격 제어 시 Timeout 제어 설정을 적용하지 않거나 30분 초과로 설정한 경우"
+    action: "Timeout 제어 설정 적용"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Windows 2000, 2003, 2008"
+        content: |
+          Step 1) 시작 > 실행 > 열기 > TSCC.MSC 실행(Windows 2008은 TSCONFIG.MC)
+          Step 2) RDP-Tcp connection에서 우클릭 > 속성 실행
+          Step 3) [세션] 탭에서 사용자 설정 무시(Override user settings)를 적용하고 유휴 시 세션이 끊어지도록 "유휴 세션 제한 시간"을 "30분" 이하로 설정
+      - os: "Windows 2012, 2016, 2019, 2022"
+        content: |
+          Step 1) 시작 > 실행 > GPEDIT.MSC(로컬 그룹 정책 편집기)
+          Step 2) 컴퓨터 구성 > 관리 템플릿 > 터미널 서비스 > 원격 데스크톱 세션 호스트 > 세션 시간 제한
+          Step 3) [활성 상태지만 유휴 터미널 서비스 세션에 시간 제한 설정] > [유휴 세션 제한]을 30분 이하로 설정
