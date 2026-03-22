@@ -2311,3 +2311,278 @@ items:
           refresh –s inetd
           [HP-UX]
           inetd –c
+
+  - id: "U-45"
+    title: "메일 서비스 버전 점검"
+    domain: "3. 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "취약한 버전의 메일 서비스 이용 여부 점검"
+      check_purpose: "메일 서비스 사용 목적 검토 및 취약점이 없는 버전의 사용 유무 점검으로 최적화된 메일 서비스의 운영하기 위함"
+      threat: "취약점이 발견된 메일 버전의 경우 버퍼 오버플로우(Buffer Overflow) 공격에 의한 시스템 권한 획득 및 주요 정보 노출의 위험이 존재함"
+      reference: []
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "메일 서비스 버전이 최신 버전인 경우"
+      vulnerable: "메일 서비스 버전이 최신 버전이 아닌 경우"
+    action: "메일 서비스를 사용하지 않는 경우 서비스 중지 및 비활성화 설정\n메일 서비스 사용 시 패치 관리 정책을 수립하여 주기적으로 패치 적용 설정"
+    impact: "패치 적용 시 시스템 및 서비스의 영향 정도를 충분히 고려해야 함"
+    examples:
+      - os: "SOLARIS"
+        content: |
+          [Sendmail 메일 서비스를 사용하는 경우]
+          Step 1) Sendmail 버전 확인
+          # /usr/sbin/sendmail -d grep Version
+          Step 2) 최신 버전 확인 및 보안 패치 진행
+          Sendmail 홈페이지(http://www.sendmail.org/)에 접속하여 다운로드 및 보안 패치 적용
+
+          [Sendmail 메일 서비스를 사용하지 않는 경우]
+          Step 1) Sendmail 서비스 활성화 여부 확인
+          # svcs -a | grep sendmail
+          Step 2) Sendmail 서비스 비활성화
+          # svcadm disable sendmail
+
+          [Postfix 메일 서비스를 사용하는 경우]
+          Step 1) Postfix 버전 확인
+          # /usr/lib/postfix/postconf | grep mail_version
+          Step 2) 최신 버전 확인 및 보안 패치 진행
+          postfix 홈페이지(https://www.postfix.org/packages.html)에 접속하여 해당 OS 패키지 주소로 접속 후 다운로드 및 보안 패치 적용
+
+          [Postfix 메일 서비스를 사용하지 않는 경우]
+          Step 1) Postfix 서비스 활성화 여부 확인
+          # svcs -a | grep postfix
+          Step 2)  Postfix 서비스 비활성화
+          # svcadm disable postfix
+
+          [Exim 메일 서비스를 사용하는 경우]
+          Step 1) Exim 버전 확인
+          # usr/sbin/exim -bV
+          Step 2) 최신 버전 확인 및 보안 패치 진행
+          Exim 홈페이지(https://www.exim.org/)에 접속하여 다운로드 및 보안 패치 적용
+
+          [Exim 메일 서비스를 사용하지 않는 경우]
+          Step 1) Exim 서비스 활성화 여부 확인
+          # svcs -a | grep exim
+          Step 2)  Exim 서비스 비활성화
+          # svcadm disable exim
+      - os: "LINUX"
+        content: |
+          [Sendmail 메일 서비스를 사용하는 경우]
+          Step 1) Sendmail 버전 확인
+          # sendmail –d0 -bt
+          Step 2) 최신 버전 확인 및 보안 패치 진행
+          Sendmail 홈페이지(http://www.sendmail.org/)에 접속하여 다운로드 및 보안 패치 적용
+
+          [Sendmail 메일 서비스를 사용하지 않는 경우]
+          Step 1) Sendmail 서비스 활성화 여부 확인
+          # systemctl list-units --type=service | grep sendmail
+          Step 2) Sendmail 서비스 중지
+          # systemctl stop sendmail
+          Step 3) Sendmail 서비스 비활성화
+          # systemctl disable sendmail
+
+          [Postfix 메일 서비스를 사용하는 경우]
+          Step 1) Postfix 버전 확인
+          # postconf mail_version
+          Step 2) 최신 버전 확인 및 보안 패치 진행
+          postfix 홈페이지(https://www.postfix.org/packages.html)에 접속하여 해당 OS 패키지 주소로 접속 후 다운로드 및 보안 패치 적용
+
+          [Postfix 메일 서비스를 사용하지 않는 경우]
+          Step 1) Postfix 서비스 활성화 여부 및 PID 확인
+          # ps -ef | grep postfix
+          Step 2) Postfix 서비스 종료
+          # kill -9 <PID>
+
+          [Exim 메일 서비스를 사용하는 경우]
+          Step 1) Exim 서비스 활성화 여부 확인
+          # systemctl list-units --type=service | grep exim
+          Step 2) 최신 버전 확인 및 보안 패치 진행
+          Exim 홈페이지(https://www.exim.org/)에 접속하여 다운로드 및 보안 패치 적용
+
+          [Exim 메일 서비스를 사용하지 않는 경우]
+          Step 1) Exim 서비스 활성화 여부 및 PID 확인
+          # ps -ef | grep exim
+          Step 2) Exim 서비스 종료
+          # kill -9 <PID>
+      - os: "AIX"
+        content: |
+          [Sendmail 메일 서비스를 사용하는 경우]
+          Step 1) Sendmail 버전 확인
+          # sendmail –d0 -bt
+          Step 2) 최신 버전 확인 및 보안 패치 진행
+          Sendmail 홈페이지(http://www.sendmail.org/)에 접속하여 다운로드 및 보안 패치 적용
+
+          [Sendmail 메일 서비스를 사용하지 않는 경우]
+          Step 1) Sendmail 서비스 활성화 여부 확인
+          # lssrc -a | grep sendmail
+          Step 2) Sendmail 서비스 중지
+          # stopsrc -s sendmail
+          Step 3) /etc/rc.tcpip 파일 수정(주석 처리)
+          #start /usr/lib/sendmail "$src_running" "-bd -q${qpi}"
+
+          [Postfix 메일 서비스를 사용하는 경우]
+          Step 1) Postfix 버전 확인
+          # postconf mail_version
+          Step 2) 최신 버전 확인 및 보안 패치 진행
+          postfix 홈페이지(https://www.postfix.org/packages.html)에 접속하여 해당 OS 패키지 주소로 접속 후 다운로드 및 보안 패치 적용
+
+          [Postfix 메일 서비스를 사용하지 않는 경우]
+          Step 1) Postfix 서비스 활성화 여부 및 PID 확인
+          # ps -ef | grep postfix
+          Step 2) Postfix 서비스 종료
+          # kill –9 <PID>
+
+          [Exim 메일 서비스를 사용하는 경우]
+          Step 1) Exim 버전 확인
+          # exim -bV
+          Step 2) 최신 버전 확인 및 보안 패치 진행
+          Exim 홈페이지(https://www.exim.org/)에 접속하여 다운로드 및 보안 패치 적용
+
+          [Exim 메일 서비스를 사용하지 않는 경우]
+          Step 1) Exim 서비스 활성화 여부 및 PID 확인
+          # ps -ef | grep exim
+          Step 2) Exim 서비스 종료
+          # kill -9 <PID>
+      - os: "HP-UX"
+        content: |
+          [Sendmail 메일 서비스를 사용하는 경우]
+          Step 1) Sendmail 버전 확인
+          # sendmail –d0 –bt
+          Step 2) 최신 버전 확인 및 보안 패치 진행
+          Sendmail 홈페이지(http://www.sendmail.org/)에 접속하여 다운로드 및 보안 패치 적용
+
+          [Sendmail 메일 서비스를 사용하지 않는 경우]
+          Step 1) Sendmail 서비스 활성화 여부 및 PID 확인
+          # ps -ef | grep sendmail
+          Step 2) Sendmail 서비스 종료
+          # kill -9 <PID>
+          Step 3) /etc/rc.config.d/mailservs 파일 수정
+          SENDMAIL_SERVER=0
+
+          [Postfix 메일 서비스를 사용하는 경우]
+          Step 1) Postfix 버전 확인
+          # postconf mail_version
+          Step 2) 최신 버전 확인 및 보안 패치 진행
+          postfix 홈페이지(https://www.postfix.org/packages.html)에 접속하여 해당 OS 패키지 주소로 접속 후 다운로드 및 보안 패치 적용
+
+          [Postfix 메일 서비스를 사용하지 않는 경우]
+          Step 1) Postfix 서비스 활성화 여부 및 PID 확인
+          # ps -ef | grep postfix
+          Step 2) Postfix 서비스 종료
+          # kill -9 <PID>
+
+          [Exim 메일 서비스를 사용하는 경우]
+          Step 1) Exim 버전 확인
+          # exim –bV
+          Step 2) 최신 버전 확인 및 보안 패치 진행
+          Exim 홈페이지(https://www.exim.org/)에 접속하여 다운로드 및 보안 패치 적용
+
+          [Exim 메일 서비스를 사용하지 않는 경우]
+          Step 1) Exim 서비스 활성화 여부 및 PID 확인
+          # ps -ef | grep exim
+          Step 2) Exim 서비스 종료
+          # kill -9 <PID>
+
+  - id: "U-46"
+    title: "일반 사용자의 메일 서비스 실행 방지"
+    domain: "3. 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "SMTP 서비스 사용 시 일반 사용자의 q 옵션 제한 여부 점검"
+      check_purpose: "일반 사용자의 q 옵션을 제한하여 메일 서비스 설정 및 메일 큐를 강제적으로 drop 시킬 수 없게 하여 비인가자에 의한 SMTP 서비스 오류 방지하기 위함"
+      threat: "일반 사용자가 q 옵션을 이용해서 메일 큐, 메일 서비스 설정을 보거나 메일 큐를 강제적으로 drop 시킬 수 있어 악의적으로 SMTP 서버의 오류를 발생시킬 위험이 존재함"
+      reference:
+        - "※ SMTP(Simple Mail Transfer Protocol): 인터넷상에서 전자우편(E-mail)을 전송할 때 이용하게 되는 표준 통신 규약을 말함"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "일반 사용자의 메일 서비스 실행 방지가 설정된 경우"
+      vulnerable: "일반 사용자의 메일 서비스 실행 방지가 설정되어 있지 않은 경우"
+    action: "메일 서비스를 사용하지 않는 경우 서비스 중지 및 비활성화 설정\n메일 서비스 사용 시 메일 서비스의 q 옵션 제한 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS, LINUX, AIX, HP-UX"
+        content: |
+          [Sendmail]
+          Step 1) /etc/mail/sendmail.cf 파일 내 PrivacyOptions 설정에 restrictqrun 값 추가
+          PrivacyOptions = authwarnings, novrfy, noexpn, restrictqrun
+          Step 2) Sendmail 서비스 재시작
+
+          [Postfix]
+          Step 1) 일반 사용자 실행 권한 확인
+          # ls -l /usr/sbin/postsuper
+          Step 2) 일반 사용자 실행 권한 제거
+          # chmod o-x /usr/sbin/postsuper
+
+          [Exim]
+          Step 1) 일반 사용자 실행 권한 확인
+           # ls -l /usr/sbin/exiqgrep
+          Step 2) 일반 사용자 실행 권한 제거
+          # chmod o-x /usr/sbin/exiqgrep
+
+  - id: "U-47"
+    title: "스팸 메일 릴레이 제한"
+    domain: "3. 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "SMTP 서버의 릴레이 기능 제한 여부 점검"
+      check_purpose: "스팸 메일 서버로의 악용 방지 및 서버 과부하를 방지하기 위함"
+      threat: "SMTP 서버의 릴레이 기능을 제한하지 않을 경우, 악의적인 사용 목적을 가진 사용자들이 스팸 메일 서버로 사용하거나 DoS 공격의 위험이 존재함"
+      reference:
+        - "※ SMTP(Simple Mail Transfer Protocol) 서버: SMTP에 의해 전자 메일을 발신하는 서버(server)를 SMTP 서버라고 함"
+        - "※ 메일 서비스를 사용하지 않는 경우 양호 또는 N/A"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "릴레이 제한이 설정된 경우"
+      vulnerable: "릴레이 제한이 설정되어 있지 않은 경우"
+    action: "메일 서비스를 사용하지 않는 경우 서비스 중지 및 비활성화 설정\n메일 서비스 사용 시 릴레이 방지 설정 또는 릴레이 대상 접근 제어 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS, LINUX, AIX, HP-UX"
+        content: |
+          [Sendmail 8.9 이상 버전]
+          Step 1) /etc/mail/sendmail.cf 파일 내 릴레이 허용 설정 여부 확인
+          Step 2) /etc/mail/sendmail.mc 파일 수정
+          FEATURE(`promiscuous_relay')dnl <해당 설정 제거>
+          Step 3) sendmail.cf 설정 파일 재생성
+          # m4 /etc/mail/sendmail.mc > /etc/mail/sendmail.cf
+          Step 4) /etc/mail/access 파일에 특정 IP, Domain, Email 주소, 네트워크에 대한 접근제한 설정
+          예시) localhost.localdomain    RELAY
+                    localhost               RELAY
+                    127.0.0.1               RELAY
+                    spam.com              REJECT
+          § /etc/mail/access 파일을 생성하거나 수정하였을 경우
+          # makemap hash /etc/mail/access.db < /etc/mail/access 명령으로 DB 파일 생성
+          Step 5) 설정 적용 및 재시작
+          # systemctl restart sendmail
+          ※ Sendmail 8.9 이상 버전부터는 기본적으로 스팸 메일 릴레이 제한 설정이 적용됨
+
+          [Sendmail 8.9 미만 버전]
+          Step 1) /etc/mail/sendmail.cf 파일 내 릴레이 제한 설정 확인
+          # cat /etc/mail/sendmail.cf | grep "R$\*" | grep "Relaying denied"
+          Step 2) /etc/mail/sendmail.cf 파일 수정
+          # R$*    $#error $@ 5.7.1 $: "550 Relaying denied"
+          Step 3) /etc/mail/access 파일에 특정 IP, Domain, Email 주소, 네트워크에 대한 접근제한 설정
+          예시) localhost.localdomain    RELAY
+                    localhost               RELAY
+                    127.0.0.1               RELAY
+                    spam.com              REJECT
+          Step 4) Sendmail 서비스 재시작
+          ※ 파일이 존재하지 않는 경우 생성하여 설정
+          ※ /etc/mail/access 파일을 생성하거나 수정하였을 경우
+          # makemap hash /etc/mail/access.db < /etc/mail/access 명령으로 DB 파일 생성
+
+          [Postfix]
+          Step 1) /etc/postfix/main.cf 파일 내 릴레이 정책 설정 확인
+          # cat /etc/postfix/main.cf | grep -E "smtpd_recipient_restrictions|mynetworks"
+          Step 2) /etc/postfix/main.cf 파일 수정
+          mynetworks = <허용할 네트워크 주소>
+          Step 3) 설정 적용
+          # postfix reload
+
+          [Exim]
+          Step 1) /etc/exim/exim.conf, /etc/exim4/exim4.conf 파일 내 릴레이 설정이 허용된 네트워크 주소 확인
+          cat <파일명> | grep -E "relay_from_hosts|hosts ="
+          Step 2) /etc/exim/exim.conf 또는 /etc/exim4/exim4.conf 파일 수정
+          hostlist   relay_from_hosts = <허용할 네트워크 주소>
+          accept hosts         = +relay_from_hosts 또는 <허용할 네트워크 주소>
+          Step 3) Exim 서비스 재시작
