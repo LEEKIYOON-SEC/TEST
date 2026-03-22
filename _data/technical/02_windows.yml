@@ -779,3 +779,98 @@
           Step 2) Community String을 읽기 전용으로 설정 후 public/private이 아닌 이름을 추가
           Step 3) 불필요 시 해당 서비스 중지
           시작 > 실행 > SERVICES.MSC > SNMP Service(또는, SNMP 서비스) > 속성 [일반] 탭에서 "시작 유형"을 "사용 안 함"으로 설정한 후, SNMP 서비스 중지
+
+  - id: "W-31"
+    title: "SNMP Access Control 설정"
+    domain: "2. 서비스 관리"
+    severity: "중"
+    description:
+      check_content: "SNMP 패킷 Access Control(접근 제어) 설정 여부 점검"
+      check_purpose: "SNMP 트래픽에 대한 Access Control 설정을 적용하여 내부 네트워크로부터의 악의적인 공격을 차단하기 위함"
+      threat: "SNMP Access Control 설정을 적용하지 않아 인증되지 않은 내부 서버로부터의 SNMP 트래픽을 차단하지 않을 경우, 장치 구성 변경, 라우팅 테이블 조작, 악의적인 TFTP 서버 구동 등의 SNMP 공격에 노출될 위험이 존재함"
+      reference:
+        - "※ 관련 점검항목: W-29(중), W-30(중)"
+    target: "Windows 2000, 2003, 2008, 2012, 2016, 2019, 2022"
+    criteria:
+      good: "SNMP 서비스를 사용하지 않거나 특정 호스트로부터 SNMP 패킷 받아들이기가 설정된 경우"
+      vulnerable: "모든 호스트로부터 SNMP 패킷 받아들이기가 설정된 경우"
+    action: "불필요 시 서비스 중지/사용 안 함, 사용 시 SNMP 패킷 수령 호스트 지정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Windows 2000, 2003, 2008, 2012, 2016, 2019, 2022"
+        content: |
+          Step 1) 시작 > 제어판 > 관리 도구 > 서비스 > SNMP Service(또는, SNMP 서비스) > 속성 > 보안
+          Step 2) "인증 트랩 보내기" 및 "다음 호스트로부터 SNMP 패킷 받아들이기" 선택
+          Step 3) SNMP 호스트 등록
+
+  - id: "W-32"
+    title: "DNS 서비스 구동 점검"
+    domain: "2. 서비스 관리"
+    severity: "중"
+    description:
+      check_content: "DNS 서비스의 동적 업데이트 설정 여부 점검"
+      check_purpose: "DNS 동적 업데이트를 비활성화함으로 신뢰할 수 없는 원본으로부터 업데이트를 받아들이는 위험을 차단하기 위함"
+      threat: "DNS 서버에서 동적 업데이트를 사용할 경우 악의적인 사용자에 의해 신뢰할 수 없는 데이터가 받아들여질 위험이 존재함"
+      reference:
+        - "※ 동적 업데이트: DNS 정보에 변경 사항이 있을 때마다 DNS 클라이언트 컴퓨터가 자신의 리소스 레코드(zone 파일)를 DNS 서버에 자동으로 업데이트하는 기능으로 영역 레코드 수동 관리 작업을 줄일 수 있음"
+    target: "Windows 2000, 2003, 2008, 2012, 2016, 2019, 2022"
+    criteria:
+      good: "DNS 서비스를 사용하지 않거나 동적 업데이트 \"없음(아니오)\"으로 설정된 경우"
+      vulnerable: "서비스를 사용하며 동적 업데이트가 설정된 경우"
+    action: "DNS 서비스의 동적 업데이트 비활성화 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Windows 2000, 2003, 2008, 2012, 2016, 2019, 2022"
+        content: |
+          Step 1) 시작 > 제어판 > 관리 도구 > DNS > 각 조회 영역 > 해당 영역 > 속성 > 일반
+          Step 2) 동적 업데이트 → 없음 (또는 아니오) 선택
+          Step 3) 불필요 시 해당 서비스 중지
+          시작 > 제어판 > 관리 도구 > 서비스 > DNS Server > 속성 [일반] 탭에서 "시작 유형"을 "사용 안 함"으로 설정한 후, DNS Server 서비스 중지
+
+  - id: "W-33"
+    title: "HTTP/FTP/SMTP 배너 차단"
+    domain: "2. 서비스 관리"
+    severity: "하"
+    description:
+      check_content: "HTTP/FTP/SMTP 서비스 배너 차단 적용 여부 점검"
+      check_purpose: "HTTP/FTP/SMTP 서비스 접속 배너를 통한 불필요한 정보 노출을 방지하기 위함"
+      threat: "서비스 접속 배너가 차단되지 않는 경우 임의의 사용자가 HTTP, FTP, SMTP 접속 시도 시 노출되는 접속 배너 정보를 수집하여 악의적인 공격에 이용할 위험이 존재함"
+      reference: []
+    target: "Windows NT, 2000, 2003, 2008, 2012, 2016, 2019, 2022"
+    criteria:
+      good: "HTTP, FTP, SMTP 접속 시 배너 정보가 보이지 않는 경우"
+      vulnerable: "HTTP, FTP, SMTP 접속 시 배너 정보가 보이는 경우"
+    action: "사용하지 않는 경우 IIS 서비스 중지/사용 안 함, 사용 시 속성값 수정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "HTTP"
+        content: |
+          [Server 헤더 제거]
+          Step 1) Microsoft 다운로드 센터에서 URL Rewrite 다운로드 후 설치
+          https://www.iis.net/downloads/microsoft/url-rewrite
+          Step 2) 제어판 > 관리 도구 > IIS(인터넷 정보 서비스) 관리자 > 해당 웹 사이트 > [URL 재작성]
+          Step 3) 작업 탭 > [서버 값 관리 – 서버 변수 보기...] > 서버 변수 이름 추가
+          Step 4) [URL 재작성] > 작업 탭 > [규칙 추가...] > 아웃바운드 규칙 > 빈 규칙 > 다음 사항 적용
+          - 이름(N): Remove Server
+          - 검색 범위: 서버 변수
+          - 서버 변수 이름: RESPONSE_SERVER
+          - 패턴(T): .*
+
+          [X-Powered-By 헤더 제거]
+          Step 1) 제어판 > 관리 도구 > IIS(인터넷 정보 서비스) 관리자 > 해당 웹 사이트 > [HTTP 응답 헤더]
+          Step 2) [X-Powered-By] 설정 제거
+      - os: "FTP"
+        content: |
+          Step 1) IIS(인터넷 정보 서비스) 관리자 > FTP 메시지 > 기본 배너 숨기기 설정
+      - os: "SMTP"
+        content: |
+          Step 1) 시작 > 실행 > cmd > adsutil.vbs 파일이 있는 디렉터리로 이동
+          - 명령어: cd C:\inetpub\AdminScripts
+          - adsutil.vbs를 사용하기 위해 서버 관리자에서 역할 추가 필요 → "웹 서버(IIS) > 관리 도구 > IIS 6 관리 호환성 > IIS 6 스크립팅 도구" 설치 필요
+          Step 2) IIS에서 서비스 중인 SMTP 서비스 목록 확인
+          - 명령어: cscript adsutil.vbs enum /p smtpsvc
+          Step 3) SMTP 서비스에 connectresponse 속성 값에서 배너 문구 수정
+          - 명령어: cscript adsutil.vbs set smtpsvc/1/connectresponse "Banner Text"
+          Step 4) SMTP 서비스 재시작
+          - 명령어: net stop smtpsvc (중지)
+          - 명령어: net start smtpsvc (시작)
