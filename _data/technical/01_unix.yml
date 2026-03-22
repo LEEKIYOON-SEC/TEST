@@ -2725,3 +2725,223 @@ items:
           allow-transfer { <zone transfer를 허용할 IP>; };
           Step 5) DNS 서비스 재시작
           ※ DNS 서비스 Zone 파일명은 임의 지정이 가능하므로 DNS 설정 파일의 Include 구문으로 참조하는 파일명 점검
+
+  - id: "U-51"
+    title: "DNS 서비스의 취약한 동적 업데이트 설정 금지"
+    domain: "3. 서비스 관리"
+    severity: "중"
+    description:
+      check_content: "DNS 서비스의 취약한 동적 업데이트 설정 여부 점검"
+      check_purpose: "DNS 서비스의 동적 업데이트를 비활성화함으로써 신뢰할 수 없는 원본으로부터 업데이트를 받아들이는 위험을 차단하기 위함"
+      threat: "DNS 서버에서 동적 업데이트를 사용할 경우, 악의적인 사용자에 의해 신뢰할 수 없는 데이터가 받아들여질 위험이 존재함"
+      reference:
+        - "※ DNS 동적 업데이트: DNS 정보에 변경 사항이 있을 때마다 DNS 클라이언트 컴퓨터가 자신의 리소스 레코드(zone 파일)를 DNS 서버에 자동으로 업데이트하는 기능으로 영역 레코드 수동 관리 작업을 줄일 수 있음"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "DNS 서비스의 동적 업데이트 기능이 비활성화되었거나, 활성화 시 적절한 접근통제를 수행하고 있는 경우"
+      vulnerable: "DNS 서비스의 동적 업데이트 기능이 활성화 중이며 적절한 접근통제를 수행하고 있지 않은 경우"
+    action: "DNS 서비스를 사용하지 않는 경우 서비스 중지 및 비활성화 설정\nDNS 서비스 사용 시 일반적으로 동적 업데이트 기능이 필요 없으나 확인 필요함"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS, LINUX, AIX, HP-UX"
+        content: |
+          [DNS 동적 업데이트가 필요하지 않은 경우]
+          Step 1) allow-update 설정 확인
+          # cat /etc/named.conf | grep allow-update 또는 # cat /etc/bind/named.conf.options | grep allow-update
+          Step 2) /etc(/bind)/named.conf 파일의 allow-update 설정값 수정
+          allow-update { none; };
+          Step 3) DNS 서비스 재시작
+
+          [DNS 동적 업데이트가 필요한 경우]
+          Step 1) allow-update 설정 확인
+          # cat /etc/named.conf | grep allow-update" 또는 # cat /etc/bind/named.conf.options | grep allow-update
+          Step 2) /etc(/bind)/named.conf 파일의 allow-update 설정값 수정
+          allow-update { <DNS update를 허용할 IP>; };
+          Step 3) DNS 서비스 재시작
+          ※ DNS 서비스 Zone 파일명은 임의 지정이 가능하므로 DNS 설정 파일의 Include 구문으로 참조하는 파일명 점검
+
+  - id: "U-52"
+    title: "Telnet 서비스 비활성화"
+    domain: "3. 서비스 관리"
+    severity: "중"
+    description:
+      check_content: "원격 접속 시 Telnet 프로토콜 사용 여부 점검"
+      check_purpose: "취약한 Telnet 프로토콜을 비활성화함으로써 계정 및 중요 정보 유출 방지하기 위함"
+      threat: "원격 접속 시 Telnet 프로토콜을 사용할 경우, 데이터가 평문으로 전송되어 비인가자가 스니핑을 통해 계정 및 중요 정보를 외부로 유출할 위험이 존재함"
+      reference:
+        - "※ 스니핑: 컴퓨터 네트워크상에 흘러 다니는 트래픽을 도청하는 행위"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "원격 접속 시 Telnet 프로토콜을 비활성화하고 있는 경우"
+      vulnerable: "원격 접속 시 Telnet 프로토콜을 사용하는 경우"
+    action: "Telnet, FTP 등 안전하지 않은 서비스 사용을 중지하고 SSH 설치 및 사용하도록 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS"
+        content: |
+          Step 1) Telnet 서비스 활성화 여부 확인
+          # svcs -a | grep telnet
+          Step 2) Telnet 서비스 비활성화
+          # svcadm disable svc:/network/telnet:default
+          Step 3) SSH 서비스 실행
+          # svcadm enable ssh
+      - os: "LINUX"
+        content: |
+          [inetd]
+          Step 1) /etc/inetd.conf 파일 내 Telnet 서비스 활성화 여부 확인
+          Step 2) 해당 옵션이 허용된 경우 설정 제거
+          예시) telnet  stream  tcp     nowait  root    /usr/sbin/in.telnetd 주석 처리 혹은 명령어 줄 삭제
+          Step 3) inetd 서비스 재시작
+          # service inetd restart
+          Step 4) SSH 서비스 실행
+          # service sshd start
+
+          [xinetd]
+          Step 1) /etc/xinetd.d/telnet 파일 내 Telnet 서비스 활성화 여부 확인
+          # cat /etc/xinetd.d/telnet
+          Step 2) /etc/xinetd.d/telnet 파일의 disable 설정값 수정
+          disable = yes
+          Step 3) 설정 적용 및 서비스 재시작
+          # systemctl restart xinetd
+          Step 4) SSH 서비스 실행
+          # systemctl start sshd
+
+          [systemd]
+          Step 1) Telnet 서비스 활성화 여부 확인
+          # systemctl list-units --type=socket | grep telnet
+          Step 2) Telnet 서비스 중지
+          # systemctl stop telnet.socket
+          Step 3) Telnet 서비스 비활성화
+          # systemctl disable telnet.socket
+          Step 4) SSH 서비스 실행
+          # systemctl start sshd
+      - os: "AIX"
+        content: |
+          Step 1) /etc/inetd.conf 파일 내 Telnet 서비스 활성화 여부 확인
+          Step 2) 해당 옵션이 허용된 경우 설정 제거
+          예시) telnet  stream  tcp6    nowait  root    /usr/sbin/telnetd      telnetd –a 주석 처리 혹은 명령어 줄 삭제
+          Step 3) inetd 설정 적용
+          # refresh –s inetd
+          Step 4) SSH 서비스 실행
+          # startsrc -s sshd
+      - os: "HP-UX"
+        content: |
+          Step 1) /etc/inetd.conf 파일 내 Telnet 서비스 활성화 여부 확인
+          # cat /etc/inetd.conf | grep telnet
+          Step 2) 해당 옵션이 허용된 경우 설정 제거
+          #　telnet  stream  tcp6    nowait  root    /usr/sbin/telnetd      telnetd –a 주석 처리 혹은 명령어 줄 삭제
+          Step 3) inetd 설정 적용
+          # inetd –c
+          Step 4) SSH 서비스 실행
+          # /sbin/init.d/secsh start
+
+  - id: "U-53"
+    title: "FTP 서비스 정보 노출 제한"
+    domain: "3. 서비스 관리"
+    severity: "하"
+    description:
+      check_content: "FTP 서비스 정보 노출 여부 점검"
+      check_purpose: "FTP 서비스 접속 배너를 통한 불필요한 정보 노출을 방지하기 위함"
+      threat: "서비스 접속 배너가 차단되지 않을 경우, 비인가자가 FTP 접속 시도 시 노출되는 접속 배너 정보를 수집하여 악의적인 공격에 이용할 위험이 존재함"
+      reference: []
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "FTP 접속 배너에 노출되는 정보가 없는 경우"
+      vulnerable: "FTP 접속 배너에 노출되는 정보가 있는 경우"
+    action: "FTP 서비스를 사용하지 않는 경우 서비스 중지 및 비활성화 설정\nFTP 서비스 사용 시 FTP 설정 파일을 통해 접속 배너 설정\n※ 접속 배너에 서비스 이름이나 버전 정보를 노출하지 않는 것을 권고"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS, LINUX"
+        content: |
+          [vsFTP]
+          Step 1) 배너 설정 확인
+          # cat /etc/vsftpd.conf | grep ftpd_banner 또는
+          # cat /etc/vsftpd/vsftpd.conf | grep ftpd_banner
+          Step 2) 해당 옵션이 설정되지 않은 경우 주석 제거 및 옵션 설정
+          # ftpd_banner=<변경할 배너>
+          Step 3) vsFTP 서비스 재시작
+          # systemctl restart vsftpd
+
+          [ProFTP]
+          Step 1) 배너 설정 확인
+          # cat /etc/proftpd.conf | grep ServerIdent 또는 # cat /etc/proftpd/proftpd.conf | grep ServerIdent
+          Step 2) /etc(/proftpd)/proftpd.conf 파일의 ServerIdent 설정값 수정
+          ServerIdent off 또는 ServerIdent on "<변경할 배너>"
+          Step 3) ProFTP 서비스 재시작
+          # systemctl restart proftpd
+      - os: "AIX"
+        content: |
+          [FTP]
+          Step 1) 메시지 카탈로그 파일 추출
+          # dspcat -g /usr/lib/nls/msg/en_US/ftpd.cat > /tmp/ftpd.msg
+          Step 2) 배너 설정 확인
+          # cat /tmp/ftpd.msg
+          "(%s) FTP server (%s) ready."
+          Step 3) /tmp/ftpd.msg 파일 내 배너 설정 변경
+          "<변경할 배너>"
+          Step 4) ftpd.cat 파일 생성
+          # gencat /usr/lib/nls/msg/en_US/ftpd.cat /tmp/ftpd.msg
+
+          [vsFTP]
+          Step 1) 배너 설정 확인
+          # cat /etc/vsftpd.conf | grep ftpd_banner
+          Step 2) 해당 옵션이 설정되지 않은 경우 주석 제거 및 옵션 설정
+          ftpd_banner=<변경할 배너>
+          Step 3) vsFTP 서비스 PID 확인
+          # ps -ef | grep vsftp
+          Step 4) vsFTP 서비스 재시작
+          # kill -1 <PID>
+
+          [ProFTP]
+          Step 1) 배너 설정 확인
+          # cat /etc/proftpd.conf | grep ServerIdent
+          Step 2) /etc/proftpd.conf 파일 내 ServerIdent 설정값 변경
+          ServerIdent off 또는 ServerIdent on "<변경할 배너>"
+          Step 3) ProFTP 서비스 PID 확인
+          # ps -ef | grep proftp
+          Step 4) ProFTP 서비스 재시작
+          # kill –1 <PID>
+      - os: "HP-UX"
+        content: |
+          [FTP]
+          Step 1) FTP 설정 파일 경로 확인
+          # cat /etc/inetd.conf | grep ftp
+          Step 2) ftpaccess 설정 확인
+          # cat /etc/ftpd/ftpaccess
+          Wu-ftpd v2.4 미만 : suppresshostname, suppressversion, banner <파일 경로> 설정 확인
+          Wu-ftpd v2.4 이상 : greeting, banner <파일 경로> 설정 확인
+          Step 3) 배너 설정 확인
+          # cat <기본 FTP 배너 설정 파일 경로>
+          Step 4) /etc/inetd.conf 파일 설정값 변경
+          ftp stream tcp nowait root /usr/lbin/ftpd ftpd –a /etc/ftpd/ftpaccess
+          Step 5) 배너 파일 수정
+          vi 편집기를 이용하여 배너 파일을 열어 변경할 배너 작성
+          Step 6) /etc/ftpd/ftpaccess 파일의 suppresshostname, suppressversion, greeting 옵션 설정값 변경
+          Wu-ftpd v2.4 미만 : suppresshostname yes
+              suppressversion  yes
+              banner <경고 메시지가 작성된 파일 경로>
+          Wu-ftpd v2.4 이상 : greeting  terse
+              banner <경고 메시지가 작성된 파일 경로>
+          Step 7) inetd 설정 적용
+          # inetd –c
+          ※ 해당 파일이 존재하지 않는 경우 "cp /usr/newconfig/etc/ftpd/examples/ftpaccess /etc/ftpd/ftpaccess" 명령으로 파일 생성
+
+          [vsFTP]
+          Step 1) 배너 설정 확인
+          # cat /etc/vsftpd.conf | grep ftpd_banner
+          Step 2) /etc/vsftpd.conf 파일의 ftpd_banner 설정값 변경
+          ftpd_banner=<변경할 배너>
+          Step 3) vsFTP 서비스 PID 확인
+          # ps -ef | grep vsftp
+          Step 4) vsFTP 서비스 재시작
+          # kill -1 <PID>
+
+          [ProFTP]
+          Step 1) 배너 설정 확인
+          # cat /etc/proftpd.conf | grep ServerIdent
+          Step 2) /etc/proftpd.conf 파일의 설정값 변경
+          ServerIdent off 또는 ServerIdent on "<변경할 배너>"
+          Step 3) ProFTP 서비스 PID 확인
+          # ps -ef | grep proftp
+          Step 4) ProFTP 서비스 재시작
+          # kill -1 <PID>
