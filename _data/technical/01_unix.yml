@@ -672,3 +672,88 @@ items:
           CRYPT_DEFAULT = 5 또는 6
           ※ HP-UX 11i v2 이상이며, PHI 및 shadow password를 사용하지 않는 경우 취약
           ※ CRYPT_DEFAULT = 5: SHA-256 / 6 : SHA-512
+
+  - id: "U-14"
+    title: "root 홈, 패스 디렉터리 권한 및 패스 설정"
+    domain: "2. 파일 및 디렉토리 관리"
+    severity: "상"
+    description:
+      check_content: "root 계정의 PATH 환경변수에 \".\"(마침표)이 포함 여부 점검"
+      check_purpose: "비인가자가 불법적으로 생성한 디렉터리 및 명령어를 우선으로 실행되지 않도록 설정하기 위함"
+      threat: "root 계정의 PATH 환경변수에 정상적인 관리자 명령어(ls, mv, cp 등)의 디렉터리 경로보다 현재 디렉터리를 지칭하는 \".\" 표시가 우선하면 현재 디렉터리에 변조된 명령어를 삽입하여 관리자 명령어 입력 시 악의적인 기능이 실행될 수 있는 위험이 존재함"
+      reference:
+        - "※ 환경변수: 프로세스가 컴퓨터에서 동작하는 방식에 영향을 미치는 동적인 값들의 집합으로 PATH 환경변수는 실행 파일을 찾는 경로에 대한 변수를 뜻함"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "PATH 환경변수에 \".\" 이 맨 앞이나 중간에 포함되지 않은 경우"
+      vulnerable: "PATH 환경변수에 \".\" 이 맨 앞이나 중간에 포함된 경우"
+    action: "root 계정의 환경설정 파일(/.profile, /.bashrc 등)과 시스템 환경설정 파일(/etc/profile 등)에 설정된 PATH 환경변수에서 현재 디렉터리를 나타내는 \".\"을 PATH 환경변수의 마지막으로 이동하도록 설정 ※ /etc/profile 파일, root 계정, 일반 사용자 계정의 환경설정 파일을 순차적으로 검색하여 확인"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS, LINUX, AIX, HP-UX"
+        content: |
+          Step 1) PATH 환경변수 확인
+          # echo $PATH
+          Step 2) 환경설정 파일 내 PATH 변숫값 수정
+          PATH=$PATH:$HOME/bin:<상대 경로> 또는 상대 경로 삭제
+
+          | Shell 종류 | 환경설정 파일 |
+          | --- | --- |
+          | Bourne Shell(sh) | /etc/profile, $HOME/.profile |
+          | C Shell(csh) | /etc/csh.cshrc, /etc/csh.login, $HOME/.cshrc, $HOME/.login |
+          | Korn Shell(ksh) | /etc/profile, $HOME/.profile, $HOME/.kshrc |
+          | Bash Shell(bash) | /etc/profile, $HOME/.bash_profile, $HOME/.bashrc, /etc/bash.bashrc |
+
+  - id: "U-15"
+    title: "파일 및 디렉터리 소유자 설정"
+    domain: "2. 파일 및 디렉토리 관리"
+    severity: "상"
+    description:
+      check_content: "소유자가 존재하지 않는 파일 및 디렉터리의 존재 여부 점검"
+      check_purpose: "소유자가 존재하지 않는 파일 및 디렉터리를 제거 또는 관리하여 임의의 사용자가 해당 파일을 열람, 수정하는 행위를 사전에 차단하기 위함"
+      threat: "소유자가 존재하지 않는 파일의 UID와 동일한 값으로 특정 계정의 UID를 변경하면 해당 파일의 소유자가 되어 모든 작업이 가능한 위험이 존재함"
+      reference:
+        - "※ 소유자가 존재하지 않는 파일 및 디렉터리는 일반적으로 퇴직자의 자료, 관리 소홀로 인해 생긴 파일 또는 해킹으로 인한 공격자가 만들어 놓은 악의적인 파일임"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "소유자가 존재하지 않는 파일 및 디렉터리가 존재하지 않는 경우"
+      vulnerable: "소유자가 존재하지 않는 파일 및 디렉터리가 존재하는 경우"
+    action: "소유자가 존재하지 않는 파일 및 디렉터리 제거 또는 소유자 변경 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS, LINUX, AIX, HP-UX"
+        content: |
+          Step 1) 소유자와 그룹이 존재하지 않는 파일 및 디렉터리 확인
+          # find / \( -nouser -o -nogroup \) -xdev -ls 2>/dev/null
+          Step 2) 소유자가 존재하지 않는 파일 또는 디렉터리 제거
+          # rm <파일 이름>
+          # rm -r <디렉터리 이름>
+          Step 3) 사용 중인 파일 및 디렉터리의 경우 소유자 및 그룹 변경
+          # chown <사용자 이름> <파일 및 디렉터리 이름>
+          # chgrp <그룹 이름> <파일 및 디렉터리 이름>
+          ※ 소유자 또는 그룹이 존재하지 않는 파일은 파일 속성의 해당 필드에 UID, GID가 숫자로 표시됨
+
+  - id: "U-16"
+    title: "/etc/passwd 파일 소유자 및 권한 설정"
+    domain: "2. 파일 및 디렉토리 관리"
+    severity: "상"
+    description:
+      check_content: "/etc/passwd 파일 권한 적절성 여부 점검"
+      check_purpose: "/etc/passwd 파일을 관리자만 제어할 수 있게 하여 비인가자들의 임의적인 파일 변조를 방지하기 위함"
+      threat: "비인가자가 /etc/passwd 파일의 사용자 정보를 변조하여 Shell 변경, 사용자 추가/제거 등 root 계정을 포함한 사용자 권한 획득 위험이 존재함"
+      reference:
+        - "※ /etc/passwd: 사용자의 ID, UID, GID, 홈 디렉터리, 쉘 정보를 담고 있는 파일"
+    target: "SOLARIS, LINUX, AIX, HP-UX 등"
+    criteria:
+      good: "/etc/passwd 파일의 소유자가 root이고, 권한이 644 이하인 경우"
+      vulnerable: "/etc/passwd 파일의 소유자가 root가 아니거나, 권한이 644 이하가 아닌 경우"
+    action: "/etc/passwd 파일 소유자 및 권한 변경 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "SOLARIS, LINUX, AIX, HP-UX"
+        content: |
+          Step 1) /etc/passwd 파일 소유자 및 권한 확인
+          # ls -l /etc/passwd
+          Step 2) /etc/passwd 파일 소유자 및 권한 변경
+          # chown root /etc/passwd
+          # chmod 644 /etc/passwd
