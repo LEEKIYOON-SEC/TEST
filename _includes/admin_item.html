@@ -1,6 +1,6 @@
 <details class="admin-item" id="{{ include.item.id | downcase }}">
   <summary>
-    <strong>{{ include.item.id }}</strong> — {{ include.item.title | xml_escape }}
+    <strong>{{ include.item.id }}</strong> {{ include.item.title | xml_escape }}
   </summary>
 
   <div class="item-body">
@@ -12,7 +12,7 @@
     <h3>세부 설명</h3>
     <ul>
       {% for desc in include.item.description %}
-      <li>{{ desc | xml_escape }}</li>
+      <li>{{ desc | xml_escape | markdownify }}</li>
       {% endfor %}
     </ul>
 
@@ -20,7 +20,7 @@
     <h3>고려 사항</h3>
     <ul>
       {% for con in include.item.considerations %}
-      <li>{{ con | xml_escape }}</li>
+      <li>{{ con | xml_escape | markdownify }}</li>
       {% endfor %}
     </ul>
     {% endif %}
@@ -67,6 +67,43 @@
       <li>{{ check | xml_escape }}</li>
       {% endfor %}
     </ul>
+    {% endif %}
+
+    {% comment %}크로스레퍼런스 (확신도 높음){% endcomment %}
+    {% assign xref_confirmed = nil %}
+    {% for mapping in site.data.cross_ref_confirmed.mappings %}
+      {% if mapping.admin_id == include.item.id %}
+        {% assign xref_confirmed = mapping %}
+      {% endif %}
+    {% endfor %}
+
+    {% assign xref_review = nil %}
+    {% for mapping in site.data.cross_ref_review.mappings %}
+      {% if mapping.admin_id == include.item.id %}
+        {% assign xref_review = mapping %}
+      {% endif %}
+    {% endfor %}
+
+    {% if xref_confirmed or xref_review %}
+    <h3>관련 기술 항목</h3>
+    <div class="crossref-section">
+      {% if xref_confirmed %}
+      {% for tech in xref_confirmed.tech_ids %}
+      <div class="crossref-chip">
+        <strong>{{ tech.id }}</strong> {{ tech.title | xml_escape }}
+        {% if tech.mapping_type == "직접구현" %}<span class="mapping-type mapping-type-direct">직접구현</span>{% else %}<span class="mapping-type mapping-type-related">관련</span>{% endif %}
+      </div>
+      {% endfor %}
+      {% endif %}
+      {% if xref_review %}
+      {% for tech in xref_review.tech_ids %}
+      <div class="crossref-chip crossref-review">
+        <strong>{{ tech.id }}</strong> {{ tech.title | xml_escape }}
+        <span class="mapping-type mapping-type-related">{{ tech.mapping_type }} (검토중)</span>
+      </div>
+      {% endfor %}
+      {% endif %}
+    </div>
     {% endif %}
   </div>
 </details>

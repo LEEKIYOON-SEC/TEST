@@ -8,66 +8,52 @@ permalink: /cross-reference/
 
 # 크로스레퍼런스
 
-관리적 점검항목과 기술적 점검항목(UNIX/Windows/Web) 간의 매핑입니다.
+관리적 점검항목과 기술적 점검항목(UNIX/Windows/Web) 간의 매핑 현황입니다.
 
-각 관리 항목이 어떤 기술적 점검항목으로 구현되는지 확인할 수 있습니다.
+각 관리 항목의 상세 페이지에서 **관련 기술 항목** 섹션을 통해 직접 확인할 수 있습니다.
 
 ---
 
-## 확인된 매핑 (확신도: 높음)
+## 매핑 현황
 
-사이트에 반영 가능한 매핑입니다.
+<table>
+  <thead>
+    <tr><th>확신도</th><th>관리 항목 수</th><th>기술 매핑 수</th><th>상태</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span class="mapping-type mapping-type-direct">높음</span></td>
+      <td>{{ site.data.cross_ref_confirmed.mappings.size }}개</td>
+      <td>{% assign total_confirmed = 0 %}{% for m in site.data.cross_ref_confirmed.mappings %}{% assign total_confirmed = total_confirmed | plus: m.tech_ids.size %}{% endfor %}{{ total_confirmed }}개</td>
+      <td>확인 완료 — 각 항목에 표시</td>
+    </tr>
+    <tr>
+      <td><span class="mapping-type mapping-type-related">중간</span></td>
+      <td>{{ site.data.cross_ref_review.mappings.size }}개</td>
+      <td>{% assign total_review = 0 %}{% for m in site.data.cross_ref_review.mappings %}{% assign total_review = total_review | plus: m.tech_ids.size %}{% endfor %}{{ total_review }}개</td>
+      <td>검토 필요 — 각 항목에 (검토중) 표시</td>
+    </tr>
+    <tr>
+      <td>낮음</td>
+      <td>{{ site.data.cross_ref_uncertain.mappings.size }}개</td>
+      <td>{% assign total_uncertain = 0 %}{% for m in site.data.cross_ref_uncertain.mappings %}{% assign total_uncertain = total_uncertain | plus: m.tech_ids.size %}{% endfor %}{{ total_uncertain }}개</td>
+      <td>미반영 — 간접적 연관만 존재</td>
+    </tr>
+  </tbody>
+</table>
+
+---
+
+## 매핑된 관리 항목 목록
+
+### 확인 완료 (높음)
 
 {% for mapping in site.data.cross_ref_confirmed.mappings %}
-<details class="admin-item" id="xref-{{ mapping.admin_id | downcase }}">
-  <summary>
-    <strong>{{ mapping.admin_id }}</strong> — {{ mapping.admin_title | xml_escape }}
-    <span style="margin-left:auto; font-size:0.8rem; color:#888;">{{ mapping.tech_ids.size }}개 기술항목</span>
-  </summary>
-  <div class="item-body">
-    {% for tech in mapping.tech_ids %}
-    <div class="crossref-mapping">
-      <strong>{{ tech.id }}</strong> {{ tech.title | xml_escape }}
-      {% if tech.mapping_type == "직접구현" %}
-      <span class="mapping-type mapping-type-direct">{{ tech.mapping_type }}</span>
-      {% elsif tech.mapping_type == "관련" %}
-      <span class="mapping-type mapping-type-related">{{ tech.mapping_type }}</span>
-      {% else %}
-      <span class="mapping-type mapping-type-indirect">{{ tech.mapping_type }}</span>
-      {% endif %}
-      <div class="crossref-evidence">{{ tech.evidence | xml_escape }}</div>
-    </div>
-    {% endfor %}
-  </div>
-</details>
+- **{{ mapping.admin_id }}** {{ mapping.admin_title | xml_escape }} → {{ mapping.tech_ids | map: "id" | join: ", " }}
 {% endfor %}
 
----
-
-## 검토 필요 (확신도: 중간)
-
-사용자 검수 후 확정 또는 삭제할 매핑입니다.
+### 검토 필요 (중간)
 
 {% for mapping in site.data.cross_ref_review.mappings %}
-<details class="admin-item" id="review-{{ mapping.admin_id | downcase }}">
-  <summary>
-    <strong>{{ mapping.admin_id }}</strong> — {{ mapping.admin_title | xml_escape }}
-    <span style="margin-left:auto; font-size:0.8rem; color:#888;">{{ mapping.tech_ids.size }}개 기술항목</span>
-  </summary>
-  <div class="item-body">
-    {% for tech in mapping.tech_ids %}
-    <div class="crossref-mapping">
-      <strong>{{ tech.id }}</strong> {{ tech.title | xml_escape }}
-      {% if tech.mapping_type == "직접구현" %}
-      <span class="mapping-type mapping-type-direct">{{ tech.mapping_type }}</span>
-      {% elsif tech.mapping_type == "관련" %}
-      <span class="mapping-type mapping-type-related">{{ tech.mapping_type }}</span>
-      {% else %}
-      <span class="mapping-type mapping-type-indirect">{{ tech.mapping_type }}</span>
-      {% endif %}
-      <div class="crossref-evidence">{{ tech.evidence | xml_escape }}</div>
-    </div>
-    {% endfor %}
-  </div>
-</details>
+- **{{ mapping.admin_id }}** {{ mapping.admin_title | xml_escape }} → {{ mapping.tech_ids | map: "id" | join: ", " }}
 {% endfor %}
