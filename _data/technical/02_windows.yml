@@ -1282,3 +1282,160 @@
         content: |
           Step 1) 시작 > 제어판 > 관리 도구 > 로컬 보안 정책 > 로컬 정책 > 보안 옵션
           Step 2) "시스템 종료: 로그온하지 않고 시스템 종료 허용"을 "사용 안 함"으로 설정
+
+  - id: "W-49"
+    title: "원격 시스템에서 강제로 시스템 종료"
+    domain: "5. 보안 관리"
+    severity: "상"
+    description:
+      check_content: "원격 시스템 종료 정책 적절성 점검"
+      check_purpose: "원격에서 네트워크를 통하여 운영체제를 종료할 수 있는 사용자나 그룹을 설정하여 특정 사용자만 시스템 종료를 허용하기 위함"
+      threat: "원격 시스템 강제 종료 설정이 부적절한 경우 서비스 거부 공격 등에 악용될 위험이 존재함"
+      reference: []
+    target: "Windows NT, 2000, 2003, 2008, 2012, 2016, 2019, 2022"
+    criteria:
+      good: "\"원격 시스템에서 강제로 시스템 종료\" 정책에 \"Administrators\"만 존재하는 경우"
+      vulnerable: "\"원격 시스템에서 강제로 시스템 종료\" 정책에 \"Administrators\" 외 다른 계정 및 그룹이 존재하는 경우"
+    action: "\"원격 시스템에서 강제로 시스템 종료\" 정책에 \"Administrators\" 외 다른 계정 및 그룹 제거"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Windows NT, 2000, 2003, 2008, 2012, 2016, 2019, 2022"
+        content: |
+          Step 1) 시작 > 제어판 > 관리 도구 > 로컬 보안 정책 > 로컬 정책 > 사용자 권한 할당
+          Step 2) "원격 시스템에서 강제로 시스템 종료" 정책에 Administrators 외 다른 계정 및 그룹 제거
+
+  - id: "W-50"
+    title: "보안 감사를 로그 할 수 없는 경우 즉시 시스템 종료"
+    domain: "5. 보안 관리"
+    severity: "상"
+    description:
+      check_content: "'보안 감사를 로그 할 수 없는 경우 즉시 시스템 종료' 정책 설정 여부 점검"
+      check_purpose: "해당 정책을 비활성화함으로써 로그 용량 초과 등의 이유로 이벤트를 기록할 수 없는 경우, 해당 정책으로 인해 시스템이 비정상적으로 종료되는 것을 방지하기 위함"
+      threat: "해당 정책이 활성화되어 있는 경우 악의적인 목적으로 시스템 종료를 유발하여 서비스 거부 공격에 악용될 수 있으며, 비정상적인 시스템 종료로 인해 시스템 및 데이터에 손상을 입힐 위험이 존재함"
+      reference:
+        - "일반적으로 보안 감사 로그가 꽉 찼을 때 보안 로그에 대한 보존 방법이 [이벤트를 덮어쓰지 않음] 또는 [매일 이벤트 덮어쓰기]인 경우 이벤트가 로그 되지 않음. 보안 로그가 꽉 차고 기존 항목을 덮어쓸 수 없을 때 해당 정책을 사용하는 경우 중지 오류가 출력됨"
+    target: "Windows NT, 2000, 2003, 2008, 2012, 2016, 2019, 2022"
+    criteria:
+      good: "\"보안 감사를 로그 할 수 없는 경우 즉시 시스템 종료\" 정책이 \"사용 안 함\"으로 되어있는 경우"
+      vulnerable: "\"보안 감사를 로그 할 수 없는 경우 즉시 시스템 종료\" 정책이 \"사용\"으로 되어있는 경우"
+    action: "\"보안 감사를 로그 할 수 없는 경우 즉시 시스템 종료\" 정책을 \"사용 안 함\"으로 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Windows NT, 2000"
+        content: |
+          Step 1) 시작 > 실행 > SECPOL.MSC > 로컬 정책 > 보안 옵션
+          Step 2) "보안 감사를 로그 할 수 없는 경우 즉시 시스템 종료" 정책을 "사용 안 함"으로 설정
+      - os: "Windows 2003, 2008, 2012, 2016, 2019, 2022"
+        content: |
+          Step 1) 시작 > 제어판 > 관리 도구 > 로컬 보안 정책 > 로컬 정책 > 보안 옵션
+          Step 2) "감사: 보안 감사를 로그 할 수 없는 경우 즉시 시스템 종료" 정책을 "사용 안 함"으로 설정
+
+  - id: "W-51"
+    title: "SAM 계정과 공유의 익명 열거 허용 안 함"
+    domain: "5. 보안 관리"
+    severity: "상"
+    description:
+      check_content: "\"SAM 계정과 공유의 익명 열거 허용 안 함\" 정책 설정 여부 점검"
+      check_purpose: "익명 사용자에 의한 악의적인 계정 정보 탈취를 방지하기 위함"
+      threat: "Windows에서는 익명의 사용자가 도메인 계정(사용자, 컴퓨터 및 그룹)과 네트워크 공유 이름의 열거 작업을 수행할 수 있으므로 SAM(보안 계정 관리자) 계정과 공유의 익명 열거가 허용될 경우 악의적인 사용자가 계정 이름 목록을 확인하고 이 정보를 사용하여 암호를 추측하거나 사회 공학적 공격기법을 수행할 위험이 존재함"
+      reference:
+        - "방화벽과 라우터에서 135~139(TCP, UDP) Port 차단을 통해 외부로부터의 위협을 차단함"
+        - "네트워크 및 전화 접속 연결 > 로컬 영역 > 등록 정보 > 고급 > 고급 설정 > Microsoft 네트워크 파일 및 프린트 공유를 해제해야 함"
+    target: "Windows NT, 2000, 2003, 2008, 2012, 2016, 2019, 2022"
+    criteria:
+      good: "\"SAM 계정과 공유의 익명 열거 허용 안 함\"이 \"사용\"으로 설정된 경우"
+      vulnerable: "\"SAM 계정과 공유의 익명 열거 허용 안 함\"이 \"사용 안 함\"으로 설정된 경우"
+    action: "레지스트리 값 또는, 로컬 보안 정책 설정"
+    impact: "Active Directory, Clustered system에서는 적용 시 영향 있음"
+    examples:
+      - os: "Windows NT"
+        content: |
+          Step 1) 시작 > 제어판 > 관리 도구 > 레지스트리 편집기
+          HKLM\SYSTEM\CurrentControlSet\Control\LSA
+          Step 2) RestrictAnonymous 값을 "1"로 설정
+      - os: "Windows 2000"
+        content: |
+          Step 1) 시작 > 실행 > SECPOL.MSC > 로컬 정책 > 보안 옵션
+          Step 2) "익명의 연결에 추가적인 제한"에 "명백한 익명의 사용 권한이 없으면 액세스 제한" 선택
+      - os: "Windows 2003, 2008, 2012, 2016, 2019, 2022"
+        content: |
+          Step 1) 시작 > 제어판 > 관리 도구 > 로컬 보안 정책 > 로컬 정책 > 보안 옵션
+          Step 2) "네트워크 액세스 : SAM 계정과 공유의 익명 열거 허용 안 함"과 "네트워크 액세스 : SAM 계정의 익명 열거 허용 안 함"에 "사용" 선택
+
+  - id: "W-52"
+    title: "Autologon 기능 제어"
+    domain: "5. 보안 관리"
+    severity: "상"
+    description:
+      check_content: "Autologon 기능 제어 설정 여부 점검"
+      check_purpose: "Autologon 기능을 사용하지 않도록 설정하여 시스템 계정 정보 노출을 차단하기 위함"
+      threat: "Autologon 기능을 사용하면 침입자가 해킹 도구를 이용하여 레지스트리에 저장된 로그인 계정 및 비밀번호 정보 유출 위험이 존재함"
+      reference:
+        - "Autologon: 레지스트리에 암호화되어 저장된 대체 증명을 사용하여 자동으로 로그인하는 기능"
+        - "AutoAdminLogon 키가 없는 경우 기본값 비활성화"
+    target: "Windows NT, 2000, 2003, 2008, 2012, 2016, 2019, 2022"
+    criteria:
+      good: "AutoAdminLogon 값이 없거나 0으로 설정된 경우"
+      vulnerable: "AutoAdminLogon 값이 1로 설정된 경우"
+    action: "해당 레지스트리 값이 존재하는 경우 0으로 설정"
+    impact: "반드시 자동 로그인을 사용하여야 할 경우를 제외하고는 일반적으로 영향 없음"
+    examples:
+      - os: "Windows NT, 2000, 2003, 2008, 2012, 2016, 2019, 2022"
+        content: |
+          Step 1) 시작 > 제어판 > 관리 도구 > 레지스트리 편집기
+          HKLM\SOFTWARE\Microsoft\WindowsNT\CurrentVersion\Winlogon
+          Step 2) "AutoAdminLogon" 값을 "0"으로 설정
+          Step 3) "Default Password" 존재 시 제거
+
+  - id: "W-53"
+    title: "이동식 미디어 포맷 및 꺼내기 허용"
+    domain: "5. 보안 관리"
+    severity: "상"
+    description:
+      check_content: "관리자 이외 NTFS 미디어 포맷 및 꺼내기 허용 여부 점검"
+      check_purpose: "이동식 미디어의 NTFS 포맷 및 꺼내기가 허용되는 사용자를 관리 권한자로 제한함으로써 관리 권한이 없는 사용자 및 비인가자에 의한 불법적인 이동식 미디어의 포맷 및 이동을 차단하기 위함"
+      threat: "관리자 이외 사용자에게 해당 정책이 설정된 경우 비인가자에 의한 불법적인 매체 처리를 허용할 위험이 존재함"
+      reference:
+        - "해당 보안 설정은 이동식 NTFS 미디어를 포맷하거나 꺼낼 수 있는 사용자를 결정하는 옵션으로 Administrators, Administrators 및 Power Users, Administrators 및 Interactive Users 그룹에 이 기능을 허용할 수 있음"
+    target: "Windows NT, 2000, 2003, 2008, 2012, 2016, 2019, 2022"
+    criteria:
+      good: "\"이동식 미디어 포맷 및 꺼내기 허용\" 정책이 \"Administrators\"로 되어있는 경우"
+      vulnerable: "\"이동식 미디어 포맷 및 꺼내기 허용\" 정책이 \"Administrators\"로 되어있지 않은 경우"
+    action: "\"이동식 NTFS 미디어 꺼내기 허용\" 정책을 \"Administrators\"로 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Windows NT, 2000"
+        content: |
+          Step 1) 시작 > 실행 > SECPOL.MSC > 로컬 정책 > 보안 옵션
+          Step 2) "이동식 NTFS 미디어 꺼내기 허용" 정책을 "Administrators"로 설정
+      - os: "Windows 2003, 2008, 2012, 2016, 2019, 2022"
+        content: |
+          Step 1) 시작 > 제어판 > 관리 도구 > 로컬 보안 정책 > 로컬 정책 > 보안 옵션
+          Step 2) "장치 : 이동식 미디어 포맷 및 꺼내기 허용" 정책을 "Administrators"로 설정
+
+  - id: "W-54"
+    title: "Dos 공격 방어 레지스트리 설정"
+    domain: "5. 보안 관리"
+    severity: "중"
+    description:
+      check_content: "DoS 공격 방어 레지스트리 설정 여부 점검"
+      check_purpose: "TCP/IP 스택(Stack)을 강화하는 레지스트리 값 변경을 통하여 DoS 공격을 방어하기 위함"
+      threat: "DoS 방어 레지스트리를 설정하지 않은 경우, DoS 공격에 의한 시스템 다운으로 서비스 제공이 중단될 위험이 존재함"
+      reference:
+        - "DoS(서비스 거부 공격): 네트워크 사용자가 컴퓨터나 컴퓨터의 특정 서비스를 사용할 수 없도록 만들기 위한 네트워크 공격"
+    target: "Windows NT, 2000, 2003, 2008, 2012, 2016, 2019, 2022"
+    criteria:
+      good: "아래 4가지 DoS 방어 레지스트리를 설정한 경우: SynAttackProtect → 1이상, EnableDeadGWDetect → 0, KeepAliveTime → 300,000, NoNameReleaseOnDemand → 1"
+      vulnerable: "DoS 방어 레지스트리 값이 설정되어 있지 않은 경우"
+    action: "레지스트리 값을 추가 또는 수정"
+    impact: "잘못된 값으로 설정할 경우 운영체제 재설치를 요구할 수 있음"
+    examples:
+      - os: "Windows NT, 2000, 2003, 2008, 2012, 2016, 2019, 2022"
+        content: |
+          Step 1) 시작 > 제어판 > 관리 도구 > 레지스트리 편집기
+          HKLM\System\CurrentControlSet\Services\Tcpip\Parameters\ 폴더
+          Step 2) 다음의 DoS 방어 레지스트리 값 추가 또는 변경
+          SynAttackProtect = REG_DWORD 0(False) -> 1 이상
+          EnableDeadGWDetect = REG_DWORD 1(True) -> 0
+          KeepAliveTime = REG_DWORD 7,200,000(2시간) -> 300,000(5분)
+          NoNameReleaseOnDemand = REG_DWORD 0(False) -> 1
