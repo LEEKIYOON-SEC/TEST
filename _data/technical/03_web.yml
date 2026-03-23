@@ -1,0 +1,94 @@
+  - id: "WEB-01"
+    title: "Default 관리자 계정명 변경"
+    domain: "1. 계정 관리"
+    severity: "상"
+    description:
+      check_content: "웹 서비스 설치 시 기본적으로 설정된 관리자 계정의 변경 후 사용 여부 점검"
+      check_purpose: "기본 관리자 계정명과 같은 알려진 계정명을 유추하기 어려운 계정명으로 변경 후 사용하여 공격자에 의한 추측 공격 및 무단 접근 등을 방지하고 보안을 강화하기 위함"
+      threat: "기본 관리자 계정명을 변경하지 않고 사용할 경우, 공격자에 의한 계정 및 비밀번호 추측 공격이 가능하고, 이를 통해 불법적인 접근, 데이터 유출, 시스템 장애 등의 보안 사고가 발생할 수 있는 위험이 존재함"
+      reference:
+        - "기본 계정: 웹 서비스 설치 시 기본적으로 생성되는 관리자 콘솔 계정"
+        - "서비스별 기본 계정: IIS(Administrator), Tomcat(tomcat, admin), JEUS(administrator)"
+    target: "Tomcat, JEUS"
+    criteria:
+      good: "관리자 페이지를 사용하지 않거나, 계정명이 기본 계정명으로 설정되어 있지 않은 경우"
+      vulnerable: "계정명이 기본 계정명으로 설정되어 있거나, 추측하기 쉬운 문자 조합으로 이루어진 계정명을 사용하는 경우"
+    action: "기본 관리자 계정명을 추측하기 어려운 계정명으로 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Tomcat"
+        content: |
+          Step 1) 기본 계정명 변경 또는 관리자 페이지 비활성화(기본값: 비활성화)
+          # vi <Tomcat 설치 디렉터리>/conf/server.xml
+          예시) <user username="admin" password="XNDJxndn264!@" roles="manager-gui"/>
+          Step 2) Tomcat 재구동
+          # systemctl restart tomcat
+          ※ "roles = manager-gui, manager-script, manager-jmx, manager-status" 설정 시 관리자 계정 및 페이지 활성화 상태
+      - os: "JEUS"
+        content: |
+          Step 1) Security > Security Domains 페이지 해당 도메인 > Account & Policies Management > Users > 기본 관리자 계정의 Name 확인
+          Step 1) Lock & EDIT > Security > Security Domains 페이지 해당 도메인 > Account & Policies Management > Users > ADD > 기본 관리자 계정의 Name을 유추하기 어려운 계정 이름 입력 > Administrators 그룹 체크 후 확인 > Accounts & Policies Management > policies > Role Permissions > AdministratorsRole > "Activate Changes"을 눌러 설정 저장(웹 서비스명과 연관된 단어 "administrator" 계정명 사용금지) > "Activate Changes"을 눌러 설정 저장
+          Step 2) JEUS 재구동
+          # ./stopServer –host [도메인명]:[포트 번호]
+          # ./startDomainAdminServer –host [도메인명]:[포트 번호]
+          ※ 기본 계정명 변경이 불가능할 경우 초기 비밀번호 변경으로 보완 필요
+
+  - id: "WEB-02"
+    title: "취약한 비밀번호 사용 제한"
+    domain: "1. 계정 관리"
+    severity: "상"
+    description:
+      check_content: "관리자 계정의 취약한 비밀번호 설정 여부 점검"
+      check_purpose: "관리자 계정의 비밀번호가 복잡도 기준에 맞게 적용되어 있는지 점검하여, 비인가자에 의한 비밀번호 유추 공격 및 관리자 권한 탈취 등을 방지하기 위함"
+      threat: "관리자 계정의 비밀번호를 취약하게 설정하여 사용하는 경우, 비인가자의 비밀번호 유추 공격으로 관리자 권한 탈취 및 시스템 침입 등의 위험이 존재함"
+      reference: []
+    target: "Tomcat, IIS, JEUS"
+    criteria:
+      good: "관리자 비밀번호가 암호화되어 있거나, 유추하기 어려운 비밀번호로 설정된 경우"
+      vulnerable: "관리자 비밀번호가 암호화되어 있지 않거나, 유추하기 쉬운 비밀번호로 설정된 경우"
+    action: "복잡도 기준에 맞는 추측하기 어려운 비밀번호 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Tomcat"
+        content: |
+          Step 1) 복잡도를 만족하는 비밀번호 설정
+          # vi <Tomcat 설치 디렉터리>/conf/server.xml
+          <user username="admin" password="XNDJxndn264!@" roles="manager-gui"/>
+          Step 2) Tomcat 재시작
+          # systemctl restart tomcat
+      - os: "JEUS"
+        content: |
+          Step 1) Lock & EDIT > Security > Security Domains 페이지 해당 도메인 > Account & Policies Management > Users > 기본 관리자 계정의 비밀번호 변경 > 확인 > "Activate Changes"을 눌러 설정 저장
+          ※ SHA-256 이상 암호화 방식 비밀번호로 설정
+
+  - id: "WEB-03"
+    title: "비밀번호 파일 권한 관리"
+    domain: "1. 계정 관리"
+    severity: "상"
+    description:
+      check_content: "비밀번호 파일에 대해 적절한 접근 권한 설정 여부 점검"
+      check_purpose: "비밀번호 파일의 접근 권한을 적절하게 설정하여 비인가자가 비밀번호 파일에 무단 접근 및 유출 등을 방지하기 위함"
+      threat: "비밀번호 파일의 권한을 적절하게 설정하지 않은 경우, 비인가자에게 비밀번호 정보가 노출될 수 있고 웹 서버에 접속하는 등의 침해사고가 발생할 위험이 존재함"
+      reference: []
+    target: "Tomcat, IIS, JEUS"
+    criteria:
+      good: "비밀번호 파일에 권한이 600 이하로 설정된 경우"
+      vulnerable: "비밀번호 파일에 권한이 600 초과로 설정된 경우"
+    action: "비밀번호 파일 권한 600 이하로 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Tomcat"
+        content: |
+          Step 1) tomcat-users.xml 파일 권한 변경
+          # chmod 600 /<Tomcat 설치 디렉터리>/tomcat-users.xml
+      - os: "IIS"
+        content: |
+          Step 1) "%systemroot%\system32\config\SAM" 파일 속성 > 보안 > 편집 > Administrators, SYSTEM을 제외한 계정 및 그룹 권한 제거
+      - os: "JEUS"
+        content: |
+          Step 1) [비밀번호 파일] 또는 [Role 파일] 권한 설정
+          # chmod 600 /<JEUS 설치 디렉터리>/jeus_domain/config/security/SYSTEM_DOMAIN/accounts.xml
+          # chmod 600 /<JEUS 설치 디렉터리>/jeus_domain/config/security/SYSTEM_DOMAIN/policies.xml
+          Step 2) JEUS 재시작
+          # ./stopServer –host <도메인명>:<포트 번호>
+          # ./startDomainAdminServer –host <도메인명>:<포트 번호>
