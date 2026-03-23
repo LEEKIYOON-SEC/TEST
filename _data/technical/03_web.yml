@@ -303,3 +303,217 @@ items:
           # wscfl -I http.m
           # wsdown
           # wsboot
+
+  - id: "WEB-07"
+    title: "웹 서비스 경로 내 불필요한 파일 제거"
+    domain: "2. 서비스 관리"
+    severity: "중"
+    description:
+      check_content: "웹 서비스 설치 시 기본으로 생성되는 불필요한 파일 및 디렉터리 제거 여부 점검"
+      check_purpose: "웹 서비스 설치 시 기본으로 생성되는 샘플, 매뉴얼 파일 등 서비스에 불필요한 파일을 제거하여 불필요한 공격 대상으로 이용되는 것을 방지하기 위함"
+      threat: "웹 서비스 설치 시 기본으로 생성되는 파일 및 디렉터리나 백업, 테스트 파일 등을 제거하지 않은 경우, 비인가자에게 시스템 관련 정보 및 웹 서버 정보가 노출되거나 해킹에 악용될 수 있음"
+      reference:
+        - "불필요한 파일: 샘플 파일, 매뉴얼 파일, 임시 파일, 테스트 파일, 백업 파일 등"
+    target: "Apache, Tomcat, Nginx, IIS, JEUS, WebtoB"
+    criteria:
+      good: "기본으로 생성되는 불필요한 파일 및 디렉터리가 존재하지 않을 경우"
+      vulnerable: "기본으로 생성되는 불필요한 파일 및 디렉터리가 존재하는 경우"
+    action: "불필요한 파일 및 디렉터리를 제거하도록 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Apache"
+        content: |
+          Step 1) rm 명령어로 확인된 불필요한 매뉴얼 디렉터리 및 파일 제거
+          # rm –rf /<Apache 설치 디렉터리>/htdocs/manual
+          # rm –rf /<Apache 설치 디렉터리>/manual
+          ※ 2.4 버전 이상은 htdocs 디렉터리가 기본 제공되지 않으므로 /var/www/html 사용
+      - os: "Tomcat"
+        content: |
+          Step 1) rm 명령어로 확인된 불필요한 매뉴얼 디렉터리 및 파일 제거
+          # rm –rf /<Tomcat 설치 디렉터리>/webapps/docs/<불필요 파일>
+          ※ BUILDING.txt, RELEASE-NOTES.txt, jndi-resources-howto.html 등 매뉴얼 파일 포함
+      - os: "Nginx"
+        content: |
+          Step 1) rm 명령어로 확인된 불필요한 매뉴얼 디렉터리 및 파일 제거
+          # rm –rf /<Nginx 설치 디렉터리>/html/index.html
+      - os: "IIS"
+        content: |
+          Step 1) 샘플 디렉터리 존재여부 확인 및 제거
+          샘플 디렉터리 경로 예시
+          c:\inetpub\iissamples
+          c:\winnt\help\iishelp
+          c:\program files\common files\system\msadc\sample
+          %SystemRoot%\System32\Inetsrv\IISADMPWD
+      - os: "JEUS"
+        content: |
+          Step 1) rm 명령어로 확인된 불필요한 매뉴얼 디렉터리 및 파일 제거
+          # rm –rf /<JEUS 설치 디렉터리>/docs/manuals/default/web-manager/<불필요 파일>
+          # rm –rf /<JEUS 홈 디렉터리>/samples/<불필요 파일>
+      - os: "WebtoB"
+        content: |
+          Step 1) rm 명령어로 확인된 불필요한 매뉴얼 디렉터리 및 파일 제거
+          # rm –rf /<WebtoB 설치 디렉터리>/docs/manuals/<불필요 파일>
+          # rm –rf /<WebtoB 홈 디렉터리>/samples/<불필요 파일>
+
+  - id: "WEB-08"
+    title: "웹 서비스 파일 업로드 및 다운로드 용량 제한"
+    domain: "2. 서비스 관리"
+    severity: "하"
+    description:
+      check_content: "파일 업로드 및 다운로드의 용량 제한 설정 여부 점검"
+      check_purpose: "기반시설 시스템은 원칙적으로 파일 업로드 및 다운로드를 금지하지만 불가피하게 파일의 업로드 및 다운로드 기능이 필요한 경우, 파일의 용량 제한을 설정하여 불필요한 업로드 및 다운로드를 방지해 서버의 과부하를 예방하고, 웹 서버 자원을 효율적으로 관리하기 위함"
+      threat: "웹 서비스의 파일 업로드 및 다운로드의 용량을 제한하지 않은 경우, 악의적인 목적을 가진 사용자가 반복 업로드 및 웹 쉘 공격 등으로 시스템 권한을 탈취하거나 대용량 파일의 업로드 및 다운로드로 서버 자원을 고갈시켜 서비스 장애를 발생시킬 위험이 존재함"
+      reference:
+        - "불필요한 업로드 및 다운로드: 내부 정책에 맞지 않는 업로드와 다운로드"
+    target: "Apache, Tomcat, Nginx, IIS, JEUS, WebtoB"
+    criteria:
+      good: "파일 업로드 및 다운로드 용량을 제한한 경우"
+      vulnerable: "파일 업로드 및 다운로드 용량을 제한하지 않은 경우"
+    action: "파일 업로드 및 다운로드 용량을 허용 가능한 최소 범위로 제한하여 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Apache"
+        content: |
+          Step 1) 설정 파일 내 LimitRequestBody 지시자에서 파일 용량 제한 설정
+          <Directory />
+              LimitRequestBody 5000000
+          </Directory>
+      - os: "Tomcat"
+        content: |
+          Step 1) server.xml 파일 내 maxPostSize 요소 설정
+          # vi /<Tomcat 설치 디렉터리>/conf/server.xml
+          <Connector port="<사용 포트>" protocol="HTTP/1.1"
+          connectionTimeout="20000"
+          redirectPort="<사용 포트>"
+          maxParameterCount="1000"
+          maxPostSize="5242880"
+          />
+          Step 2) web.xml 파일 내 multipart-config 요소 설정
+          # vi /<Tomcat 설치 디렉터리>/conf/web.xml
+          <multipart-config>
+             <max-file-size>2097152</max-file-size>
+             <max-request-size>4194304</max-request-size>
+             <file-size-threshold>0</file-size-threshold>
+          </multipart-config>
+      - os: "Nginx"
+        content: |
+          Step 1) nginx.conf 파일 내 client_max_body_size 요소 파일 용량 제한 설정
+          # vi /<Nginx 설치 디렉터리>/nginx.conf
+          <Directory/>
+             client_max_body_size 5M; (설정 단위: byte)
+          </Directory>
+          Step 2) Nginx 데몬 재구동
+          # systemctl restart nginx
+      - os: "IIS"
+        content: |
+          Step 1) 루트 디렉터리 web.config 파일 설정 파일 내 "maxAllowedContentLength" 설정 확인
+          Step 2) 루트 디렉터리 web.config 파일 설정 파일 내 "maxAllowedContentLength" 제한 설정 (기본값: 30MB)
+          Step 3) applicationHost.config 파일 내 "bufferingLimit" 및 "maxRequestEntityAllowed" 설정
+          (기본값: bufferingLimit - 4MB, maxRequestEntityAllowed – 0.2MB)
+          ※ web.config 파일이 없으면 사이트 홈 디렉터리에 새로 생성
+      - os: "JEUS"
+        content: |
+          Step 1) web.xml 파일 내 max-file-size 지시자에서 파일 용량 제한 설정
+          # vi /[JEUS 설치 디렉터리]/WEB-INF/web.xml
+          <multipart-config>
+             <max-file-size>5242880</max-file-size>
+          </multipart-config>
+          ※ 출력값이 존재하지 않는 경우 용량을 제한하고 있지 않은 상태로 취약
+      - os: "WebtoB"
+        content: |
+          Step 1) LimitRequestBody 지시자를 사용하여 파일 업로드 및 다운로드 용량 제한 설정
+          # vi /[WebtoB 설치 디렉터리]/conf/http.m
+          *ALIAS
+          alias1   URI = "/cgi-bin/", RealPath = "/home/webtob/webtob/cgi-bin/"
+          LimitRequestBody = 2048000
+          ※ 업로드 및 다운로드 파일이 5MB를 넘지 않도록 설정 권고
+
+  - id: "WEB-09"
+    title: "웹 서비스 프로세스 권한 제한"
+    domain: "2. 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "웹 서비스 프로세스의 관리자 권한 구동 여부 점검"
+      check_purpose: "웹 프로세스가 웹 서비스 운영에 필요한 최소한의 권한만을 갖도록 제한함으로써 웹 사이트 방문자가 웹 서비스의 취약점을 이용해 시스템에 대한 어떤 권한도 획득할 수 없도록 하여 침해사고 발생 시 피해 범위 확산을 방지하기 위함"
+      threat: "웹 프로세스 권한을 제한하지 않은 경우, 웹 사이트 방문자가 웹 서비스의 취약점을 이용하여 시스템 권한을 획득할 수 있으며, 웹 취약점을 통해 접속 권한을 획득한 경우에는 관리자 권한을 획득하여 서버에 접속 후 정보의 변경, 훼손 및 유출될 위험이 존재함"
+      reference: []
+    target: "Apache, Tomcat, Nginx, IIS, JEUS, WebtoB"
+    criteria:
+      good: "웹 프로세스(웹 서비스)가 관리자 권한이 부여된 계정이 아닌 운영에 필요한 최소한의 권한을 가진 별도의 계정으로 구동되고 있는 경우"
+      vulnerable: "웹 프로세스(웹 서비스)가 관리자 권한이 부여된 계정으로 구동되고 있는 경우"
+    action: "웹 서비스 프로세스 구동 시 관리자 권한이 아닌 운영에 필요한 최소한의 권한을 가진 계정으로 구동 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Apache"
+        content: |
+          Step 1) envvars 파일 내 실행 계정을 관리자 계정이 아닌 별도의 계정으로 변경
+          # vi /[Apache 설치 디렉터리]/envvars
+          export APACHE_RUN_USER=www-data
+          export APACHE_RUN_GROUP=www-data
+          Step 2) Apache 서비스 파일 소유권 변경
+          # chown -R www-data:www-data /etc/apache2/
+          # chown -R www-data:www-data /var/www/
+          # chown -R www-data:www-data /var/log/apache2/
+          Step 3) 웹 서비스 실행 계정 로그인 제한 설정
+          # usermod -s /sbin/nologin [사용자명]
+          Step 4) Apache 재구동
+          # systemctl restart apache2 또는 httpd
+      - os: "Tomcat"
+        content: |
+          Step 1) tomcat.service 파일 내 Tomcat 데몬 구동 권한을 관리자 계정이 아닌 별도 계정으로 변경
+          # vi /etc/systemd/system/tomcat.service
+          [Service]
+          User=tomcat
+          Group=tomcat
+          Step 2) Tomcat 서비스 파일 소유권 변경
+          # chown -R tomcat:tomcat /[Tomcat 설치 디렉터리]/
+          Step 3) 웹서비스 실행 계정 로그인 제한 설정
+          # usermod -s /sbin/nologin [사용자명]
+          Step 4) Tomcat 서비스 재구동
+          # systemctl restart tomcat
+      - os: "Nginx"
+        content: |
+          Step 1) nginx.conf 파일 내 Nginx 데몬 구동 권한을 관리자 계정이 아닌 별도 계정으로 변경
+          # vi /[Nginx 설치 디렉터리]/conf/nginx.conf
+          User nginx nginx;
+          Step 2) Nginx 전용 계정 생성 및 Nginx 전용 그룹 추가
+          # adduser --system --no-create-home --shell /bin/false nginx
+          # groupadd nginx && sudo usermod -aG nginx nginx
+          Step 3) 웹서비스 실행 계정 로그인 제한 설정
+          # usermod –s /sbin/nologin [사용자명]
+          Step 4) Nginx 서비스 재구동
+          # systemctl restart nginx
+      - os: "IIS"
+        content: |
+          Step 1) 웹 사이트 응용프로그램 풀 이름 확인
+          제어판 > 관리 도구 > 인터넷 정보 서비스(IIS) 관리자 > 해당 웹 사이트 > 고급 설정 > '응용프로그램 풀 이름(DefaultAppPool)' 확인
+          Step 2) 웹 사이트 응용프로그램 풀 ID 확인
+          제어판 > 관리 도구 > 인터넷 정보 서비스(IIS) 관리자 > 응용프로그램 풀 > '응용프로그램 풀 이름(DefaultAppPool)' 선택 > 고급 설정 > ID > 확인
+          Step 3) 웹사이트 응용프로그램 풀 ID 설정
+          제어판 > 관리 도구 > 인터넷 정보 서비스(IIS) 관리자 > 응용프로그램 풀 > '응용프로그램 풀 이름(DefaultAppPool)' 선택 > 고급 설정 > ID > ApplicationPoolIdentity 선택
+      - os: "JEUS"
+        content: |
+          Step 1) JEUS 데몬 구동 권한 확인
+          # ps -ef |grep jeus
+          Step 2) JEUS 데몬 구동 권한을 관리자 계정이 아닌 별도 계정으로 변경
+          # useradd –m jeus
+          # mv /[JEUS 설치 디렉터리]/home/jeus
+          Step 3) [JEUS 설치 디렉터리] 소유자 및 그룹 소유자를 JEUS 계정으로 변경
+          # chown –R jeus:jeus /home/jeus/
+      - os: "WebtoB"
+        content: |
+          Step 1) 소유자 및 그룹 소유자 변경
+          chown –R [WebtoB 전용 계정]:[WebtoB 전용 계정] /[WebtoB 디렉터리]
+          Step 2) http.m 파일 내 기존 경로 변경
+          *NODE절의 WEBTOBDIR, DOCROOT을 변경한 디렉터리로 설정
+          *ALIAS절의 alias1을 변경한 디렉터리로 설정
+          *LOGGING절의 syslog, log1, log2을 변경한 디렉터리로 설정
+          Step 3) 변경한 디렉터리명 환경변수에 추가
+          # export WEBTOB=/[WebtoB 디렉터리]
+          # source ~/.bashrc
+          Step 4) libwbiconv.so 파일을 직접 /usr/lib로 복사
+          # cp /webtob/lib/libwbiconv.so /usr/lib/
+          Step 5) 라이브러리 캐시 업데이트
+          # ldconfig
+          Step 6) 설정 파일 컴파일
+          # wscfl –i http.m
