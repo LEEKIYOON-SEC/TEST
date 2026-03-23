@@ -1,18 +1,8 @@
 // K-SecGuide Custom Styles
 
 // just-the-docs 콘텐츠 영역 확장
-.main-content-wrap {
-  max-width: 1200px;
-}
-
-.side-bar {
-  width: 248px;
-}
-
-@media (min-width: 66.5rem) {
-  .main-content-wrap {
-    max-width: none;
-  }
+.main-content {
+  max-width: none !important;
 }
 
 // 공공누리 Footer
