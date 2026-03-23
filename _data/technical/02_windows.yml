@@ -1,3 +1,7 @@
+platform: "2. Windows 서버"
+platform_number: 2
+category: "기술적 분야"
+items:
   - id: "W-01"
     title: "Administrator 계정 이름 변경 등 보안성 강화"
     domain: "1. 계정 관리"
