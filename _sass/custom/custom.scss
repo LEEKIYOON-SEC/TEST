@@ -1,0 +1,109 @@
+// K-SecGuide Custom Styles
+
+// 공공누리 Footer
+.footer-gonggong-nuri {
+  margin-top: 2rem;
+  padding-top: 1rem;
+}
+
+.gonggong-nuri-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: #495057;
+}
+
+.gonggong-nuri-logo {
+  width: 120px;
+  flex-shrink: 0;
+}
+
+.gonggong-nuri-notice p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+// 관리·물리 항목 스타일
+.admin-item {
+  margin-bottom: 1.5rem;
+
+  h2 {
+    border-bottom: 2px solid #e8e8e8;
+    padding-bottom: 0.3rem;
+  }
+
+  h3 {
+    font-size: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  dl {
+    dt {
+      font-weight: 600;
+      color: #5c5c5c;
+    }
+    dd {
+      margin-left: 0;
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  table {
+    width: 100%;
+    font-size: 0.9rem;
+
+    ul {
+      margin: 0;
+      padding-left: 1.2rem;
+    }
+  }
+}
+
+// 기술 항목 스타일
+.technical-item {
+  margin-bottom: 2rem;
+
+  h2 {
+    border-bottom: 2px solid #e8e8e8;
+    padding-bottom: 0.3rem;
+  }
+
+  h3 {
+    font-size: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  dl {
+    dt {
+      font-weight: 600;
+      display: inline;
+      &::after {
+        content: ": ";
+      }
+    }
+    dd {
+      display: inline;
+      margin-left: 0;
+      &::after {
+        content: "";
+        display: block;
+      }
+    }
+  }
+
+  details {
+    margin: 0.5rem 0;
+
+    summary {
+      cursor: pointer;
+      padding: 0.3rem 0;
+    }
+  }
+}
