@@ -1,2 +1,3 @@
-// just-the-docs 변수 오버라이드 (setup.scss는 변수 정의 후, CSS 출력 전에 로드됨)
-$content-width: 80rem;
+// just-the-docs SCSS 변수 오버라이드
+$content-width: 100rem;
+$nav-width: 16rem;
