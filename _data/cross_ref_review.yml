@@ -1,0 +1,201 @@
+# 크로스레퍼런스 — 확신도 "중간" (사용자 검토 필요)
+# 관리·물리 항목 ↔ 기술적 점검 항목 매핑
+# 대상: Unix(U), Windows(W), Web(WEB) 항목만 포함
+# 생성일: 2026-03-23
+# 상태: 초안 — 사용자 검수 후 확정 또는 삭제
+
+mappings:
+  # ============================================================
+  # A-43~A-50: 접근통제 — 간접적 연관 항목
+  # ============================================================
+  - admin_id: "A-44"
+    admin_title: "시스템의 목적 및 민감도 등에 따라 네트워크를 분리 운영하고 각 영역 간 접근통제를 적용"
+    tech_ids:
+      - id: "W-14"
+        title: "IIS 불필요한 서비스 제거"
+        evidence: "A-44 '네트워크 영역을 분리하여 운영하고 접근통제를 적용' ↔ W-14 '불필요한 IIS 서비스 구동 여부 점검' — 네트워크 분리 정책의 기술적 구현 일부"
+        confidence: "중간"
+        mapping_type: "관련"
+      - id: "W-35"
+        title: "최신 서비스팩 적용"
+        evidence: "A-44 '각 영역 간 접근통제 적용' ↔ W-35 'NetBIOS 바인딩 서비스 구동 점검' — 네트워크 접근통제의 일환"
+        confidence: "중간"
+        mapping_type: "관련"
+
+  - admin_id: "A-45"
+    admin_title: "접근통제 규칙은 관리자의 승인을 거쳐서 설정 또는 변경"
+    tech_ids:
+      - id: "U-36"
+        title: "접속 IP 및 포트 제한"
+        evidence: "A-45 '방화벽 정책 변경이 요구될 경우 내부 승인절차에 따라 정책변경' ↔ U-36 '접속 IP 및 포트 제한 설정' — 접근통제 규칙의 실제 구현"
+        confidence: "중간"
+        mapping_type: "관련"
+
+  - admin_id: "A-46"
+    admin_title: "접근통제 정책의 적합성 여부에 대해 주기적 검토"
+    tech_ids:
+      - id: "U-36"
+        title: "접속 IP 및 포트 제한"
+        evidence: "A-46 '접근통제 정책을 주기적으로 검토하여 비인가자에 대한 접근통제 정책이 적합한지 확인' ↔ U-36 '접속 IP 및 포트 제한 설정' — 주기적 검토 대상"
+        confidence: "중간"
+        mapping_type: "관련"
+
+  # ============================================================
+  # A-51~A-57: 네트워크/무선 보안 — 제한적 매핑
+  # ============================================================
+  - admin_id: "A-51"
+    admin_title: "내부망(업무망)과 인터넷망을 분리하여 사용"
+    tech_ids:
+      - id: "WEB-20"
+        title: "URL 점검"
+        evidence: "A-51 '내부 업무망과 인터넷망은 각각 분리하여 운영' ↔ WEB-20 'URL 접근 제한 설정' — 인터넷 노출 웹 서비스의 접근통제"
+        confidence: "중간"
+        mapping_type: "간접"
+
+  # ============================================================
+  # A-58~A-72: 운영관리/설정보안 — 서비스 관리 항목
+  # ============================================================
+  - admin_id: "A-59"
+    admin_title: "서버, 네트워크시스템 등의 변경관리 절차 수립·이행"
+    tech_ids:
+      - id: "U-16"
+        title: "/dev에 존재하지 않는 device 파일 점검"
+        evidence: "A-59 '변경관리 절차 수립' ↔ U-16 '존재하지 않는 device 파일 점검으로 비인가 변경 탐지'"
+        confidence: "중간"
+        mapping_type: "관련"
+
+  - admin_id: "A-60"
+    admin_title: "시스템 또는 서비스의 장애 발생 시 효과적으로 대응하기 위한 장애대응 절차 수립·이행"
+    tech_ids:
+      - id: "U-65"
+        title: "syslog 설정"
+        evidence: "A-60 '장애대응 절차' ↔ U-65 'syslog 설정' — 장애 원인 분석을 위한 로그 확보"
+        confidence: "중간"
+        mapping_type: "관련"
+      - id: "W-40"
+        title: "이벤트 로그 관리 설정"
+        evidence: "A-60 '장애대응' ↔ W-40 '이벤트 로그 관리' — 장애 원인 분석 로그"
+        confidence: "중간"
+        mapping_type: "관련"
+
+  - admin_id: "A-62"
+    admin_title: "불필요한 서비스를 제거하여 보안 위험 최소화"
+    tech_ids:
+      - id: "U-19"
+        title: "Finger 서비스 비활성화"
+        evidence: "A-62 '불필요한 서비스를 제거' ↔ U-19 'Finger 서비스 비활성화 여부 점검'"
+        confidence: "중간"
+        mapping_type: "직접구현"
+      - id: "U-20"
+        title: "Anonymous FTP 비활성화"
+        evidence: "A-62 '불필요한 서비스 제거' ↔ U-20 'Anonymous FTP 비활성화 여부 점검'"
+        confidence: "중간"
+        mapping_type: "직접구현"
+      - id: "U-21"
+        title: "r 계열 서비스 비활성화"
+        evidence: "A-62 '불필요한 서비스 제거' ↔ U-21 'rlogin, rsh 등 r 계열 서비스 비활성화'"
+        confidence: "중간"
+        mapping_type: "직접구현"
+      - id: "U-22"
+        title: "crond 파일 소유자 및 권한 설정"
+        evidence: "A-62 '불필요한 서비스 제거' ↔ U-22 'cron 관련 파일 접근통제'"
+        confidence: "중간"
+        mapping_type: "관련"
+      - id: "U-23"
+        title: "DoS 공격에 취약한 서비스 비활성화"
+        evidence: "A-62 '불필요한 서비스 제거' ↔ U-23 'DoS 공격에 취약한 서비스 비활성화'"
+        confidence: "중간"
+        mapping_type: "직접구현"
+      - id: "U-24"
+        title: "NFS 서비스 비활성화"
+        evidence: "A-62 '불필요한 서비스 제거' ↔ U-24 'NFS 서비스 비활성화'"
+        confidence: "중간"
+        mapping_type: "직접구현"
+      - id: "U-25"
+        title: "NFS 접근 통제"
+        evidence: "A-62 '불필요한 서비스 제거' ↔ U-25 'NFS 접근 통제 설정'"
+        confidence: "중간"
+        mapping_type: "직접구현"
+      - id: "U-26"
+        title: "automountd 제거"
+        evidence: "A-62 '불필요한 서비스 제거' ↔ U-26 'automountd 데몬 제거'"
+        confidence: "중간"
+        mapping_type: "직접구현"
+      - id: "U-27"
+        title: "RPC 서비스 확인"
+        evidence: "A-62 '불필요한 서비스 제거' ↔ U-27 '불필요한 RPC 서비스 확인'"
+        confidence: "중간"
+        mapping_type: "직접구현"
+      - id: "U-29"
+        title: "tftp, talk 서비스 비활성화"
+        evidence: "A-62 '불필요한 서비스 제거' ↔ U-29 'tftp, talk 서비스 비활성화'"
+        confidence: "중간"
+        mapping_type: "직접구현"
+      - id: "U-30"
+        title: "Sendmail 버전 점검"
+        evidence: "A-62 '불필요한 서비스 제거' ↔ U-30 'Sendmail 최신 버전 사용'"
+        confidence: "중간"
+        mapping_type: "관련"
+      - id: "W-16"
+        title: "IIS 링크 사용금지"
+        evidence: "A-62 '불필요한 서비스 제거' ↔ W-16 'IIS 링크 사용금지'"
+        confidence: "중간"
+        mapping_type: "직접구현"
+      - id: "W-19"
+        title: "IIS 불필요한 파일 제거"
+        evidence: "A-62 '불필요한 서비스 제거' ↔ W-19 'IIS 불필요한 파일 제거'"
+        confidence: "중간"
+        mapping_type: "직접구현"
+
+  - admin_id: "A-63"
+    admin_title: "서버, 네트워크시스템, 보안시스템 등에 대한 보안설정 기준 수립·이행"
+    tech_ids:
+      - id: "U-33"
+        title: "DNS 보안 버전 패치"
+        evidence: "A-63 '보안설정 기준 수립' ↔ U-33 'DNS 보안 버전 패치'"
+        confidence: "중간"
+        mapping_type: "관련"
+      - id: "U-34"
+        title: "DNS Zone Transfer 설정"
+        evidence: "A-63 '보안설정 기준' ↔ U-34 'DNS Zone Transfer 설정 점검'"
+        confidence: "중간"
+        mapping_type: "관련"
+      - id: "W-20"
+        title: "IIS 데이터 파일 ACL 적용"
+        evidence: "A-63 '보안설정 기준 수립' ↔ W-20 'IIS 데이터 파일 ACL 적용'"
+        confidence: "중간"
+        mapping_type: "직접구현"
+      - id: "W-21"
+        title: "IIS 미사용 스크립트 매핑 제거"
+        evidence: "A-63 '보안설정 기준' ↔ W-21 '미사용 스크립트 매핑 제거'"
+        confidence: "중간"
+        mapping_type: "직접구현"
+
+  # ============================================================
+  # A-84: 암호화 ↔ 웹 서비스 암호화
+  # ============================================================
+  - admin_id: "A-84"
+    admin_title: "중요정보의 송·수신 시 암호화 통신 적용"
+    tech_ids:
+      - id: "WEB-20"
+        title: "URL 점검"
+        evidence: "A-84 '암호화 통신 적용' ↔ WEB-20 'URL을 통한 정보 노출 점검' — HTTPS 적용과 관련"
+        confidence: "중간"
+        mapping_type: "관련"
+
+  # ============================================================
+  # A-100: 개인정보 안전성 확보조치
+  # ============================================================
+  - admin_id: "A-100"
+    admin_title: "개인정보의 안전성 확보에 필요한 조치 이행"
+    tech_ids:
+      - id: "WEB-01"
+        title: "웹 서비스 서버 계정 관리"
+        evidence: "A-100 '접근 권한의 관리' ↔ WEB-01 '웹 서비스 서버 계정 관리' — 개인정보처리시스템 접근 관리"
+        confidence: "중간"
+        mapping_type: "관련"
+      - id: "WEB-20"
+        title: "URL 점검"
+        evidence: "A-100 '개인정보의 암호화' ↔ WEB-20 'URL을 통한 정보 노출 점검'"
+        confidence: "중간"
+        mapping_type: "관련"
