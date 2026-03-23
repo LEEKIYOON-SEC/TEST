@@ -1,7 +1,12 @@
 // K-SecGuide Custom Styles
 
-// just-the-docs 콘텐츠 영역 확장
+// just-the-docs 콘텐츠 영역 전체 너비 확장
+// .main-content, .main-content-wrap 및 부모 요소 모두 제거
 .main-content {
+  max-width: none !important;
+}
+
+.main-content-wrap {
   max-width: none !important;
 }
 
@@ -48,11 +53,8 @@
     line-height: 1.4;
     list-style: none;
     display: flex;
-    align-items: center;
+    align-items: baseline;
     gap: 0.4rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 
     &::-webkit-details-marker {
       display: none;
@@ -145,8 +147,6 @@
     summary {
       cursor: pointer;
       padding: 0.3rem 0;
-      white-space: normal;
-      overflow: visible;
     }
   }
 }
