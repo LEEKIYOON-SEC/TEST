@@ -1,3 +1,7 @@
+platform: "3. 웹 서비스"
+platform_number: 3
+category: "기술적 분야"
+items:
   - id: "WEB-01"
     title: "Default 관리자 계정명 변경"
     domain: "1. 계정 관리"
