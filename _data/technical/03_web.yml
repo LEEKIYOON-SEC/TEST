@@ -676,3 +676,133 @@ items:
           *ALIAS
           alias1
           URI = "/cgi-bin/", RealPath = "/home/tmax/webtob/cgi-bin/"
+
+  - id: "WEB-13"
+    title: "웹 서비스 설정 파일 노출 제한"
+    domain: "2. 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "DB 연결 파일에 대한 접근 권한, 스크립트 매핑 등 웹 서비스에서의 DB 연결 취약점 존재 여부 점검"
+      check_purpose: "웹 서비스에서 DB 연결 파일에 대한 접근 권한 제한 및 불필요한 스크립트 매핑을 제거하여, DB 연결 정보(사용자 이름, 비밀번호 등)가 외부에 노출되거나 공격자의 DB 접근 및 관리자 권한 획득 등의 다양한 공격을 방지하기 위함"
+      threat: "웹 서비스에서 DB 연결 파일에 대한 접근 권한 제한 및 불필요한 스크립트 매핑을 제거하지 않을 경우, DB 연결 파일에 존재하는 데이터베이스 관련 정보(IP주소, DB명, 비밀번호), 서버 내부 IP주소, 웹 서비스 환경설정 정보 등 보안상 민감한 내용이 악의적인 사용자에게 노출될 위험이 존재함"
+      reference: []
+    target: "Tomcat, IIS, JEUS"
+    criteria:
+      good: "일반 사용자의 DB 연결 파일에 대한 접근을 제한하고, 불필요한 스크립트 매핑이 제거된 경우"
+      vulnerable: "일반 사용자의 DB 연결 파일에 대한 접근을 제한하지 않거나, 불필요한 스크립트 매핑이 제거되지 않은 경우"
+    action: "DB 연결 파일에 대한 접근 권한 제한 또는 불필요한 스크립트 매핑 제거 등을 통한 웹 서비스 내 DB 연결 취약점 제거 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Tomcat"
+        content: |
+          Step 1) server.xml 파일 내 불필요한 DB 연결 리소스 설정 제거
+          <GlobalNamingResources>
+             <Resource name="jdbc/MyDB"
+                auth="Container"
+                type="javax.sql.DataSource"
+                username="dbuser"
+                password="dbpassword"
+                driverClassName="com.mysql.jdbc.Driver"
+                url="jdbc:mysql://localhost:3306/mydb"/>
+          </GlobalNamingResources>
+          Step 2) DB 연결 리소스가 존재하는 설정 파일 접근권한을 600으로 설정
+          # chmod 600 /[Tomcat 설치 디렉터리]/conf/server.xml
+      - os: "IIS"
+        content: |
+          Step 1) 처리기 매핑에서 불필요한 DB 매핑 설정 제거
+          제어판 > 관리 도구 > 인터넷 정보 서비스(IIS) 관리자 > 해당 웹사이트 > IIS > 처리기 매핑 선택, 사용 항목에 *.asa/*.asax 항목 제거
+          Step 2) 요청 필터링에서 DB 매핑 설정제한
+          "허용됨" 값이 true인 매핑 제거 및 "파일 이름 확장명 거부"에 등록
+          ※ asa/asax 스크립트 매핑 또는 파일 필터링 중 하나라도 설정 시 취약
+      - os: "JEUS"
+        content: |
+          Step 1) 설정 파일 내 불필요 DB 연결 리소스 설정 제거
+          # vi /[JEUS 설치 디렉터리]/conf/domain.xml
+          Step 2) 설정 파일의 접근권한을 600으로 설정
+          # chmod 600 /[JEUS 설치 디렉터리]/conf/domain.xml
+          ※ domain.xml 뿐 아니라 개별 웹 서비스의 설정 파일인 jeus-web-dd.xml에서도 삭제 필요
+
+  - id: "WEB-14"
+    title: "웹 서비스 경로 내 파일의 접근 통제"
+    domain: "2. 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "웹 서비스 경로의 파일들에 대해 관리자를 제외한 일반 사용자의 파일 접근 권한 제거 여부 점검"
+      check_purpose: "웹 서비스 경로의 파일들에 관리자를 제외한 일반 사용자의 파일 접근 권한을 제거함으로써 인가되지 않은 사용자가 허용되지 않는 파일에 접근하는 것을 차단하기 위함"
+      threat: "웹 서비스 경로 파일에 비인가자가 접근 가능한 경우, 해당 파일의 수정 및 삭제로 인해 웹 서비스 운영 장애 및 계정 비밀번호 정보 등의 중요한 정보가 노출될 위험이 존재함"
+      reference:
+        - "웹 서비스 경로 내 파일/디렉터리에 접근 권한을 허용할 때는 필요한 때에만 설정하고, 필요한 특정 위치의 특정 사용자에게만 허용하도록 조치"
+    target: "Apache, Tomcat, Nginx, IIS, JEUS, WebtoB"
+    criteria:
+      good: "주요 설정 파일 및 디렉터리에 불필요한 접근 권한이 부여되지 않은 경우"
+      vulnerable: "주요 설정 파일 및 디렉터리에 불필요한 접근 권한이 부여된 경우"
+    action: "주요 설정 파일 및 디렉터리에 불필요한 접근 권한 제거 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Apache"
+        content: |
+          Step 1) 루트 디렉터리 내 불필요한 권한 삭제 또는 적절한 권한 부여
+          # chown –R <Apache 계정>:<Apache 그룹> apache2.conf (또는 httpd.conf)
+          # chmod -R 750 apache2.conf (또는 httpd.conf)
+      - os: "Tomcat"
+        content: |
+          Step 1) 루트 디렉터리 불필요한 권한 삭제 또는 적절한 권한 부여
+          # chown –R [Tomcat 계정]:[Tomcat 그룹] web.xml
+          # chmod -R 750 web.xml
+      - os: "Nginx"
+        content: |
+          Step 1) 루트 디렉터리 불필요한 권한 삭제 또는 적절한 권한 부여
+          # chown –R <Nginx 계정>:<Nginx 그룹> web.xml
+          # chmod -R 750 web.xml
+      - os: "IIS"
+        content: |
+          Step 1) 실제 경로 디렉터리 내 불필요한 권한 삭제 또는 적절한 권한 부여
+          web.config > 속성 > 보안 > 편집 > "그룹 또는 사용자 이름"의 불필요 권한 제거
+      - os: "JEUS"
+        content: |
+          Step 1) 루트 디렉터리 불필요한 권한 삭제 또는 적절한 권한 부여
+          # chown –R <Jeus 계정>:<Jeus 그룹> accounts.xml
+          # chmod -R 750 accounts.xml
+      - os: "WebtoB"
+        content: |
+          Step 1) 루트 디렉터리 불필요한 권한 삭제 또는 적절한 권한 부여
+          # chown –R <WebtoB 계정>:<WebtoB 그룹> http.m
+          # chmod -R 750 http.m
+
+  - id: "WEB-15"
+    title: "웹 서비스의 불필요한 스크립트 매핑 제거"
+    domain: "2. 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "웹 서비스 내 불필요 스크립트 매핑 제거 여부 점검"
+      check_purpose: "웹 서비스에서 사용하지 않는 불필요 스크립트 매핑이 존재하는지 점검하여 잠재적 보안 위협을 방지하기 위함"
+      threat: "웹 서비스에서 불필요한 스크립트 매핑을 제거하지 않은 경우, 버퍼 오버플로우(Buffer Overflow), 서비스 거부 공격(Denial of Service), 크로스 사이트 스크립팅(Cross Site Scripting) 등의 공격 위험이 존재함"
+      reference:
+        - ".asp나 .shtm과 같은 확장자들은 특정 DLL 파일과 매핑되어 있어, 이러한 파일들에 대한 요청이 들어오면 해당 DLL에 의해 처리됨"
+        - "스크립트 매핑: 웹 서버에서 특정 파일 확장자나 URL 경로를 특정 스크립트 처리프로그램에 연결하는 설정"
+    target: "Tomcat, IIS, JEUS"
+    criteria:
+      good: "불필요한 스크립트 매핑이 존재하지 않는 경우"
+      vulnerable: "불필요한 스크립트 매핑이 존재하는 경우"
+    action: "불필요한 스크립트 매핑 존재 여부 점검 및 제거 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Tomcat"
+        content: |
+          Step 1) 설정 파일의 불필요 스크립트 매핑 제거
+          <servlet-mapping>
+             <servlet-name>UnuseServlet</servlet-name>
+             <url-pattern>/example/*</url-pattern>
+          </servlet-mapping>
+          ※ context.xml 파일 내 명시된 설정 파일에서도 DB 연결 확인 필요
+      - os: "IIS"
+        content: |
+          Step 1) 취약한 매핑 설정 확인(.htr, .idc, .stm, .shtm, .shtml, .printer, .htw, .ida, .idq)
+          시작 > 실행 > INETMGR > 웹사이트 > 해당 웹사이트 > '처리기 매핑' 선택 후 미사용 확장자 매핑 설정 제거
+      - os: "JEUS"
+        content: |
+          Step 1) web.xml 파일 내 <servlet-mapping> 요소에서 불필요 매핑 확인
+          <servlet-mapping>
+             <url-pattern>/welcome</url-pattern>
+             <servlet-name>jsp</servlet-name>
+          </servlet-mapping>
