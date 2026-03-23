@@ -806,3 +806,181 @@ items:
              <url-pattern>/welcome</url-pattern>
              <servlet-name>jsp</servlet-name>
           </servlet-mapping>
+
+  - id: "WEB-16"
+    title: "웹 서비스 헤더 정보 노출 제한"
+    domain: "2. 서비스 관리"
+    severity: "중"
+    description:
+      check_content: "웹페이지 응답 헤더에서 버전 정보, 사용 중인 OS 등의 서버 정보 노출 여부 점검"
+      check_purpose: "HTTP 응답 헤더에서 웹 서버 버전 및 종류, OS 정보 등 웹 서버와 관련된 정보가 불필요하게 노출되는 것을 최소화하기 위함"
+      threat: "웹 서버 및 OS 정보가 노출될 경우 공격자에 의해 해당 버전의 알려진 취약점을 이용하여 시스템 구조와 특성 노출 및 해당 취약점을 통한 공격의 위험이 존재함"
+      reference: []
+    target: "Apache, Tomcat, Nginx, IIS, JEUS, WebtoB"
+    criteria:
+      good: "HTTP 응답 헤더에서 웹 서버 정보가 노출되지 않는 경우"
+      vulnerable: "HTTP 응답 헤더에서 웹 서버 정보가 노출되는 경우"
+    action: "응답 헤더에 표시되는 정보를 최소한으로 제한하여 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Apache"
+        content: |
+          Step 1) httpd.conf (또는 apache2.conf) 파일 내 모든 디렉터리에 ServerTokens, ServerSignature 옵션 설정
+          <Directory/>
+             ServerTokens Prod
+             ServerSignature Off
+          </Directory>
+      - os: "Tomcat"
+        content: |
+          Step 1) server.xml 파일 내 server 값을 임의 정보로 변경
+          <Connector port="8080" protocol="HTTP/1.1"
+          connectionTimeout="20000"
+          redirectPort="8443"
+          server="{임의 정보로 변경}"
+          />
+          Step 2) server.xml 파일 내 아래 내용 추가
+          <Host>
+          <Valve className="org.apache.catalina.valves.ErrorReportValve" showReport="true" showServerInfo="false"/>
+          </Host>
+      - os: "Nginx"
+        content: |
+          Step 1) nginx.conf 파일 내 server_tokens 값을 "off"로 설정
+          server_tokens off;
+      - os: "IIS"
+        content: |
+          Step 1) 오류 페이지 설정 편집
+          제어판 > 관리 도구 > IIS(인터넷 정보 서비스) 관리자 > 해당 웹 사이트 > [오류 페이지] > [작업] 탭에서 [기능 설정 편집] > "서버 오류 발생 시 다음 반환" 항목을 "사용자 지정 오류 페이지"로 설정
+      - os: "JEUS"
+        content: |
+          [jeus 7 이전 버전]
+          Step 1) JEUSMain.xml 파일 내 아래 내용 추가
+          <command-option>-Djeus.servlet.response.header.serverInfo=false</command-option>
+          [jeus 7]
+          Step 2) domain.xml 파일 내 아래 내용 추가
+          <response-header>
+           <custom-header>
+            <header-field>
+             <field-name>P3P</field-name>
+             <field-value>CP='CAO PSA CONi OTR OUR DEM ONL'</field-value>
+            </header-field>
+           </custom-header>
+          </response-header>
+      - os: "WebtoB"
+        content: |
+          Step 1) Server 설정 파일 내부 지시자 확인(기본값: off)
+          # cat /[WebtoB 설치 디렉터리]/config/http.m | grep –i "ServerTokens"
+          Step 2) 설정 파일 내부 지시자 옵션 설정
+          # vi /[WebtoB 설치 디렉터리]/config/http.m
+          ServerTokens ProductOnly(Prod)
+          ServerSignature off
+
+  - id: "WEB-17"
+    title: "웹 서비스 가상 디렉토리 삭제"
+    domain: "2. 서비스 관리"
+    severity: "중"
+    description:
+      check_content: "불필요한 가상 디렉터리 삭제 여부 점검"
+      check_purpose: "불필요한 가상 디렉터리를 삭제하여 공격이 가능한 영역을 최소화하고 정보 노출 방지 및 권한 상승 공격 등의 위험을 제거하기 위함"
+      threat: "불필요한 가상 디렉터리를 삭제하지 않은 경우, 취약한 가상 디렉터리를 통해 시스템 권한 탈취 및 시스템 구조 등의 중요 정보가 노출될 위험이 존재함"
+      reference:
+        - "가상 디렉터리: 물리적으로 홈 디렉터리와 다른 위치에 있거나 홈 디렉터리에 종속된 디렉터리가 아니어도 웹 브라우저를 통해 사용자가 접속할 때 웹사이트의 하위 디렉터리로 인식되도록 하는 기법"
+    target: "Apache, Tomcat, Nginx, WebtoB"
+    criteria:
+      good: "불필요한 가상 디렉터리가 존재하지 않는 경우"
+      vulnerable: "불필요한 가상 디렉터리가 존재하는 경우"
+    action: "불필요한 가상 디렉터리 존재 여부 점검 및 삭제하도록 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Apache"
+        content: |
+          Step 1) Alias 지시자 확인
+          # vi /[Apache 설치 디렉터리]/conf/httpd.conf(또는 apache2.conf)
+          Alias /virtual /var/www/virtual
+          <Directory /var/www/virtual>
+             Options Indexes FollowSymLinks
+             AllowOverride None
+             Require all granted
+          </Directory>
+          Step 2) 불필요한 가상 디렉터리 삭제
+      - os: "Tomcat"
+        content: |
+          Step 1) 'Context' 블록 요소의 'path' 속성값 확인
+          # vi /[Tomcat 설치 디렉터리]/server.xml
+          <Host name="localhost" appBase="webapps" unpackWARs="true" autoDeploy="true">
+             <Context path="/virtual" docBase="/path/to/your/virtual/directory" reloadable="true"/>
+          </Host>
+          Step 2) Context 블록 요소 가상 디렉터리 제거
+      - os: "Nginx"
+        content: |
+          Step 1) Alias 지시자 확인
+          # vi /[Nginx 설치 디렉터리]/nginx.conf
+          location /virtual {
+          alias /var/www/virtual;
+          index index.html index.htm;
+          }
+          Step 2) 설정된 모든 디렉터리의 불필요한 Alias 지시자 제거
+          Step 3) Nginx 재구동
+          # systemctl restart nginx
+      - os: "WebtoB"
+        content: |
+          Step 1) NODE절의 Alias 설정 확인
+          # vi /[WebtoB 설치 디렉터리]/config/http.m
+          *ALIAS
+          alias1          URI = "/cgi-bin/", RealPath = "/home/tmax/webtob/cgi-bin/"
+          Step 2) NODE절의 불필요한 Alias 설정 삭제
+
+  - id: "WEB-18"
+    title: "웹 서비스 WebDAV 비활성화"
+    domain: "2. 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "웹 서비스 WebDAV 비활성화 여부 점검"
+      check_purpose: "WebDAV 서비스를 비활성화하여, WebDAV에서 발견되는 다수의 인증 우회 취약점을 제거하고자 함"
+      threat: "WebDAV가 활성화되어 있는 경우 웹 서비스에 악의적으로 작성된 요청을 이용하여 인증을 우회함으로써 비밀번호로 보호된 WebDAV의 자원에 접근(디렉터리 열람, 파일 다운로드 등)이 가능하며, WebDAV에 의해 호출된 일부 구성요소에 매개 변수를 정확하게 점검하지 않는 결함이 존재하여, 이로 인해 버퍼 오버런이 발생할 위험이 존재함"
+      reference:
+        - "WebDAV(Web Distributed Authoring and Versioning): 사용자가 원격 World Wide Web 서버를 이용하여 파일을 수정하거나 처리할 수 있도록 하는 HTTP의 확장 서비스. 웹상의 공동개발을 지원하기 위한 IETF 표준안(RFC 2518)으로써, 원격지 사용자 간에 인터넷상에서 파일을 공동 편집하고 관리할 수 있도록 함"
+    target: "Apache, Nginx, IIS, WebtoB"
+    criteria:
+      good: "WebDAV 서비스를 비활성화하고 있는 경우"
+      vulnerable: "WebDAV 서비스를 활성화하고 있는 경우"
+    action: "WebDAV 서비스 비활성화 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Apache"
+        content: |
+          Step 1) httpd.conf 파일 내 모든 디렉터리에서 WebDAV 설정 확인
+          # cat /[Apache 설치 디렉터리]/conf/httpd.conf(또는 apache2.conf)
+          Dav On
+          Step 2) 모든 디렉터리에서 WebDAV 설정 비활성화 또는 주석 처리
+          # vi /[Apache 설치 디렉터리]/conf/httpd.conf(또는 apache2.conf)
+          <Directory "/path/to/directory">
+             Dav Off
+          </Directory>
+          Step 3) Apache 재구동
+          # systemctl restart apache2
+      - os: "Nginx"
+        content: |
+          Step 1) nginx.conf 파일 내 모든 디렉터리에서 WebDAV 설정 확인
+          # cat /[Nginx 설치 디렉터리]/conf/nginx.conf
+          location /webdav {
+             root /path/to/webdav;
+             dav_methods PUT DELETE MKCOL COPY MOVE;
+             dav_access user:rw group:rw all:r;
+             create_full_put_path on;
+          }
+          Step 2) nginx.conf 파일 내 모든 디렉터리에서 WebDAV 설정 주석 처리 또는 제거
+          Step 3) Nginx 재구동
+          # systemctl restart nginx
+      - os: "IIS"
+        content: |
+          Step 1) WebDAV 금지 설정 확인
+          제어판 > 관리 도구 > 인터넷 정보 서비스(IIS) 관리자 > 서버 선택 > IIS > 'ISAPI 및 CGI 제한' 선택, WebDAV 항목 선택 > '확장 경로 실행 허용(A)' 체크 확인
+          Step 2) WebDAV 항목 선택 > [작업]에서 제거하거나, 편집 > '확장 경로 실행 허용(A)' 체크 해제
+      - os: "WebtoB"
+        content: |
+          Step 1) Server 설정 파일 내 NODE절 vhost 메소드 설정 확인
+          # vi /[WebtoB 설치 디렉터리]/config/http.m
+          *VHOST
+          vhost1   .
+          Method = "GET, POST, HEAD, OPTIONS, PROPFIND, PUT, DELETE, MKCOL, COPY, MOVE"
+          Step 2) NODE절 WebDAV 설정 삭제
