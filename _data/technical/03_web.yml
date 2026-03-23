@@ -517,3 +517,162 @@ items:
           # ldconfig
           Step 6) 설정 파일 컴파일
           # wscfl –i http.m
+
+  - id: "WEB-10"
+    title: "불필요한 프록시 설정 제한"
+    domain: "2. 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "웹 서비스 불필요한 Proxy 설정제한 여부 점검"
+      check_purpose: "불필요한 Proxy 설정을 제한하여 자원 낭비 예방 및 관리의 복잡성을 감소시키며, 중간자 공격 등의 해킹 공격으로부터 시스템 관련 정보가 노출되거나 악용되는 것을 방지하기 위함"
+      threat: "불필요한 Proxy 설정을 제한하지 않는 경우 공격자가 Proxy 서버를 이용하여 원래 의도되지 않은 방식으로 시스템에 접근하거나 시스템 관련 정보가 유출될 위험이 존재함"
+      reference: []
+    target: "Apache, Tomcat, Nginx, IIS, JEUS, WebtoB"
+    criteria:
+      good: "불필요한 Proxy 설정을 제한한 경우"
+      vulnerable: "불필요한 Proxy 설정을 제한하지 않은 경우"
+    action: "불필요한 Proxy 설정 존재 여부 점검 및 제한 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Apache"
+        content: |
+          Step 1) apache2.conf (또는 /conf/httpd.conf) 파일 내 불필요한 Proxy 제거
+          <VirtualHost *:80>
+             ServerName www.example.com
+             ProxyPreserveHost On
+             ProxyRequests Off
+             ProxyPass / http://backend-server.example.com/
+             ProxyPassReverse / http://backend-server.example.com/
+          </VirtualHost>
+      - os: "Tomcat"
+        content: |
+          Step 1) server.xml 파일 내 Connector 요소에서 불필요한 Proxy 설정 제거
+          <Connector port="8080" protocol="HTTP/1.1"
+             redirectPort="8443"
+             proxyName="proxy.example.com"
+             proxyPort="80" />
+      - os: "Nginx"
+        content: |
+          Step 1) nginx.conf 파일 내 웹 사이트에서 불필요한 Proxy 설정 제거
+          # cat /[Nginx 설치 디렉터리]/nginx.conf
+             location / {
+                proxy_pass http://backendserver:8080;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+             }
+      - os: "IIS"
+        content: |
+          Step 1) 제어판 > 관리 도구 > 인터넷 정보 서비스(IIS) 관리자 > 해당 웹 사이트 > 루트 디렉터리에서 불필요한 Proxy 설정 제거
+      - os: "JEUS"
+        content: |
+          Step 1) web.xml 파일 내 불필요한 Proxy 제거
+          # vi /[WebtoB 설치 디렉터리]/ReverseProxy/WEB-INF/web.xml
+      - os: "WebtoB"
+        content: |
+          Step 1) http.m 파일 내 불필요 Proxy 설정 제거
+          # vi /[WebtoB 디렉터리]/conf/http.m
+          REVERSE_PROXY(0): Name = rproxy1,
+             PathPrefix = "/proxypath/",
+             ServerAddress = "127.0.0.1:8088",
+
+  - id: "WEB-11"
+    title: "웹 서비스 경로 설정"
+    domain: "2. 서비스 관리"
+    severity: "중"
+    description:
+      check_content: "웹 서버에 설정한 DocumentRoot 경로가 기본 경로와 분리되었는지 여부 점검"
+      check_purpose: "웹 서비스 영역 내 불필요한 경로를 분리해 웹 서비스의 침해가 시스템 영역으로 확장될 가능성을 최소화하기 위함"
+      threat: "웹 서비스 경로를 기타 업무와 영역이 분리되지 않은 경로로 설정하거나, 불필요한 경로가 존재할 경우 외부에서 시스템 중요 파일이나 기능에 비인가 접근이 발생할 위험이 존재함"
+      reference: []
+    target: "Apache, Tomcat, Nginx, IIS, JEUS, WebtoB"
+    criteria:
+      good: "웹 서버 경로를 기타 업무와 영역이 분리된 경로로 설정 및 불필요한 경로가 존재하지 않는 경우"
+      vulnerable: "웹 서버 경로를 기타 업무와 영역이 분리되지 않은 경로로 설정하거나 불필요한 경로가 있는 경우"
+    action: "웹 서버의 경로를 별도의 경로로 변경 및 불필요한 경로 제거 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Apache"
+        content: |
+          Step 1) apache2.conf (또는 /conf/httpd.conf) 파일 내 DocumentRoot를 별도의 경로로 변경
+          DocumentRoot [별도의 경로]
+      - os: "Tomcat"
+        content: |
+          Step 1) web.xml 파일 내 docBase를 별도의 경로로 변경
+          <Host name="localhost" appBase="webapps" unpackWARs="true" autoDeploy="true">
+             <Context path="" docBase="[별도의 경로]" />
+          </Host>
+      - os: "Nginx"
+        content: |
+          Step 1) sites-available 파일 내 DocumentRoot를 별도의 경로로 변경
+          # vi /[Nginx 설치 디렉터리]/sites-available
+          root [별도의 경로]
+      - os: "IIS"
+        content: |
+          Step 1) 기본 디렉터리 확인
+          시작 > Windows 관리 도구 > 인터넷 정보 서비스(IIS) 관리자 > 해당 웹 사이트 > 사이트 편집 > 기본 설정 > "실제 경로"를 별도의 경로로 변경
+      - os: "JEUS"
+        content: |
+          Step 1) ws_engine.m 파일 내 Docroot을 별도의 경로로 변경
+          Docroot = "[별도의 경로]"
+      - os: "WebtoB"
+        content: |
+          Step 1) http.m 파일 내 DOCROOT를 별도의 경로로 변경
+          DOCROOT="[별도의 경로]",
+
+  - id: "WEB-12"
+    title: "웹 서비스 링크 사용 금지"
+    domain: "2. 서비스 관리"
+    severity: "중"
+    description:
+      check_content: "웹 서비스 링크(심볼릭 링크, aliases 등) 사용 제한 여부 점검"
+      check_purpose: "무분별한 심볼릭 링크, 별칭(aliases) 등을 제거하여 허용하지 않은 경로에서의 접근을 차단해 경로 검증을 우회한 시스템 파일 접근을 방지하기 위함"
+      threat: "보안상 민감한 내용이 포함되어 있는 파일이 악의적인 사용자에게 노출될 경우 침해사고로 이어질 위험이 존재함. 접근을 허용한 웹 디렉터리 내에 서버의 다른 디렉터리나 파일들에 접근할 수 있는 심볼릭 링크, aliases, 바로가기 등이 존재하는 경우 해당 링크를 통해 허용하지 않은 다른 디렉터리에 액세스할 수 있는 위험이 존재함"
+      reference:
+        - "심볼릭 링크(Symbolic link, 소프트 링크): 사용자가 심볼릭 링크 파일을 요청하면, 시스템이 해당 링크에 저장된 대상 경로를 따라가서 실제 원본 데이터를 가져와 전달"
+    target: "Apache, Tomcat, Nginx, IIS, JEUS, WebtoB"
+    criteria:
+      good: "심볼릭 링크, aliases, 바로가기 등의 링크 사용을 허용하지 않는 경우"
+      vulnerable: "심볼릭 링크, aliases, 바로가기 등의 링크 사용을 허용하는 경우"
+    action: "웹 서비스 링크 사용 제한 설정"
+    impact: "심볼릭 링크를 이용하여 웹페이지가 구성된 경우 해당 서비스가 실행되지 않을 수 있음"
+    examples:
+      - os: "Apache"
+        content: |
+          Step 1) apache.conf(또는 /conf/httpd.conf) 파일 내 Options 지시자 FollowSymLinks 옵션 제거
+          <Directory />
+             Options –FollowSymLinks
+             #Options Indexes FollowSymLinks
+          </Directory>
+      - os: "Tomcat"
+        content: |
+          Step 1) server.xml 파일 내 Context 요소 allowLinking 옵션 설정
+          <Context allowLinking="true"> 를 <Context> 로 변경하여 allowLinking 제거
+      - os: "Nginx"
+        content: |
+          Step 1) nginx.conf 파일 내 설정된 모든 디렉터리의 disable_symlinks on 설정(기본값: 설정값 없음)
+          location / {
+             root   html;
+             index  index.html index.htm;
+             disable_symlinks on;
+          }
+      - os: "IIS"
+        content: |
+          Step 1) 홈 디렉터리 바로가기 파일 확인
+          제어판 > 관리 도구 > 인터넷 정보 서비스(IIS) 관리자 > 해당 웹사이트 > 기본 설정 > '실제 경로'로 설정된 경로로 이동 > 바로가기 파일 확인 후 제거
+      - os: "JEUS"
+        content: |
+          Step 1) jeus-web-dd.xml 파일 내 alias 요소 설정 제거
+          <aliasing>
+             <alias>
+                <alias-name>/images/</alias-name>
+                <real-path>/home/web/images/</real-path>
+             </alias>
+          </aliasing>
+      - os: "WebtoB"
+        content: |
+          Step 1) http.m 파일 내 ALIAS 절 요소 설정 제거
+          # cat /[WebtoB 설치 디렉터리]/config/http.m | grep -C 2 ALIAS
+          *ALIAS
+          alias1
+          URI = "/cgi-bin/", RealPath = "/home/tmax/webtob/cgi-bin/"
