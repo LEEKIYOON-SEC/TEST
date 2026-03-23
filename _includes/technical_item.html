@@ -1,0 +1,78 @@
+<div class="technical-item" id="{{ include.item.id | downcase }}">
+  <h2>
+    {{ include.item.id }}
+    {% if include.item.severity == "상" %}
+    <span class="label label-red">{{ include.item.severity }}</span>
+    {% elsif include.item.severity == "중" %}
+    <span class="label label-yellow">{{ include.item.severity }}</span>
+    {% else %}
+    <span class="label label-green">{{ include.item.severity }}</span>
+    {% endif %}
+    {{ include.item.title }}
+  </h2>
+
+  <dl>
+    <dt>분류</dt>
+    <dd>{{ include.item.domain }}</dd>
+    {% if include.item.target %}
+    <dt>점검 대상</dt>
+    <dd>{{ include.item.target }}</dd>
+    {% endif %}
+  </dl>
+
+  <h3>개요</h3>
+  <table>
+    <tbody>
+      <tr><td><strong>점검 내용</strong></td><td>{{ include.item.description.check_content }}</td></tr>
+      <tr><td><strong>점검 목적</strong></td><td>{{ include.item.description.check_purpose }}</td></tr>
+      <tr><td><strong>보안 위협</strong></td><td>{{ include.item.description.threat }}</td></tr>
+    </tbody>
+  </table>
+
+  {% if include.item.description.reference and include.item.description.reference.size > 0 %}
+  <details>
+    <summary><strong>참고</strong></summary>
+    <ul>
+      {% for ref in include.item.description.reference %}
+      <li>{{ ref }}</li>
+      {% endfor %}
+    </ul>
+  </details>
+  {% endif %}
+
+  {% if include.item.criteria %}
+  <h3>판단 기준</h3>
+  <table>
+    <tbody>
+      <tr><td><strong>양호</strong></td><td>{{ include.item.criteria.good }}</td></tr>
+      <tr><td><strong>취약</strong></td><td>{{ include.item.criteria.vulnerable }}</td></tr>
+    </tbody>
+  </table>
+  {% endif %}
+
+  {% if include.item.action %}
+  <h3>조치 방법</h3>
+  <p>{{ include.item.action }}</p>
+  {% endif %}
+
+  {% if include.item.impact %}
+  <h3>조치 시 영향</h3>
+  <p>{{ include.item.impact }}</p>
+  {% endif %}
+
+  {% if include.item.examples and include.item.examples.size > 0 %}
+  <h3>점검 및 조치 사례</h3>
+  {% for example in include.item.examples %}
+  <details>
+    <summary><strong>{{ example.os }}</strong></summary>
+    <div class="language-plaintext highlighter-rouge">
+      <div class="highlight">
+        <pre class="highlight"><code>{{ example.content | xml_escape }}</code></pre>
+      </div>
+    </div>
+  </details>
+  {% endfor %}
+  {% endif %}
+
+  <hr>
+</div>
