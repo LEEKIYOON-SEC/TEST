@@ -33,18 +33,21 @@
 .technical-item {
   border: 1px solid #e8e8e8;
   border-radius: 6px;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
   background: #fff;
 
   > summary {
     cursor: pointer;
-    padding: 0.6rem 1rem;
-    font-size: 1rem;
+    padding: 0.5rem 0.8rem;
+    font-size: 0.95rem;
+    line-height: 1.4;
     list-style: none;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
+    gap: 0.4rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 
     &::-webkit-details-marker {
       display: none;
@@ -52,14 +55,18 @@
 
     &::before {
       content: "▶";
-      font-size: 0.7rem;
-      color: #888;
-      transition: transform 0.2s;
+      font-size: 0.6rem;
+      color: #999;
+      transition: transform 0.15s;
       flex-shrink: 0;
     }
 
     &:hover {
-      background-color: #f8f9fa;
+      background-color: #f5f7fa;
+    }
+
+    strong {
+      flex-shrink: 0;
     }
   }
 
@@ -69,7 +76,7 @@
 
   .item-body {
     padding: 0.5rem 1rem 1rem;
-    border-top: 1px solid #e8e8e8;
+    border-top: 1px solid #eee;
   }
 
   h3 {
@@ -133,29 +140,40 @@
     summary {
       cursor: pointer;
       padding: 0.3rem 0;
+      white-space: normal;
+      overflow: visible;
     }
   }
 }
 
-// 크로스레퍼런스 스타일
-.crossref-mapping {
-  margin-bottom: 0.3rem;
-  padding: 0.3rem 0.5rem;
-  background: #f8f9fa;
-  border-radius: 4px;
-  font-size: 0.9rem;
+// 크로스레퍼런스 — 항목 내 삽입 스타일
+.crossref-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
 }
 
-.crossref-evidence {
-  font-size: 0.85rem;
-  color: #666;
-  margin-top: 0.2rem;
+.crossref-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.6rem;
+  background: #e8f4fd;
+  border: 1px solid #b8daff;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  white-space: nowrap;
+
+  &.crossref-review {
+    background: #fff8e1;
+    border-color: #ffe082;
+  }
 }
 
 .mapping-type {
   display: inline-block;
-  padding: 0.1em 0.4em;
-  font-size: 0.75rem;
+  padding: 0.05em 0.35em;
+  font-size: 0.7rem;
   border-radius: 3px;
   font-weight: 600;
 }
@@ -168,9 +186,4 @@
 .mapping-type-related {
   background: #fff3cd;
   color: #856404;
-}
-
-.mapping-type-indirect {
-  background: #f8d7da;
-  color: #721c24;
 }
