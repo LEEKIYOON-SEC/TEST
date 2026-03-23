@@ -96,3 +96,210 @@ items:
           Step 2) JEUS 재시작
           # ./stopServer –host <도메인명>:<포트 번호>
           # ./startDomainAdminServer –host <도메인명>:<포트 번호>
+
+  - id: "WEB-04"
+    title: "웹 서비스 디렉터리 리스팅 방지 설정"
+    domain: "2. 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "디렉터리 리스팅 기능 차단 여부 점검"
+      check_purpose: "웹 서버에 대한 디렉터리 리스팅 기능을 차단하여 디렉터리 내의 모든 파일에 대한 접근 및 정보 노출을 차단하기 위함"
+      threat: "디렉터리 리스팅 기능이 차단되지 않은 경우, 비인가자가 해당 디렉터리 내의 모든 파일의 리스트 확인 및 접근이 가능하고, 웹 서버의 구조 및 백업 파일이나 소스 파일 등 공개되면 안 되는 중요 파일들이 노출될 위험이 존재함"
+      reference:
+        - "디렉터리 리스팅(Directory Listing): 웹 서버의 취약한 설정으로 인해 웹 서버의 파일 시스템 목록을 보여주는 것"
+    target: "Apache, Tomcat, Nginx, IIS, JEUS, WebtoB"
+    criteria:
+      good: "디렉터리 리스팅이 설정되지 않은 경우"
+      vulnerable: "디렉터리 리스팅이 설정된 경우"
+    action: "디렉터리 리스팅 기능 차단 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Apache"
+        content: |
+          Step 1) httpd.conf 파일 내 모든 디렉터리의 Options 지시자에서 Indexes 옵션 제거
+          # vi /<Apache 설치 디렉터리>/httpd.conf(또는 apache.conf)
+          <Directory />
+             Options Indexes  삭제 (또는 –Indexes 설정)
+          </Directory>
+          Step 2) Apache 재시작
+          # systemctl restart apache2
+          ※ httpd.conf 뿐 아니라 sites-available 디렉터리 내 모든 사이트에 적용
+          ※ 파일 위치 및 서비스명은 사용하는 운영체제에 따라 달라질 수 있음
+      - os: "Tomcat"
+        content: |
+          Step 1) web.xml 파일 내 listings 옵션 비활성화
+          # vi /<Tomcat 설치 디렉터리>/web.xml
+             <init-param>
+                <param-name>listings</param-name>
+                <param-value>false</param-value>
+             </init-param>
+      - os: "Nginx"
+        content: |
+          Step 1) nginx.conf 파일 내 autoindex 지시자 off 설정
+          # vi /<Nginx 설치 디렉터리>/conf/nginx.conf
+          server {
+          autoindex off;
+          }
+          Step 2) Nginx 재시작
+          # systemctl restart nginx
+      - os: "IIS"
+        content: |
+          Step 1) 시작 > Windows 관리 도구 > 인터넷 정보 서비스(IIS) 관리자 > 해당 웹 사이트 > IIS > 디렉터리 검색 선택, "사용"을 "사용 안 함"으로 설정
+      - os: "JEUS"
+        content: |
+          Step 1) jeus-web-dd.xml 파일 내 디렉터리 리스팅 설정 변경
+          # vi /<JEUS 설치 디렉터리>/WEB-INF/jeus-web-dd.xml
+                   <allow-indexing>false</allow-indexing>
+      - os: "WebtoB"
+        content: |
+          Step 1) *Node, *URL 절에 Options 지시자 설정 삭제 또는 "-Indexes"로 설정
+          # nano /<WebtoB 설치 디렉터리>/config/http.m
+          *NODE
+          imuser   WEBTOBDIR="/root/webtob",
+          Options = "-Indexes",
+          Step 2) 설정 파일 컴파일 및 재시작
+          # wscfl -I http.m
+          # wsdown
+          # wsboot
+
+  - id: "WEB-05"
+    title: "지정하지 않은 CGI/ISAPI 실행 제한"
+    domain: "2. 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "웹 서비스 CGI 실행 제한 설정 여부 점검"
+      check_purpose: "CGI 스크립트를 정해진 디렉터리에서만 실행되도록 하여 악의적인 파일의 업로드 및 실행을 방지하기 위함"
+      threat: "게시판이나 자료실과 같이 업로드되는 파일이 저장되는 디렉터리에 CGI 스크립트가 실행 가능한 경우 악의적인 파일을 업로드하고 이를 실행하여 시스템의 중요 정보가 노출될 수 있으며 침해사고의 경로로 이용될 위험이 존재함"
+      reference:
+        - "CGI(Common Gateway Interface): 사용자가 서버로 보낸 데이터를 서버에서 작동 중인 데이터 처리프로그램에 전달하고, 여기에서 처리된 데이터를 다시 서버로 되돌려 보내는 등의 일을 하는 표준 인터페이스 규격"
+    target: "Apache, Tomcat, Nginx, IIS, WebtoB"
+    criteria:
+      good: "CGI 스크립트를 사용하지 않거나 CGI 스크립트가 실행 가능한 디렉터리를 제한한 경우"
+      vulnerable: "CGI 스크립트를 사용하고 CGI 스크립트가 실행 가능한 디렉터리를 제한하지 않은 경우"
+    action: "CGI 스크립트를 정해진 디렉터리 내에서만 실행할 수 있도록 설정"
+    impact: "해당 디렉터리 확인 후 추가적인 파일이 없다면 영향 없음"
+    examples:
+      - os: "Apache"
+        content: |
+          Step 1) apache 설정 파일 내 CGI 모듈 비활성화 또는 주석 처리
+          # vi /<Apache 설치 디렉터리>/httpd.conf(또는 apache.conf)
+          #LoadModule cgi_module modules/mod_cgi.so
+          #LoadModule cgid_module modules/mod_cgid.so
+          Step 2) apache 설정 파일 내 설정된 모든 디렉터리의 Options 지시자에서 ExecCGI 옵션 제거
+          # vi /<Apache 설치 디렉터리>/apache.conf(또는 httpd.conf)
+          <Directory "/var/www/cgi-bin">
+              Options -ExecCGI
+          </Directory>
+          Step 3) Apache 재시작
+      - os: "Tomcat"
+        content: |
+          Step 1) web.xml 파일 내 CGI 매핑 비활성화
+          <!-- <servlet-mapping>
+             <servlet-name>cgi</servlet-name>
+             <url-pattern>/cgi-bin/*</url-pattern>
+           </servlet-mapping> -->
+          Step 2) Tomcat 재시작
+      - os: "Nginx"
+        content: |
+          Step 1) nginx.conf 파일 내 Fastcgi 사용 여부 확인
+          # cat /<Nginx 설치 디렉터리>/conf/nginx.conf
+          location ~ \.cgi$ {
+          #fastcgi_pass <FastCGI 서버 주소>:<FastCGI 서버 통신 포트>;
+          #include fastcgi_params;
+          }
+          Step 2) Nginx 재시작
+      - os: "IIS"
+        content: |
+          Step 1) CGI 디렉터리 설정 해제
+          IIS 관리자 > 서버 선택 > ISAPI 및 CGI 제한 > 기능 열기 > 작업 > 기능 설정 편집 > 사용하지 않는 CGI/ISAPI 모듈 설정 해제
+      - os: "WebtoB"
+        content: |
+          Step 1) http.m 파일 내 활성화되어 있는 *SVRGROUP, *SERVER, *URI 절에서 CGI 옵션 제거 또는 비활성화
+          # vi /<WebtoB 설치 디렉터리>/config/http.m
+          *SVRGROUP
+          htmlg
+          SVRTYPE = HTML
+          #cgig
+          SVRTYPE = CGI
+          Step 2) 설정 파일 컴파일 및 재구동
+          # wscfl -I http.m
+          # wsdown
+          # wsboot
+          ※ 필요한 경우 해당 디렉터리만 제한적으로 CGI 스크립트 실행 설정
+
+  - id: "WEB-06"
+    title: "웹 서비스 상위 디렉터리 접근 제한 설정"
+    domain: "2. 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "\"..\" 와 같은 문자사용 등을 통한 상위 디렉터리 접근 제한 여부 점검"
+      check_purpose: "상위 디렉터리 접근 제한 설정을 통해 비인가자의 특정 디렉터리에 대한 접근 및 열람을 제한하여 중요 파일 및 데이터를 보호하고, Unicode 버그 및 서비스 거부 공격 등을 방지하기 위함"
+      threat: "상위 디렉터리로 이동하는 것이 가능할 경우 접근하고자 하는 디렉터리의 하위 경로에서 상위로 이동하며 정보 탐색이 가능하여 중요 정보가 노출될 위험이 존재함. 악의적인 목적을 가진 사용자가 중요 파일 및 디렉터리의 접근이 가능하여 데이터가 유출될 위험이 존재함"
+      reference:
+        - "\"..\" 는 Unicode 버그, 서비스 거부와 같은 공격에 쉽게 이용되므로 허용하지 않는 것을 권장함"
+    target: "Apache, Tomcat, Nginx, IIS, WebtoB"
+    criteria:
+      good: "상위 디렉터리 접근 기능을 제거한 경우"
+      vulnerable: "상위 디렉터리 접근 기능을 제거하지 않은 경우"
+    action: "상위 디렉터리 접근 기능 제거 설정"
+    impact: "웹 서버 및 웹 서비스의 특성에 따라 영향을 줄 수 있음"
+    examples:
+      - os: "Apache"
+        content: |
+          Step 1) AllowOverride 지시자 Authconfig 옵션 설정 확인
+          # vi /<Apache 설치 디렉터리>/httpd.conf(또는 apache.conf)
+          <Directory "/usr/local/apache2/htdocs">
+             AllowOverride None
+          </Directory>
+          Step 2) AllowOverride 지시자 AuthConfig 옵션 설정
+          # vi /<Apache 설치 디렉터리>/httpd.conf(또는 apache.conf)
+          <Directory "/usr/local/apache2/htdocs">
+             AllowOverride AuthConfig
+          </Directory>
+          Step 3) 사용자 인증을 설정할 디렉터리에 .htaccess 파일 생성
+          AuthName "디렉터리 사용자 인증"
+          AuthType Basic
+          AuthUserFile /usr/local/apache/test/.auth
+          Require valid-user
+          Step 4) 사용자 인증에 사용할 아이디 및 비밀번호 생성
+          # htpasswd /<Apache 설치 디렉터리>/.htpasswd [사용자명]
+          Step 5) Apache 재구동
+          # systemctl restart apache2
+      - os: "Tomcat"
+        content: |
+          Step 1) server.xml 파일 내 Context 요소에서 allowLinking 옵션 확인
+          # vi /<Tomcat 설치 디렉터리>/conf/server.xml
+          <Context allowLinking="true">
+          Step 2) server.xml 파일 내 Context 요소에서 allowLinking 옵션 제거
+          # vi /<Tomcat 설치 디렉터리>/conf/server.xml
+          <Context>
+      - os: "Nginx"
+        content: |
+          Step 1) nginx.conf 파일 내 디렉터리 접근을 기본 인증으로 제한 설정
+          # cat /<Nginx 설치 디렉터리>/conf/nginx.conf
+          location /<접근제한 디렉터리>/ {
+          auth_basic "Restricted Content";
+          auth_basic_user_file /etc/nginx/.htpasswd;
+          }
+      - os: "IIS 6.0 이하"
+        content: |
+          Step 1) 부모 경로 사용 설정
+          시작 > Windows 관리 도구 > 인터넷 정보 서비스(IIS) 관리자 > 웹 사이트 > IIS > ASP > "부모 경로 사용" 항목 "False" 설정
+      - os: "IIS 7.0 이상"
+        content: |
+          Step 1) 제어판 > 관리 도구 > 인터넷 정보 서비스(IIS) 관리자 > 해당 웹사이트 > 사이트 편집에서 루트 디렉터리 > 루트 디렉터리의 web.config 파일에서 "enableParentPaths" 요소를 "False"로 설정
+          <configuration>
+             <system.web>
+                <httpRuntime enableParentPaths="false" />
+             </system.web>
+          </configuration>
+          ※ web.config 파일이 없으면 사이트 홈 디렉터리에 새로 생성
+      - os: "WebtoB"
+        content: |
+          Step 1) http.m 파일 내 활성화되어 있는 UpperDirRestrict 옵션 제거 또는 비활성화
+          # vi /<WebtoB 설치 디렉터리>/config/http.m
+          UpperDirRestrict = N
+          Step 2) 확인 후 설정 파일 컴파일 및 재구동
+          # wscfl -I http.m
+          # wsdown
+          # wsboot
