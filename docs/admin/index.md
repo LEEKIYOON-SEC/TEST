@@ -12,8 +12,19 @@ permalink: /admin/
 
 총 **118개** 항목이 14개 도메인으로 구성되어 있습니다.
 
-| 도메인 | 항목 범위 | 항목 수 |
-|:-------|:---------|:--------|
-{% for file in site.data.management %}
-| {{ file[1].domain }} | {% assign first = file[1].items | first %}{% assign last = file[1].items | last %}{{ first.id }} ~ {{ last.id }} | {{ file[1].items.size }}개 |
-{% endfor %}
+<table>
+  <thead>
+    <tr><th>도메인</th><th>항목 범위</th><th>항목 수</th></tr>
+  </thead>
+  <tbody>
+  {% for file in site.data.management %}
+    {% assign first = file[1].items | first %}
+    {% assign last = file[1].items | last %}
+    <tr>
+      <td>{{ file[1].domain }}</td>
+      <td>{{ first.id }} ~ {{ last.id }}</td>
+      <td>{{ file[1].items.size }}개</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>

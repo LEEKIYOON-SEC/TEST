@@ -5,8 +5,8 @@ parent: 관리적 분야
 nav_order: 5
 ---
 
-# {{ site.data.management['05_감사'].domain }}
+# {{ site.data.management['05_audit'].domain }}
 
-{% for item in site.data.management['05_감사'].items %}
+{% for item in site.data.management['05_audit'].items %}
 {% include admin_item.html item=item %}
 {% endfor %}

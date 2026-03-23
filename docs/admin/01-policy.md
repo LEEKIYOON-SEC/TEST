@@ -5,8 +5,8 @@ parent: 관리적 분야
 nav_order: 1
 ---
 
-# {{ site.data.management['01_정보보호정책'].domain }}
+# {{ site.data.management['01_policy'].domain }}
 
-{% for item in site.data.management['01_정보보호정책'].items %}
+{% for item in site.data.management['01_policy'].items %}
 {% include admin_item.html item=item %}
 {% endfor %}

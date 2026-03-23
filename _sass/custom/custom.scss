@@ -28,30 +28,55 @@
   line-height: 1.6;
 }
 
-// 관리·물리 항목 스타일
-.admin-item {
-  margin-bottom: 1.5rem;
+// 공통 항목 스타일 (접기/펼치기)
+.admin-item,
+.technical-item {
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  background: #fff;
 
-  h2 {
-    border-bottom: 2px solid #e8e8e8;
-    padding-bottom: 0.3rem;
+  > summary {
+    cursor: pointer;
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &::before {
+      content: "▶";
+      font-size: 0.7rem;
+      color: #888;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+
+    &:hover {
+      background-color: #f8f9fa;
+    }
+  }
+
+  &[open] > summary::before {
+    transform: rotate(90deg);
+  }
+
+  .item-body {
+    padding: 0.5rem 1rem 1rem;
+    border-top: 1px solid #e8e8e8;
   }
 
   h3 {
-    font-size: 1rem;
+    font-size: 0.95rem;
     margin-top: 1rem;
-    margin-bottom: 0.5rem;
-  }
-
-  dl {
-    dt {
-      font-weight: 600;
-      color: #5c5c5c;
-    }
-    dd {
-      margin-left: 0;
-      margin-bottom: 0.5rem;
-    }
+    margin-bottom: 0.4rem;
+    color: #2c3e50;
   }
 
   table {
@@ -65,21 +90,22 @@
   }
 }
 
+// 관리·물리 항목 스타일
+.admin-item {
+  dl {
+    dt {
+      font-weight: 600;
+      color: #5c5c5c;
+    }
+    dd {
+      margin-left: 0;
+      margin-bottom: 0.5rem;
+    }
+  }
+}
+
 // 기술 항목 스타일
 .technical-item {
-  margin-bottom: 2rem;
-
-  h2 {
-    border-bottom: 2px solid #e8e8e8;
-    padding-bottom: 0.3rem;
-  }
-
-  h3 {
-    font-size: 1rem;
-    margin-top: 1rem;
-    margin-bottom: 0.5rem;
-  }
-
   dl {
     dt {
       font-weight: 600;
@@ -98,12 +124,53 @@
     }
   }
 
-  details {
+  .ref-detail,
+  .example-detail {
     margin: 0.5rem 0;
+    border: none;
+    background: transparent;
 
     summary {
       cursor: pointer;
       padding: 0.3rem 0;
     }
   }
+}
+
+// 크로스레퍼런스 스타일
+.crossref-mapping {
+  margin-bottom: 0.3rem;
+  padding: 0.3rem 0.5rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.crossref-evidence {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0.2rem;
+}
+
+.mapping-type {
+  display: inline-block;
+  padding: 0.1em 0.4em;
+  font-size: 0.75rem;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.mapping-type-direct {
+  background: #d4edda;
+  color: #155724;
+}
+
+.mapping-type-related {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.mapping-type-indirect {
+  background: #f8d7da;
+  color: #721c24;
 }

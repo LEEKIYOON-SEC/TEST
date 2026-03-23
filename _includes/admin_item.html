@@ -1,70 +1,72 @@
-<div class="admin-item" id="{{ include.item.id | downcase }}">
-  <h2>{{ include.item.id }} — {{ include.item.title }}</h2>
+<details class="admin-item" id="{{ include.item.id | downcase }}">
+  <summary>
+    <strong>{{ include.item.id }}</strong> — {{ include.item.title | xml_escape }}
+  </summary>
 
-  <dl>
-    <dt>관련 조직</dt>
-    <dd>{{ include.item.related_org | join: ", " }}</dd>
-  </dl>
+  <div class="item-body">
+    <dl>
+      <dt>관련 조직</dt>
+      <dd>{{ include.item.related_org | join: ", " }}</dd>
+    </dl>
 
-  <h3>세부 설명</h3>
-  <ul>
-    {% for desc in include.item.description %}
-    <li>{{ desc | markdownify | remove: '<p>' | remove: '</p>' }}</li>
-    {% endfor %}
-  </ul>
+    <h3>세부 설명</h3>
+    <ul>
+      {% for desc in include.item.description %}
+      <li>{{ desc | xml_escape }}</li>
+      {% endfor %}
+    </ul>
 
-  {% if include.item.considerations and include.item.considerations.size > 0 %}
-  <h3>고려 사항</h3>
-  <ul>
-    {% for con in include.item.considerations %}
-    <li>{{ con | markdownify | remove: '<p>' | remove: '</p>' }}</li>
-    {% endfor %}
-  </ul>
-  {% endif %}
+    {% if include.item.considerations and include.item.considerations.size > 0 %}
+    <h3>고려 사항</h3>
+    <ul>
+      {% for con in include.item.considerations %}
+      <li>{{ con | xml_escape }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
 
-  {% if include.item.laws %}
-  <h3>관계 법규</h3>
-  <table>
-    <thead>
-      <tr><th>구분</th><th>법규</th></tr>
-    </thead>
-    <tbody>
-      {% if include.item.laws.common and include.item.laws.common.size > 0 %}
-      <tr>
-        <td><strong>공통</strong></td>
-        <td><ul>{% for law in include.item.laws.common %}<li>{{ law }}</li>{% endfor %}</ul></td>
-      </tr>
-      {% endif %}
-      {% if include.item.laws.public and include.item.laws.public.size > 0 %}
-      <tr>
-        <td><strong>공공기관</strong></td>
-        <td><ul>{% for law in include.item.laws.public %}<li>{{ law }}</li>{% endfor %}</ul></td>
-      </tr>
-      {% endif %}
-      {% if include.item.laws.finance and include.item.laws.finance.size > 0 %}
-      <tr>
-        <td><strong>금융회사</strong></td>
-        <td><ul>{% for law in include.item.laws.finance %}<li>{{ law }}</li>{% endfor %}</ul></td>
-      </tr>
-      {% endif %}
-      {% if include.item.laws.ict and include.item.laws.ict.size > 0 %}
-      <tr>
-        <td><strong>ICT기업</strong></td>
-        <td><ul>{% for law in include.item.laws.ict %}<li>{{ law }}</li>{% endfor %}</ul></td>
-      </tr>
-      {% endif %}
-    </tbody>
-  </table>
-  {% endif %}
+    {% if include.item.laws %}
+    <h3>관계 법규</h3>
+    <table>
+      <thead>
+        <tr><th>구분</th><th>법규</th></tr>
+      </thead>
+      <tbody>
+        {% if include.item.laws.common and include.item.laws.common.size > 0 %}
+        <tr>
+          <td><strong>공통</strong></td>
+          <td><ul>{% for law in include.item.laws.common %}<li>{{ law | xml_escape }}</li>{% endfor %}</ul></td>
+        </tr>
+        {% endif %}
+        {% if include.item.laws.public and include.item.laws.public.size > 0 %}
+        <tr>
+          <td><strong>공공기관</strong></td>
+          <td><ul>{% for law in include.item.laws.public %}<li>{{ law | xml_escape }}</li>{% endfor %}</ul></td>
+        </tr>
+        {% endif %}
+        {% if include.item.laws.finance and include.item.laws.finance.size > 0 %}
+        <tr>
+          <td><strong>금융회사</strong></td>
+          <td><ul>{% for law in include.item.laws.finance %}<li>{{ law | xml_escape }}</li>{% endfor %}</ul></td>
+        </tr>
+        {% endif %}
+        {% if include.item.laws.ict and include.item.laws.ict.size > 0 %}
+        <tr>
+          <td><strong>ICT기업</strong></td>
+          <td><ul>{% for law in include.item.laws.ict %}<li>{{ law | xml_escape }}</li>{% endfor %}</ul></td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+    {% endif %}
 
-  {% if include.item.checklist and include.item.checklist.size > 0 %}
-  <h3>확인 대상 (예시)</h3>
-  <ul>
-    {% for check in include.item.checklist %}
-    <li>{{ check }}</li>
-    {% endfor %}
-  </ul>
-  {% endif %}
-
-  <hr>
-</div>
+    {% if include.item.checklist and include.item.checklist.size > 0 %}
+    <h3>확인 대상 (예시)</h3>
+    <ul>
+      {% for check in include.item.checklist %}
+      <li>{{ check | xml_escape }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+</details>

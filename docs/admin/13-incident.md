@@ -5,8 +5,8 @@ parent: 관리적 분야
 nav_order: 13
 ---
 
-# {{ site.data.management['13_사고대응'].domain }}
+# {{ site.data.management['13_incident'].domain }}
 
-{% for item in site.data.management['13_사고대응'].items %}
+{% for item in site.data.management['13_incident'].items %}
 {% include admin_item.html item=item %}
 {% endfor %}
