@@ -27,34 +27,3 @@
   margin: 0;
   line-height: 1.6;
 }
-
-/* 중요도 뱃지 (기술 항목용 - Step 4에서 사용) */
-.badge-high {
-  display: inline-block;
-  padding: 0.15em 0.5em;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #fff;
-  background-color: #dc3545;
-  border-radius: 3px;
-}
-
-.badge-medium {
-  display: inline-block;
-  padding: 0.15em 0.5em;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #fff;
-  background-color: #fd7e14;
-  border-radius: 3px;
-}
-
-.badge-low {
-  display: inline-block;
-  padding: 0.15em 0.5em;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #fff;
-  background-color: #28a745;
-  border-radius: 3px;
-}

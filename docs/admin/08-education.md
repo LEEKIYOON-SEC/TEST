@@ -5,8 +5,8 @@ parent: 관리적 분야
 nav_order: 8
 ---
 
-# {{ site.data.management['08_교육및훈련'].domain }}
+# {{ site.data.management['08_education'].domain }}
 
-{% for item in site.data.management['08_교육및훈련'].items %}
+{% for item in site.data.management['08_education'].items %}
 {% include admin_item.html item=item %}
 {% endfor %}

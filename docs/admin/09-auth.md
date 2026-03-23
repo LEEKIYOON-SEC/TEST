@@ -5,8 +5,8 @@ parent: 관리적 분야
 nav_order: 9
 ---
 
-# {{ site.data.management['09_인증및권한관리'].domain }}
+# {{ site.data.management['09_auth'].domain }}
 
-{% for item in site.data.management['09_인증및권한관리'].items %}
+{% for item in site.data.management['09_auth'].items %}
 {% include admin_item.html item=item %}
 {% endfor %}
