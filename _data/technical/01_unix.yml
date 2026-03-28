@@ -2550,7 +2550,7 @@ items:
                     localhost               RELAY
                     127.0.0.1               RELAY
                     spam.com              REJECT
-          § /etc/mail/access 파일을 생성하거나 수정하였을 경우
+          ▪ /etc/mail/access 파일을 생성하거나 수정하였을 경우
           # makemap hash /etc/mail/access.db < /etc/mail/access 명령으로 DB 파일 생성
           Step 5) 설정 적용 및 재시작
           # systemctl restart sendmail
