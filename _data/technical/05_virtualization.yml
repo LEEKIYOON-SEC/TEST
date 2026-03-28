@@ -858,3 +858,100 @@ items:
           Step 3) isolation.device.edit.disable, isolation.device.connectable.disable 설정값 확인
           Step 4) 매개 변수 값을 각각 TRUE로 설정.
           또는, 각 매개 변수가 존재하지 않을 시, 해당 매개 변수 추가 및 값을 TRUE로 설정
+
+  - id: "HV-19"
+    title: "가상 머신의 불필요한 장치 제거"
+    domain: "3. 가상머신 관리"
+    severity: "상"
+    description:
+      check_content: "불필요한 장치(USB, CD/DVD, 플로피 디스크, 병렬 포트, 직렬 포트) 제거 여부 점검"
+      check_purpose: "불필요하게 연결된 외부 장치를 통한 잠재적인 공격 루트로 활용되는 것을 방지하기 위함"
+      threat: "불필요하게 연결된 외부 장치는 잠재적인 공격 루트로 활용될 수 있는 위험이 존재함"
+      reference:
+        - "※ 장치: USB, CD/DVD, 플로피 디스크, 병렬 포트, 직렬 포트"
+    target: "VMware ESXi, XenServer"
+    criteria:
+      good: "불필요한 장치가 가상 머신에 연결되지 않은 경우"
+      vulnerable: "불필요한 장치가 가상 머신에 연결된 경우"
+    action: "불필요한 장치 연결 해제 적용"
+    impact: "일반적 경우 영향 없음"
+    examples:
+      - os: "VMware ESXi"
+        content: |
+          Step 1) Web 콘솔 페이지 접속
+          https://<VMware ESXi IP>
+          Step 2) 가상 시스템 > [가상 머신 선택] > 설정 편집 > 가상 하드웨어로 이동
+          Step 3) 장치 연결상태 확인 및 불필요한 외부 장치 비활성화
+      - os: "XenServer"
+        content: |
+          Step 1) 장치 연결상태 확인
+          1. PCI 장치 목록 확인
+          lspci
+          2. 블록 디바이스 목록 확인
+          lsblk
+          3. 네트워크 인터페이스 확인
+          ifconfig 또는 ip addr
+          4. 가상 머신의 디스크 목록 확인
+          xe vm-list name-label="<VM_NAME>"
+          5. VM에 연결된 디스크 확인
+          xe vbd-list vm-uuid=<VM_UUID>
+          6. 모든 가상 디스크 이미지 목록 확인
+          xe vdi-list
+          7. 네트워크 인터페이스 목록 확인
+          xe vif-list
+          8. USB 장치 확인
+          lsusb
+          9. 디스크 용량 및 사용 현황 확인
+          df –h
+          Step 2) 불필요한 외부 장치 비활성화
+
+  - id: "HV-20"
+    title: "가상머신 콘솔 클립보드 복사&붙여넣기 기능 비활성화"
+    domain: "3. 가상머신 관리"
+    severity: "상"
+    description:
+      check_content: "가상 머신 콘솔 복사 기능 비활성화 여부 점검"
+      check_purpose: "가상 머신에 클립보드를 활용한 복사/붙여넣기 기능을 비활성화하여 파일 송·수신 기능을 통한 로그 기록이 저장되도록 하기 위함"
+      threat: "가상 머신에 클립보드를 활용한 복사/붙여넣기 작업이 허용되어 있으면 파일 송·수신 기록이 로그에 저장되지 않아 로그 분석을 통한 침입 탐지가 불가능한 위험이 존재함"
+      reference:
+        - "※ ESXi 기본 비활성화"
+        - "※ XenServer 기본 비활성화"
+    target: "VMware ESXi"
+    criteria:
+      good: "가상 머신 콘솔 복사 기능이 비활성화 되어 있거나, 복사 제한이 설정된 경우"
+      vulnerable: "가상 머신 콘솔 복사 기능이 활성화 되어 있거나, 복사 제한이 설정되지 않은 경우"
+    action: "가상 머신 콘솔 복사 제한 설정"
+    impact: "일반적 경우 영향 없음"
+    examples:
+      - os: "VMware ESXi"
+        content: |
+          Step 1) Web 콘솔 페이지 접속 > https://<VMware ESXi IP>
+          Step 2) 가상 시스템 > [가상 머신 선택] > 설정 편집 > VM 옵션 > 고급 > 구성 매개 변수로 이동
+          Step 3) isolation.tools.copy.disable, isolation.tools.paste.disable 및 isolation.tools.setGUIOptions.enable 설정값 확인
+          Step 4) isolation.tools.copy.disable와 isolation.tools.paste.disable 각 변수 값을 TRUE로, isolation.tools.setGUIOptions.enable 변수 값을 FALSE로 설정
+          또는, 각 매개 변수가 존재하지 않을 시, 해당 매개 변수 추가 및 값 설정
+
+  - id: "HV-21"
+    title: "가상머신 콘솔 드래그 앤 드롭 기능 비활성화"
+    domain: "3. 가상 머신 관리"
+    severity: "상"
+    description:
+      check_content: "가상 머신 드래그 앤 드롭 기능 비활성화 여부 점검"
+      check_purpose: "가상 머신에 대한 드래그 앤 드롭 기능 비활성화하여 파일 송·수신 기능을 통한 로그 기록이 저장되도록 하기 위함"
+      threat: "가상 머신에 대한 드래그 앤 드롭 기능이 허용되어 있을 경우 파일 송·수신 기록이 로그에 저장되지 않아 로그 분석을 통한 침입 탐지가 불가능한 위험이 존재함"
+      reference:
+        - "※ ESXi 기본 비할성화"
+    target: "VMware ESXi"
+    criteria:
+      good: "가상 머신 콘솔 드래그 앤 드롭 기능이 비활성화되어 있거나, 제한 설정된 경우"
+      vulnerable: "가상 머신 콘솔 드래그 앤 드롭 기능이 활성화되어 있거나, 제한 설정되지 않은 경우"
+    action: "가상 머신 콘솔 드래그 앤 드롭 제한 설정"
+    impact: "일반적 경우 영향 없음"
+    examples:
+      - os: "VMware ESXi"
+        content: |
+          Step 1) Web 콘솔 페이지 접속 > https://<VMware ESXi IP>
+          Step 2) 가상 시스템 > [가상 머신 선택] > 설정 편집 > VM 옵션 > 고급 > 구성 매개 변수로 이동
+          Step 3) isolation.tools.dnd.disable 설정값 확인
+          Step 4) 매개 변수 값을 TRUE로 설정.
+          또는, 각 매개 변수가 존재하지 않을 시, 해당 매개 변수 추가 및 값을 TRUE로 설정
