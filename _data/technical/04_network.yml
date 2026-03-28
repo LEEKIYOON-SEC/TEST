@@ -1794,3 +1794,61 @@ items:
           또는
           Router(config)# no ip domain-lookup
           ※ IOS 12.2 버전부터 ip domain-lookup을 ip domain lookup로 변경하고 두 명령어 모두 지원
+
+  - id: "N-37"
+    title: "pad 차단"
+    domain: "5. 기능 관리"
+    severity: "중"
+    description:
+      check_content: "PAD 서비스를 차단하는지 점검"
+      check_purpose: "X.25 프로토콜을 사용하지 않는 경우 PAD 서비스를 중지"
+      threat: "PAD와 같이 불필요한 서비스를 차단하지 않을 경우, 잠재적인 취약점 및 공격에 노출될 수 있음"
+      reference:
+        - "※ PAD(Packet Assembler/Disassembler): X.25 패킷 교환망에 패킷 처리 기능이 없는 비 동기형 단말기의 연결을 제공하는 서비스, 비 동기형 단말기로부터 수신한 문자 스트림을 X.25 패킷으로 분해하고 반대로 X.25 패킷을 문자 스트림으로 재조합하여 상호 전송"
+        - "※ X.25: 패킷교환 데이터 전송 서비스를 위한 ITU-T 표준 프로토콜(1976년 개발), 패킷 교환설비와 패킷형 단말기의 통신절차는 X.25, 패킷 교환설비와 비동기형 단말기의 통신절차는 X.3, X.28, X.29를 사용"
+    target: "Cisco 등"
+    criteria:
+      good: "PAD 서비스를 차단하는 경우"
+      vulnerable: "PAD 서비스를 차단하지 않은 경우"
+    action: "PAD 서비스 비활성화"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Cisco IOS"
+        content: |
+          Step 1) no service pad 설정을 확인
+          Router> enable
+          Router# show running-config
+          Step 2) Global Configuration 모드에서 no service pad 명령어를 사용하여 비활성화
+          Router# config terminal
+          Router(config)# no service pad
+
+  - id: "N-38"
+    title: "mask-reply 차단"
+    domain: "5. 기능 관리"
+    severity: "중"
+    description:
+      check_content: "mask-reply를 차단하는지 점검"
+      check_purpose: "내부 네트워크의 서브넷마스크 정보를 요청하는 ICMP 메시지에 네트워크 장비가 응답하지 않도록 mask-reply를 차단 설정"
+      threat: "mask-reply를 차단하지 않는 경우 비인가자에게 내부 서브 네트워크의 서브넷마스크 정보가 노출될 수 있음"
+      reference:
+        - "※ mask-reply: 네트워크 장비는 ICMP Address Mask Request 메시지에 대한 응답으로 인터페이스의 서브넷마스크 정보를 제공"
+    target: "Cisco 등"
+    criteria:
+      good: "mask-reply를 차단하는 경우"
+      vulnerable: "mask-reply를 차단하지 않은 경우"
+    action: "각 인터페이스에서 mask-reply 비활성화"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Cisco IOS"
+        content: |
+          Step 1) mask-reply 차단 여부 확인
+          Router# show running-config
+          Step 2) show ip interface 실행 결과에서 ICMP Address mask-reply 차단 여부 확인
+          Router# show ip interface
+          Serial1/0 is up, line protocol is up (connected)
+          ICMP mask replies are never sent
+          Step 3) Interface Configuration 모드에서 no ip mask-reply 명령어를 사용하여 비활성화
+          Router# config terminal
+          Router(config)# interface <인터페이스>
+          Router(config-if)# no ip mask-reply
+          ※ 기본적으로 ip mask-reply 명령은 비활성화 상태이기 때문에 구성 내용에서 no ip mask-reply 명령이 표시되지 않음
