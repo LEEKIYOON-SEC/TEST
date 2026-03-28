@@ -40,17 +40,22 @@ items:
 
           **※ 특수문자 필터링 예시**
 
-          | 구분 | \ | = | + | * | ( | ) | \0 |
+          | 구분 | 필터링 예시 | | | | | | |
           |------|---|---|---|---|---|---|---|
           | 변경 전 | \ | = | + | * | ( | ) | \0 |
           | 변경 후 | \5c | \3d | \2b | \2a | \28 | \29 | \00 |
 
           **※ 필터링 대상 예시**
 
-          | 필터링 대상 예시 |
-          |---|
-          | ' " - # ( ) < > = /\* \*/ + \* ; & \| \ \0 : \` % |
-          | user_tables table_name column_name Syscolumns union select insert drop update and or If join substring from where declare substr openrowset xp_ sysobject |
+          | | | | | | |
+          |---|---|---|---|---|---|
+          | ' | " | - | # | ( | ) |
+          | < | > | = | /\* | \*/ | + |
+          | \* | ; | & | \| | \ | \0 |
+          | : | \` | % | user_tables | table_name | column_name |
+          | Syscolumns | union | select | insert | drop | update |
+          | and | or | If | join | substring | from |
+          | where | declare | substr | openrowset | xp_ | sysobject |
 
       - os: "운영체제 명령실행"
         content: |
@@ -107,7 +112,7 @@ items:
 
           **※ 특수문자 필터링 예시**
 
-          | 구분 | < | > | " | ( | ) | # | & |
+          | 구분 | 필터링 예시 | | | | | | |
           |------|---|---|---|---|---|---|---|
           | 변경 전 | < | > | " | ( | ) | # | & |
           | 변경 후 | &amp;lt; | &amp;gt; | &amp;quot; | &amp;#40; | &amp;#41; | &amp;#35; | &amp;amp; |
