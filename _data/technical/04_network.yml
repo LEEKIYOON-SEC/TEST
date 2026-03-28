@@ -1040,3 +1040,152 @@ items:
           switch(config-snmp)# community <Community String>
           switch(config-snmp)# status enable
           switch(config-snmp)# apply
+
+  - id: "N-19"
+    title: "SNMP ACL 설정"
+    domain: "5. 기능 관리"
+    severity: "상"
+    description:
+      check_content: "SNMP 서비스 사용 시 네트워크 장비 ACL(Access List)을 설정하여 SNMP 접속 대상 호스트를 지정하여 접근이 가능한 IP를 제한하였는지 점검"
+      check_purpose: "SNMP ACL 설정을 함으로써 임의의 호스트에서 SNMP 접근을 차단하여 네트워크 정보의 노출을 제한하기 위함"
+      threat: "비인가자의 SNMP 접근을 차단하지 않을 경우, 공격자가 Community String 추측 공격 후 MIB 정보를 수정하여 라우팅 정보를 변경하거나 터널링 설정을 하여 내부망에 침투할 수 있는 위험이 존재함"
+      reference: []
+    target: "Cisco, Alteon, Passport, Juniper, Piolink 등"
+    criteria:
+      good: "SNMP 서비스를 비활성화하거나 SNMP 접근을 제한하는 ACL을 설정한 경우"
+      vulnerable: "SNMP 접근을 제한하는 ACL을 설정하지 않은 경우"
+    action: "SNMP 접근에 대한 ACL(Access List) 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Cisco IOS"
+        content: |
+          Step 1) SNMP 설정 확인
+          Router# show running-config
+          Step 2) Access-List 설정 확인
+          Router# show running-config
+          Step 3) 글로벌 구성 모드에서 snmp-server community 명령어로 ACL 적용
+          Router# config terminal
+          Router(config)# access-list <ACL 번호> permit <IP주소>
+          Router(config)# access-list <ACL 번호> deny any log
+          Router(config)# snmp-server community <Community String> RO <ACL 번호>
+      - os: "Passport"
+        content: |
+          Step 1) config snmp-v3 에서 접근목록 설정 확인
+          Step 2) # config snmp-v3 community create <Comm Idx> <name> <security> [tag]
+          # config snmp-v3 group-member create <user name> <model> [<group name>]
+          # config snmp-v3 group-access create <group name> <prefix> <model> <level>
+          # config snmp-v3 group-access view <group name> <prefix> <model> <level> [read <value>] [write <value>] [notify <value>]
+      - os: "Juniper Junos"
+        content: |
+          Step 1) edit snmp 에서 접근목록 설정 확인
+          Step 2) [edit snmp]
+          user@host# edit client-list <client list name>
+          [edit snmp client-list <client list name>]
+          user@host# set default restrict
+          user@host# set <ip address/range>
+          user@host# up
+          [edit snmp]
+          user@host# edit community <community name>
+          [edit snmp community <community name>]
+          user@host#set client-list-name <client list name>
+      - os: "Piolink PLOS"
+        content: |
+          Step 1) configuration 모드에서 snmp 접근목록 설정 확인
+          Step 2) 시스템 접근 설정 모드에서 SNMP 서비스에 ACL 설정
+          # configure terminal
+          (config)# security
+          (config-security)# system
+          (config-security-system)# access
+          (config-security-system-access)# rule <rule-id>
+          (config-security-system-access-rule[id])# protocol udp
+          (config-security-system-access-rule[id])# source-ip <IP주소>
+          (config-security-system-access-rule[id])# dest-port 161
+          (config-security-system-access-rule[id])# interface any
+          (config-security-system-access-rule[id])# policy accept
+          (config-security-system-access-rule[id])# apply
+          Step 3) 시스템 접근제어 기능의 기본 접근 정책을 차단으로 설정
+          (config-security-access)# default-policy deny
+          ※ 기본 접근 정책을 차단으로 변경하기 전에 관리용 포트(mgmt)와 네트워크 장비의 SSH, ICMP 등 다른 서비스와 프로토콜에 필요한 접근허용 규칙을 모두 설정
+
+  - id: "N-20"
+    title: "SNMP Community 권한 설정"
+    domain: "5. 기능 관리"
+    severity: "상"
+    description:
+      check_content: "SNMP Community에 필요하지 않은 쓰기 권한을 허용하는지 점검"
+      check_purpose: "불필요한 SNMP Community의 쓰기 권한을 제거함으로써 공격자의 SNMP를 통한 라우터 정보 수정을 막기 위함"
+      threat: "SNMP Community 권한이 불필요하게 RW로 설정된 경우, 공격자가 Community String 추측 공격을 통해 Community String을 탈취했을 시 SNMP를 이용하여 네트워크 설정 정보를 변경하여 내부망에 침투할 위험이 존재함"
+      reference:
+        - "※ SNMP Community String 권한에는 RO(Read Only)와 RW(Read Write) 모드가 있으며 RO 모드의 경우 네트워크 설정값에 대한 열람만 가능하고 RW 모드는 열람 및 수정을 할 수 있음"
+    target: "Cisco, Alteon, Passport, Juniper, Piolink 등"
+    criteria:
+      good: "SNMP 커뮤니티 권한이 읽기 전용(RO)인 경우"
+      vulnerable: "SNMP 커뮤니티 권한이 불필요하게 읽기 쓰기(RW)인 경우"
+    action: "SNMP Community String 권한 설정 (RW 권한 삭제 권고)"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Cisco IOS"
+        content: |
+          Step 1) SNMP 설정 확인
+          Router# show running-config
+          Step 2) SNMP Community String 권한 설정(RW 권한 삭제 권고)
+          Router# config terminal
+          Router(config)# snmp-server community <String> RO
+          Router(config)# snmp-server community <String> RW
+      - os: "Passport"
+        content: |
+          Step 1) config snmp 에서 SNMP community 권한 확인
+          Step 2) SNMP Community String 권한 설정(RW 권한 삭제 권고)
+          # config snmp-v3 community create <Comm Idx> <name> <security> [tag <value>]
+          # config snmp-v3 group-member create <user name> <model> [<group name>]
+          # config snmp-v3 group-access create <group name> <prefix> <model> <level>
+          # config snmp-v3 group-access view <group name> <prefix> <model> <level> [read<value>] [write <value>] [notify <value>]
+      - os: "Radware Alteon"
+        content: |
+          Step 1) >> Main# /cfg/sys/access/snmp
+          Current SNMP access: read-write
+          Enter new SNMP access (disabled/read-only/read-write) [d/r/w]: r
+          >> Main# apply
+      - os: "Juniper Junos"
+        content: |
+          Step 1) root authentication 설정을 이용하여 [edit system] 레벨에서 SNMP community 권한 확인
+          [edit]
+          user@host# show
+          Step 2) 읽기 쓰기 권한을 설정한 SNMP Community 삭제
+          [edit snmp]
+          user@host# delete community <Community>
+          Step 3) 읽기 전용 권한으로 SNMP Community 설정
+          [edit snmp]
+          user@host# set community <Community> authorization read-only
+          Step 4) SNMPv3는 SNMP 그룹에 읽기 쓰기 권한 제거
+          [edit snmp v3 vacm access]
+          user@host# delete group <그룹> default-context-prefix security-model <보안모델> security-level <보안 레벨> write-view
+      - os: "Piolink PLOS"
+        content: |
+          Step 1) switch# configure
+          switch(config)# snmp
+          switch(config-snmp)# policy read-only > apply
+
+  - id: "N-21"
+    title: "TFTP 서비스 차단"
+    domain: "5. 기능 관리"
+    severity: "상"
+    description:
+      check_content: "네트워크 장비 서비스 중 불필요한 TFTP 서비스가 구동되어 있거나 TFTP 서비스 사용 시 ACL을 적용하여 허용된 시스템에서만 TFTP 서비스를 사용하도록 설정되어 있는지 점검"
+      check_purpose: "인증기능이 없는 TFTP 단점을 보완하기 위해 사용이 허용된 시스템만 TFTP 서비스를 사용하게 하여 TFTP를 이용한 비인가자의 내부 정보 유출을 막고 중요 정보(예: 장비 설정 파일) 등의 정보 유출을 막기 위함"
+      threat: "TFTP 서비스는 인증 절차 없이 누구나 사용이 가능한 서비스로 공격자가 TFTP를 통해 악성코드가 삽입된 파일을 올려 사용자에게 배포할 수 있고, 네트워크 설정 파일이나 중요한 내부 정보를 유출할 수 있음"
+      reference:
+        - "※ TFTP(Trivial File Transfer Protocol): 임의의 시스템이 원격 시스템으로부터 부팅(Booting)코드를 다운로드하는데 사용하는 프로토콜로 UDP 기반으로 포트는 69번을 사용함. FTP와 같은 기능을 하지만 FTP보다 구현하기 쉽고 사용하기 편하지만, 인증 절차 없이 사용할 수 있어 보안에 취약하고 데이터 전송 과정에서 데이터가 손실될 수 있는 등 불안정한 단점이 있음"
+    target: "Cisco 등"
+    criteria:
+      good: "TFTP 서비스를 차단한 경우"
+      vulnerable: "네트워크 장비의 TFTP 서비스를 차단하지 않은 경우"
+    action: "네트워크 장비의 불필요한 TFTP 서비스를 비활성화 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Cisco IOS"
+        content: |
+          Step 1) TFTP 설정 정보 확인
+          Router# show running-config
+          Step 2) Router# config terminal
+          Router(config)# no service tftp
