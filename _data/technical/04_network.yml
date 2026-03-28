@@ -1189,3 +1189,178 @@ items:
           Router# show running-config
           Step 2) Router# config terminal
           Router(config)# no service tftp
+
+  - id: "N-22"
+    title: "Spoofing 방지 필터링 적용"
+    domain: "5. 기능 관리"
+    severity: "상"
+    description:
+      check_content: "사설 네트워크, 루프백 등 특수 용도로 배정하여 라우팅이 불가능한 IP주소를 스푸핑 방지 필터링(Anti-Spoofing Filtering)을 적용하여 차단하는지 점검"
+      check_purpose: "네트워크 경계에서 소스 IP주소가 명백히 위조된 트래픽을 차단하여 IP 스푸핑 기반 DoS 공격으로부터 인프라를 보호함"
+      threat: "IP 스푸핑 기반 DoS 공격 트래픽이 네트워크 장비의 한계용량을 초과하는 경우 정상적인 서비스 불가"
+      reference:
+        - "※ IP Spoofing: 호스트의 원본 주소가 아닌 다른 소스 주소로 IP 데이터그램을 조작"
+    target: "Cisco, Juniper 등"
+    criteria:
+      good: "경계 라우터 또는 보안 장비에 스푸핑 방지 필터링을 적용한 경우"
+      vulnerable: "경계 라우터 또는 보안 장비에 스푸핑 방지 필터링을 적용하지 않은 경우"
+    action: "경계 라우터 또는 보안 장비에서 스푸핑 방지 필터링 적용"
+    impact: "ACL 로그가 과도하게 발생할 경우, 네트워크 장비의 CPU 사용률 증가에 영향을 주므로 로그 설정을 비활성화"
+    examples:
+      - os: "Cisco IOS"
+        content: |
+          Step 1) IP spoofing 방지 설정 확인
+          Router# show running
+          Step 2) 스푸핑 방지 필터링 ACL 구성
+          access-list 번호는 100~199구간을 사용하여 Extended access-list를 사용
+          router# configure terminal
+          router(config)# access-list <ACL 번호> deny ip 0.0.0.0 0.255.255.255 any
+          router(config)# access-list <ACL 번호> deny ip 10.0.0.0 0.255.255.255 any
+          router(config)# access-list <ACL 번호> deny ip 127.0.0.0 0.255.255.255 any
+          router(config)# access-list <ACL 번호> deny ip 169.254.0.0 0.0.255.255 any
+          router(config)# access-list <ACL 번호> deny ip 172.16.0.0 0.15.255.255 any
+          router(config)# access-list <ACL 번호> deny ip 192.0.2.0 0.0.0.255 any
+          router(config)# access-list <ACL 번호> deny ip 192.168.0.0 0.0.255.255 any
+          router(config)# access-list <ACL 번호> deny ip 224.0.0.0 15.255.255.255 any
+          router(config)# access-list <ACL 번호> permit ip any any
+          Step 3) 서비스제공업체(SP)와 연결된 인터페이스에 ACL 적용
+          router(config)# interface serial <인터페이스>
+          router(config-if)# ip access-group <ACL 번호> in
+      - os: "Juniper Junos"
+        content: |
+          Step 1) Configure Firewall Filters와 Apply Firewall Filters 설정 확인
+          Step 2) 스푸핑 방지 필터링 Firewall Filters 구성
+          Step 3) IP 대역 지정
+          user@host> configure
+          [edit]
+          user@host# edit policy-options
+          [edit policy-options]
+          user@host# set prefix-list <prefix-name> 0.0.0.0/8
+          user@host# set prefix-list <prefix-name> 10.0.0.0/8
+          user@host# set prefix-list <prefix-name> 127.0.0.0/8
+          user@host# set prefix-list <prefix-name> 169.254.0.0/16
+          user@host# set prefix-list <prefix-name> 172.16.0.0/12
+          user@host# set prefix-list <prefix-name> 192.0.2.0/24
+          user@host# set prefix-list <prefix-name> 192.168.0.0/16
+          user@host# set prefix-list <prefix-name> 224.0.0.0/4
+          Step 4) 방화벽 필터 설정
+          [edit]
+          user@host# edit firewall family inet filter <filter-name>
+          [edit firewall family inet filter <filter-name>]
+          user@host# edit term <term-name-1>
+          [edit firewall family inet filter <filter-name> term <term-name-1>]
+          user@host# set from source-address <prefix-name>
+          user@host# set then discard
+          user@host# up
+          [edit firewall family inet filter <filter-name>]
+          user@host# set term <term-name-2> then accept
+          Step 5) 서비스제공업체(SP)와 연결된 인터페이스에 방화벽 필터를 적용
+          [edit]
+          user@host# set interfaces <인터페이스> unit <유닛> family <패밀리> filter input <filter-name>
+      - os: "공통"
+        content: |
+          Step 1) 특수 용도 주소 차단(RFC 6890 참조)
+          0.0.0.0/8 자체 네트워크(This host on this network, RFC1122)
+          10.0.0.0/8 사설 네트워크(Private-Use, RFC1918)
+          127.0.0.0/8 루프백(Loopback, RFC1122)
+          169.254.0.0/16 링크 로컬(Link Local, RFC3927)
+          172.16.0.0/12 사설 네트워크(Private-Use, RFC1918)
+          192.0.2.0/24 예제 등 문서에서 사용(TEST-NET-1, RFC5737)
+          192.168.0.0/16 사설 네트워크(Private-Use, RFC1918)
+          224.0.0.0/4 멀티캐스트(Multicast, RFC5771)
+
+  - id: "N-23"
+    title: "DDoS 공격 방어 설정 또는 DDoS 장비 사용"
+    domain: "5. 기능 관리"
+    severity: "상"
+    description:
+      check_content: "DDoS 공격 방어 설정을 적용하거나 DDoS 대응 장비를 사용하는지 점검"
+      check_purpose: "네트워크 장비 또는 DDoS 대응 장비에 DDoS 공격 방어 설정을 적용하여 DDoS 공격 발생 시 피해를 최소화"
+      threat: "DDoS 공격으로 인해 사용 가능한 네트워크 및 시스템 리소스 속도가 느려지거나 서버가 손상될 수 있음"
+      reference:
+        - "※ DDoS(Distributed Denial of Service): 해커에 의해 감염된 다수의 좀비 PC로부터 다량의 트래픽이 특정 서버로 유입되어 시스템, 네트워크에 가용성을 저해시켜 서비스를 방해하는 공격"
+    target: "Cisco, Juniper 등"
+    criteria:
+      good: "경계 라우터에서 DDoS 공격 방어 설정을 하거나 DDoS 대응 장비를 사용하는 경우"
+      vulnerable: "경계 라우터에서 DDoS 공격 방어 설정을 하지 않거나 DDoS 대응 장비를 사용하지 않는 경우"
+    action: "DDoS 공격 방어 설정 점검"
+    impact: "필터링 적용 시 사용하는 ACL은 라우터 성능에 많은 영향을 미침"
+    examples:
+      - os: "Cisco IOS"
+        content: |
+          Step 1) DDoS 방어 설정 요소 확인
+          Router# show running
+      - os: "Juniper Junos"
+        content: |
+          Step 1) DDoS 방어 설정 요소 확인
+          [edit]
+          user@host# show configuration
+      - os: "공통"
+        content: |
+          Step 1) 스푸핑 방지 필터링 등을 제외한 DDoS 공격 방어 설정은 DDoS 공격 발생 시 공격 유형과 상황을 고려하여 적용
+          1. ACL(Access Control List)
+          - 스푸핑 방지 필터링을 사전 적용(N-13)
+          - DDoS 공격 유형에 따라 공격 대상 IP주소, 프로토콜, 포트를 임시 차단
+          2. Rate limiting
+          - 특정 유형의 트래픽에 대역폭과 일정 시간 동안 전송량을 제한
+          - DDoS 공격 유형에 따라 UDP, ICMP, TCP SYN 패킷의 대역폭을 제한함으로써 다른 서비스에 필요한 대역폭을 확보
+          - 하드웨어 기반 전용 모듈이 없는 경우 정책 수에 따라 라우터의 CPU 부하가 증가
+          3. TCP Intercept
+          - TCP SYN Flooding 공격로부터 서버를 보호하며 Intercept 또는 Watch 모드로 설정
+          - Intercept 모드는 SYN 패킷을 서버로 전송하지 않고 라우터가 대신 SYN-ACK를 응답하고 정상적으로 TCP 3-way Handshake가 완료되면 서버로 원래 SYN을 전송
+          - Watch 모드는 SYN 패킷을 서버로 전달하고 30초 안에 연결 성립이 완료되지 않으면 서버에 RST를 전송하여 불완전 연결 상태를 정리
+          - Intercept 모드는 Watch 모드보다 라우터의 많은 메모리와 CPU를 사용
+
+  - id: "N-24"
+    title: "사용하지 않는 인터페이스 비활성화"
+    domain: "5. 기능 관리"
+    severity: "상"
+    description:
+      check_content: "사용하지 않는 인터페이스가 비활성화 상태인지 점검"
+      check_purpose: "필요한 인터페이스만 활성화하여 비인가자가 사용하지 않는 인터페이스를 통하여 네트워크에 접근하는 것을 차단하기 위함"
+      threat: "사용하지 않는 포트에 연결된 인터페이스를 Shutdown 하지 않을 경우, 물리적인 내부 접근을 통해 비인가자의 불법적인 네트워크 접근이 가능하게 되며 이로 인하여 네트워크 정보 유출 및 네트워크 손상이 발생할 수 있음"
+      reference: []
+    target: "Cisco, Alteon, Juniper, Piolink 등"
+    criteria:
+      good: "사용하지 않는 인터페이스가 비활성화된 경우"
+      vulnerable: "사용하지 않는 인터페이스가 비활성화되지 않은 경우"
+    action: "네트워크 장비에서 사용하지 않는 모든 인터페이스 비활성화 설정"
+    impact: "사용 중인 포트를 비활성화하지 않도록 주의가 필요"
+    examples:
+      - os: "Cisco IOS"
+        content: |
+          Step 1) 사용하지 않는 인터페이스 확인
+          Router# show interface
+          비활성화한 인터페이스는 Administratively down으로 표시
+          Step 2) 사용하지 않는 인터페이스 비활성화(shutdown)
+          Router# config terminal
+          Router(config)# interface <인터페이스>
+          Router(config-line)# shutdown
+      - os: "Radware Alteon"
+        content: |
+          Step 1) 사용하지 않는 인터페이스 확인
+          >> Main# /cfg/dump
+          >> Main# /info/link
+          Step 2) 사용하지 않는 인터페이스 비활성화(dis)
+          >> Main# /cfg/port <포트>/dis
+          >> Main# apply
+      - os: "Juniper Junos"
+        content: |
+          Step 1) 사용하지 않는 인터페이스 확인
+          [edit]
+          user@host# show interface terse
+          비활성화한 인터페이스는 admin열을 down으로 표시
+          Step 2) 사용하지 않는 인터페이스 비활성화(disable)
+          [edit]
+          user@host# edit interfaces
+          [edit interfaces]
+          user@host# set <인터페이스> disable
+      - os: "Piolink PLOS"
+        content: |
+          Step 1) 사용하지 않는 인터페이스 확인
+          switch# show running-config
+          switch# show port
+          Step 2) 사용하지 않는 인터페이스 비활성화(status disable)
+          switch# configure
+          switch(config)# port <포트> status disable
+          switch(config)# apply
