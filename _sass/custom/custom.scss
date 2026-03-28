@@ -96,11 +96,21 @@
   table {
     width: 100%;
     font-size: 0.9rem;
+    display: block;
+    overflow-x: auto;
 
     ul {
       margin: 0;
       padding-left: 1.2rem;
     }
+  }
+
+  // markdownify로 생성된 표도 스크롤 적용
+  li > table,
+  .item-body table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
   }
 }
 
