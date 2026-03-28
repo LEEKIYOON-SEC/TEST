@@ -146,7 +146,7 @@ items:
 
           Step 1) 파일 업로드 페이지, API 엔드포인트, HTML Form 등 XML을 파싱하는 페이지 포인트 내 XML 객체 삽입 시도 (※ 예로 제시한 것으로, 웹 사이트 환경에 맞춰 점검해야 함)
 
-          ```xml
+          ```
           <?xml version="1.0" encoding="ISO-8859-1"?>
           <!DOCTYPE foo [
             <!ELEMENT foo ANY >
@@ -163,7 +163,7 @@ items:
 
           **※ Java DTD(외부 엔티티) 비활성화 예시**
 
-          ```java
+          ```
           // 공통 보안 설정
           dbf.setXIncludeAware(false);
 
@@ -182,7 +182,7 @@ items:
 
           **※ ASP.NET DTD(외부 엔티티) 비활성화 예시**
 
-          ```csharp
+          ```
           // XmlDocument 객체 생성
           XmlDocument doc = new XmlDocument();
           // XmlResolver를 null로 설정하여 외부 엔티티의 해석을 비활성화
@@ -191,7 +191,7 @@ items:
 
           **※ PHP 8.0 이전 DTD(외부 엔티티) 비활성화 예시**
 
-          ```php
+          ```
           libxml_disable_entity_loader(true);
           ```
 
@@ -199,7 +199,7 @@ items:
 
           libxml_disable_entity_loader() 함수가 더 이상 사용되지 않으며, 외부 엔티티 로드는 기본적으로 비활성화되어있지만, LIBXML_NOENT 플래그로 인하여 XML 파서가 외부 엔티티를 확장하도록 설정되어있는 경우 XXE 취약점 발생 가능
 
-          ```php
+          ```
           // DOMDocument 인스턴스 생성
           $dom = new DOMDocument();
           // 외부 엔티티 비활성화
@@ -224,7 +224,7 @@ items:
 
           **※ Java 사용자 입력값 특수문자 인코딩 처리 예시**
 
-          ```java
+          ```
           name = org.apache.commons.text.StringEscapeUtils.escapeHtml4(name); // 사용자 입력값 인코딩
           // 사용자 입력값 이스케이프 처리
           public static String escapeSpecialCharacters(String input) {
@@ -235,20 +235,20 @@ items:
 
           **§ Velocity 템플릿 엔진에서 제공하는 '$esc.html'를 사용하여 사용자 입력을 HTML 인코딩 처리**
 
-          ```java
+          ```
           #set($userInput = $esc.html($params.get("userInput")))
           <p>사용자 입력: $userInput</p>
           ```
 
           **§ FreeMarker 템플릿 엔진의 내장 함수인 '?html'를 사용하여 사용자 입력을 HTML 인코딩 처리**
 
-          ```java
+          ```
           <p>사용자 입력: ${userInput?html}!</p>
           ```
 
           **※ ASP.NET 사용자 입력값 특수문자 인코딩 처리 예시**
 
-          ```csharp
+          ```
           // 사용자 입력값 인코딩
           private static readonly Dictionary<char, string> HtmlEntities = new Dictionary<char, string> {
               { '*', "&#42;" },
@@ -284,7 +284,7 @@ items:
 
           **※ Python 사용자 입력값 특수문자 인코딩 처리 예시**
 
-          ```python
+          ```
           # 사용자 입력값 인코딩
           def escape_html_entities(input_string):
               if input_string is None:
@@ -312,7 +312,7 @@ items:
 
           **§ 사용자 입력을 직접 템플릿에 삽입하는 방식은 SSTI 취약점에 노출될 수 있으므로 사용자 입력을 템플릿 변수로 전달하는 방식을 사용하여 안전하게 처리**
 
-          ```python
+          ```
           # Python(jinja2) 안전한 템플릿 사용 예시
           template = "userinput : {{ userinput }}"
           return render_template_string(template, userinput=param)
@@ -320,7 +320,7 @@ items:
 
           **※ PHP 사용자 입력값 특수문자 인코딩 처리 예시**
 
-          ```php
+          ```
           function escape_html_entities($input_string) {
               if ($input_string === null) {
                   return null;
@@ -395,7 +395,7 @@ items:
         content: |
           **■ SQL 키워드 및 특수문자 필터링 로직 예시**
 
-          ```java
+          ```
           ...
           public static String sanitize(String input) {
               if (input == null) {
@@ -414,7 +414,7 @@ items:
 
           **■ Prepared Statement 사용 로직 예시**
 
-          ```java
+          ```
           ...
           String sql = "SELECT * FROM users WHERE username = ?";
           PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -428,7 +428,7 @@ items:
 
           **■ 적절한 예외 처리 예시**
 
-          ```java
+          ```
           try {
               // 데이터베이스 작업
           } catch (SQLException e) {
@@ -444,7 +444,7 @@ items:
 
           **■ ORM(JPA-Hibernate) 파라미터 바인딩 사용 예시**
 
-          ```java
+          ```
           public class ItemService {
               @PersistenceContext
               private EntityManager em;
@@ -462,7 +462,7 @@ items:
 
           **■ SQL Mapper(Mybatis) 파라미터 바인딩 사용 예시**
 
-          ```xml
+          ```
           ...
               <!-- 학생 정보 삽입 -->
               <insert id="insertStudent" parameterType="com.example.Student">
@@ -483,7 +483,7 @@ items:
 
           **■ SQL 키워드 및 특수문자 필터링 로직 예시**
 
-          ```csharp
+          ```
           public static string Sanitize(string input)
           {
               if (input == null)
@@ -501,7 +501,7 @@ items:
 
           **■ Prepared Statement 사용 로직 예시**
 
-          ```csharp
+          ```
           string strQry = "SELECT count(*) FROM users WHERE userName = @username
                                                          AND Password = @password";
           using (SqlCommand cmd = new SqlCommand(strQry, cnx))
@@ -524,7 +524,7 @@ items:
 
           **■ 적절한 에러 예외처리 로직 예시**
 
-          ```csharp
+          ```
           catch (SqlException ex)
           {
               Logger.LogError(ex);  // 로그 상세 에러 기록
@@ -537,7 +537,7 @@ items:
         content: |
           **■ 적절한 에러 예외처리 예시**
 
-          ```asp
+          ```
           On Error Resume Next ' 에러 발생 시 계속 실행
           ...
           If Err.Number <> 0 Then
@@ -574,7 +574,7 @@ items:
 
           **■ SQL 키워드 및 특수문자 필터링 로직 예시**
 
-          ```php
+          ```
           function sanitize($input) {
               if ($input === null) {
                   return null;
@@ -589,7 +589,7 @@ items:
 
           **■ Prepared Statement 사용 로직 예시**
 
-          ```php
+          ```
           ...
           $sql = "SELECT * FROM users WHERE username = ?";
           $stmt = $pdo->prepare($sql);
@@ -601,7 +601,7 @@ items:
 
           **■ 적절한 에러 예외처리 예시**
 
-          ```php
+          ```
           ...
           try {
               // 데이터베이스 작업
@@ -642,7 +642,7 @@ items:
 
           httpd.conf 파일 내 Indexes 옵션 제거 후 서버 재기동
 
-          ```apache
+          ```
           <Directory /var/www/html>
           Options FollowSymLinks
           </Directory>
@@ -654,7 +654,7 @@ items:
 
           web.xml 파일 내 아래 지시자 수정 후 서버 재기동
 
-          ```xml
+          ```
           <init-param>
           <param-name>listings</param-name>
           <param-value>false</param-value>
@@ -675,7 +675,7 @@ items:
 
           /etc/nginx/sites-available/default 등 파일 내 아래 지시자 수정 후 서버 재기동
 
-          ```nginx
+          ```
           server {
               location / {
                   autoindex off;
