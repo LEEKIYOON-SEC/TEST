@@ -907,3 +907,136 @@ items:
           user@host# set server <NTP 서버 IP>
           user@host# set boot-server <NTP 부트 서버 IP>
           ※ 네트워크 장비와 NTP 서버 간 시간 차이가 1000초 이상 다르면 시간 동기화를 하지 않기 때문에 부팅 단계에서 정확한 시간을 확보하도록 부트 서버를 구성
+
+  - id: "N-16"
+    title: "Timestamp 로그 설정"
+    domain: "4. 로그 관리"
+    severity: "하"
+    description:
+      check_content: "네트워크 장비 설정 중 timestamp를 설정하여 로그 시간을 기록할 수 있게 하였는지 점검"
+      check_purpose: "네트워크 장비 로그에 시간을 기록하게 설정하여 공격자의 악의적인 행위를 파악하기 위한 로그의 신뢰성을 확보하기 위함"
+      threat: "네트워크 장비에 timestamp를 설정하지 않을 경우, 로그에 시간이 기록되지 않아 공격 및 침입시도에 관한 정보를 정확히 분석할 수 없고 로그 기록에 대한 신뢰성을 잃게 됨"
+      reference:
+        - "※ timestamp: 네트워크 장비 로그 메시지에 관리자가 지정한 형식으로 시간 정보를 남기도록 하는 설정"
+    target: "Cisco 등"
+    criteria:
+      good: "timestamp 로그 설정이 되어 있는 경우"
+      vulnerable: "timestamp 로그 설정이 되어 있지 않은 경우"
+    action: "로그에 시간 정보가 기록될 수 있도록 timestamp 로그 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Cisco IOS"
+        content: |
+          Step 1) service timestamps 설정 확인
+          Router> enable
+          Router# show running-config
+          Step 2) timestamp 로그 설정
+          1. 로그 메시지의 타임스탬프를 UTC 시간대로 밀리초 단위까지 표시
+          Router# config terminal
+          Router(config)# service timestamps log datetime msec show-timezone
+          2. 로그 메시지의 타임스탬프를 로컬 시간대로 밀리초 단위까지 표시
+          Router(config)# clock timezone KST 9
+          Router(config)# service timestamps log datetime msec localtime show-timezone
+
+  - id: "N-17"
+    title: "SNMP 서비스 확인"
+    domain: "5. 기능 관리"
+    severity: "상"
+    description:
+      check_content: "네트워크 장비의 SNMP 서비스를 사용하지 않는 경우 비활성화 상태인지 점검"
+      check_purpose: "불필요한 SNMP 서비스 차단하여 SNMP 서비스의 취약점(조작된 MIB 정보를 통한 네트워크 설정 변경, 전송데이터 평문 전송 등)을 이용한 공격을 차단하기 위함"
+      threat: "불필요한 SNMP 서비스를 비활성화하지 않은 경우, 비인가자가 SNMP에 무단 접근하여 설정 파일 열람 및 수정이나 정보 수집 및 관리자 권한 획득, DoS 등 다양한 형태의 공격 위험이 존재함"
+      reference:
+        - "※ SNMP(Simple Network Management Protocol): TCP/IP 기반 네트워크상의 각 호스트에서 정기적으로 여러 정보를 자동으로 수집하여 네트워크 관리를 하기 위한 프로토콜을 의미하며 v1, v2, v3 세 가지 버전이 존재하는데 v2까지도 요청, 응답 패킷이 평문으로 전송되기 때문에 스니핑이 가능하지만, v3 이상부터는 HMAC-MD5 또는 HMAC-SHA 알고리즘 기반의 인증을 제공함"
+        - "※ UDP(User Datagram Protocol): 인터넷상에서 서로 정보를 주고받을 때 정보를 보낸다는 신호나 받는다는 신호 절차를 거치지 않고, 보내는 쪽에서 일방적으로 데이터를 전달하는 통신 프로토콜"
+        - "※ Community String: SNMP는 MIB라는 정보를 주고받기 위해 인증 과정에서 일종의 비밀번호인 'Community String'을 사용함"
+        - "※ DoS(Denial of Service): 시스템을 악의적으로 공격해 해당 시스템의 자원을 부족하게 하여 원래 의도된 용도로 사용하지 못하게 하는 공격을 말하며 특정 서버에게 수많은 접속 시도를 만들어 다른 이용자가 정상적으로 서비스 이용을 하지 못하게 하거나, 서버의 TCP 연결을 바닥내는 등의 공격이 이 범위에 포함됨"
+    target: "Cisco, Alteon, Passport, Juniper, Piolink 등"
+    criteria:
+      good: "사용하지 않는 SNMP 서비스를 비활성화한 경우"
+      vulnerable: "사용하지 않는 SNMP 서비스를 비활성화하지 않은 경우"
+    action: "장비별 제공하는 최신 취약점 정보를 파악 후 최신 패치 및 업그레이드를 수행"
+    impact: "SNMP 서비스를 사용하지 않는 경우 비활성화하고, SNMP 서비스를 사용하는 경우 이전 버전보다 보안 수준이 높은 SNMPv3 사용을 권고"
+    examples:
+      - os: "Cisco IOS"
+        content: |
+          Step 1) SNMP 설정 확인
+          Router# show running-config
+          Step 2) SNMP 서비스 동작 확인
+          Router# show snmp
+          SNMP 서비스 비활성화 시 "%SNMP agent not enabled" 문구 출력
+          Step 3) Router# config terminal
+          Router(config)# no snmp-server
+      - os: "Radware Alteon"
+        content: |
+          Step 1) SNMP 서비스 확인
+          >> Main# /cfg/dump
+          /c/sys
+          snmp r
+          Step 2) >> Main# /cfg/sys/access/snmp
+          Current SNMP access: disabled
+          Enter new SNMP access (disabled/read-only/read-write) [d/r/w]:
+      - os: "Passport"
+        content: |
+          Step 1) SNMP 서비스가 불필요하다면 서비스 중지
+      - os: "Juniper Junos"
+        content: |
+          Step 1) snmp 서비스 설정 확인
+          user@host# show snmp
+          Step 2) user@host> configure
+          user@host# no set snmp community public
+      - os: "Piolink PLOS"
+        content: |
+          Step 1) SNMP 설정 확인
+          switch# show running-config
+
+  - id: "N-18"
+    title: "SNMP Community String 복잡성 설정"
+    domain: "5. 기능 관리"
+    severity: "상"
+    description:
+      check_content: "SNMP 서비스 사용 시 Community String을 기본 설정(public, private)으로 사용하고 있는지 점검"
+      check_purpose: "SNMP Community String을 공격자가 쉽게 유추하지 못하도록 설정하여 Community String 탈취에 대한 위험을 줄이기 위함"
+      threat: "시스템에 기본적으로 설치되는 불필요한 취약 서비스들이 제거되지 않은 경우, 해당 서비스의 취약점으로 인한 공격이 가능하며, 네트워크 서비스의 경우 열린 포트를 통한 외부 침입의 위험이 존재함"
+      reference: []
+    target: "Cisco, Alteon, Passport, Juniper, Piolink 등"
+    criteria:
+      good: "SNMP 서비스를 비활성화하거나 SNMP Community String을 복잡성 기준(영어 대·소문자, 숫자, 특수문자 중 3종류 이상을 조합하여 8자리 이상)에 맞게 설정한 경우"
+      vulnerable: "SNMP Community String을 기본 설정(public, private)으로 사용하고 있거나, 복잡성 기준에 맞지 않게 설정한 경우"
+    action: "public, private 외 복잡성 기준에 맞는 Community String을 설정\n※ SNMP Community String 복잡성 기준 : 영어 대·소문자, 숫자, 특수문자 중 3종류 이상을 조합하여 8자리 이상으로 구성"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Cisco IOS"
+        content: |
+          Step 1) SNMP 설정 확인
+          Router# show running-config
+          Step 2) Community String 문자열 변경
+          Router# config terminal
+          Router(config)# snmp-server Community <Community String>
+      - os: "Radware Alteon / Passport"
+        content: |
+          Step 1) SNMP 설정에서 Community String 설정 확인
+          Step 2) Radware Alteon
+          # cfg/sys/ssnmp
+          # rcomm - SNMP read community string 을 설정 (최대 32 자, Default String – public)
+          # wcomm - SNMP write community string 을 설정 (최대 32 자, Default String – private)
+          # apply
+          # save
+          Step 3) Passport
+          # config snmp-v3 community commname <Comm Idx> new-commname <value>
+      - os: "Juniper Junos"
+        content: |
+          Step 1) snmp community 설정에서 Community String 확인
+          [edit]
+          user@host# show
+          Step 2) [edit]
+          user@host# set snmp community <Community String> authorization read-only
+      - os: "Piolink PLOS"
+        content: |
+          Step 1) snmp community 설정에서 community string 확인
+          switch# show running-config
+          Step 2) switch# configure
+          switch(config)# snmp
+          switch(config-snmp)# community <Community String>
+          switch(config-snmp)# status enable
+          switch(config-snmp)# apply
