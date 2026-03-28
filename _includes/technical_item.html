@@ -66,10 +66,8 @@
     {% for example in include.item.examples %}
     <details class="example-detail">
       <summary><strong>{{ example.os | xml_escape }}</strong></summary>
-      <div class="language-plaintext highlighter-rouge">
-        <div class="highlight">
-          <pre class="highlight"><code>{{ example.content | xml_escape }}</code></pre>
-        </div>
+      <div class="example-content">
+        {{ example.content | markdownify }}
       </div>
     </details>
     {% endfor %}

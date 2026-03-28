@@ -27,89 +27,141 @@ items:
     examples:
       - os: "LDAP 인젝션"
         content: |
-          ■ 점검 방법
+          **■ 점검 방법**
+
           Step 1) 사용자 입력값에 대하여 변조된 LDAP 쿼리 삽입 후 실행 가능 여부 확인
-          ■ 조치 방법
+
+          **■ 조치 방법**
+
           1. 사용자 입력값을 화이트리스트로 지정하여 영문(a-z, A-Z)과 숫자(0-9)만을 허용
           2. 특수문자를 사용해야 하는 경우 입력값(DN에 사용되는 특수문자는 '\'를 붙여 이스케이프 처리, 필터에 사용되는 특수문자는 '= + < > # \ , ; 앞뒤 공백' 등)에 대해서는 실행 명령이 아닌 일반문자로 인식되도록 처리
           3. DN과 필터에 사용되는 사용자 입력값에는 특수문자 제거
           4. 웹 방화벽에 LDAP 관련 특수문자를 필터링하도록 룰셋 적용
-          ※ 특수문자 필터링 예시
-          변경 전: \  =  +  *  (  )  \0
-          변경 후: \5c  \3d  \2b  \2a  \28  \29  \00
-          ※ 필터링 대상 예시
-          ' " - # ( ) < > = /* */ + * ; & | \ \0 : ` %
-          user_tables table_name column_name Syscolumns union select insert drop update and or If join substring from where declare substr openrowset xp_ sysobject
+
+          **※ 특수문자 필터링 예시**
+
+          | 구분 | \ | = | + | * | ( | ) | \0 |
+          |------|---|---|---|---|---|---|---|
+          | 변경 전 | \ | = | + | * | ( | ) | \0 |
+          | 변경 후 | \5c | \3d | \2b | \2a | \28 | \29 | \00 |
+
+          **※ 필터링 대상 예시**
+
+          | 필터링 대상 예시 |
+          |---|
+          | ' " - # ( ) < > = /\* \*/ + \* ; & \| \ \0 : \` % |
+          | user_tables table_name column_name Syscolumns union select insert drop update and or If join substring from where declare substr openrowset xp_ sysobject |
+
       - os: "운영체제 명령실행"
         content: |
-          ■ 점검 방법
+          **■ 점검 방법**
+
           Step 1) 웹 애플리케이션 기능 내 전달되는 파라미터 값에 대하여 운영체제 명령어 삽입 후 실행 여부 확인
-          ■ 조치 방법
+
+          **■ 조치 방법**
+
           1. 웹 애플리케이션 설계 시 운영체제로부터 명령어를 직접적으로 호출하지 않도록 구현하고, 언어/프레임워크에서 제공하는 안전한 API 사용
           2. 명령어를 직접 호출하는 기능이 필요한 경우에는, 데이터가 OS의 명령어 해석기에 전달되기 전에 화이트리스트 기반으로 입력값을 검증/확인하도록 구현
           3. 입력값에 대한 파라미터 데이터의 필터링 처리
-          - Unix/Linux: &, &&, |, ||, ;, `, $(), <, > 등
-          - Windows: &, |, ^, % 등
-          4. 웹 서버 및 웹 애플리케이션 서버는 공개적으로 알려진 취약점이 제거된 상위 버전으로 업데이트
-          KISA 보호나라&KrCERT/CC 알림마당 > 보안공지(https://www.boho.or.kr/)
+             - Unix/Linux: &, &&, \|, \|\|, ;, \`, $(), <, > 등
+             - Windows: &, \|, ^, % 등
+          4. 웹 서버 및 웹 애플리케이션 서버는 공개적으로 알려진 취약점이 제거된 상위 버전으로 업데이트 (KISA 보호나라&KrCERT/CC 알림마당 > 보안공지 https://www.boho.or.kr/)
           5. 웹 방화벽에 모든 사용자 입력값을 대상으로 악용될 수 있는 특수문자 및 키워드 등에 대한 룰셋 적용
-          ※ 특수문자 필터링 처리 문자 설명
-          & : 첫 번째 명령어는 백그라운드에서 실행되며, 두 번째 명령어는 즉시 실행
-          && : 첫 번째 명령어가 성공했을 때만 두 번째 명령어 실행
-          | : 두 명령어를 연결하여, 첫 번째 명령어의 출력을 두 번째 명령어의 입력으로 전달
-          ; : 첫 번째 명령어 실행 후 성공여부와 무관하게 두 번째 명령어 실행
-          ` ` 또는 $() : 백틱 또는 괄호 안에 있는 명령어를 실행하고 그 출력을 반환
-          > 또는 >> : 명령 실행 결과를 파일로 생성(덮어쓰기 또는 추가)
-          < : 파일 내용을 명령어 입력으로 전달
-          ^ (Windows) : 명령어 이스케이프/제어 문자로 사용
-          % (Windows) : 환경 변수 치환
-          \ : 이스케이프 문자 또는 뒤에 오는 특수문자를 무효화하거나 명령 연결 시 사용
+
+          **※ 특수문자 필터링 처리 문자 설명**
+
+          | 구분 | 상세 설명 |
+          |------|----------|
+          | & | 첫 번째 명령어는 백그라운드에서 실행되며, 두 번째 명령어는 즉시 실행 |
+          | && | 첫 번째 명령어가 성공했을 때만 두 번째 명령어 실행 |
+          | \| | 두 명령어를 연결하여, 첫 번째 명령어의 출력을 두 번째 명령어의 입력으로 전달 |
+          | ; | 첫 번째 명령어 실행 후 성공여부와 무관하게 두 번째 명령어 실행 |
+          | \` \` 또는 $() | 백틱 또는 괄호 안에 있는 명령어를 실행하고 그 출력을 반환 |
+          | > 또는 >> | 명령 실행 결과를 파일로 생성(덮어쓰기 또는 추가) |
+          | < | 파일 내용을 명령어 입력으로 전달 |
+          | ^ (Windows) | 명령어 이스케이프/제어 문자로 사용 |
+          | % (Windows) | 환경 변수 치환 |
+          | \ | 이스케이프 문자 또는 뒤에 오는 특수문자를 무효화하거나 명령 연결 시 사용 |
+
       - os: "SSI 인젝션"
         content: |
-          ■ 점검 방법
-          Step 1) 사용자가 입력 가능한 파라미터 값에 <!--#echo var="DOCUMENT_ROOT" -->를 삽입하여 전송 후 반환되는 페이지에 사이트의 홈 디렉터리가 표시되는지 확인
-          Step 2) 사용자가 입력 가능한 파라미터 값에 <!-- #exec cmd="ls -al" -->를 삽입하여 전송 후 반환되는 페이지에 디렉터리의 파일 리스트가 표시되는지 확인
+          **■ 점검 방법**
+
+          Step 1) 사용자가 입력 가능한 파라미터 값에 `<!--#echo var="DOCUMENT_ROOT" -->`를 삽입하여 전송 후 반환되는 페이지에 사이트의 홈 디렉터리가 표시되는지 확인
+
+          Step 2) 사용자가 입력 가능한 파라미터 값에 `<!-- #exec cmd="ls -al" -->`를 삽입하여 전송 후 반환되는 페이지에 디렉터리의 파일 리스트가 표시되는지 확인
+
           Step 3) HTTP 요청(Request) 헤더에 명령어를 삽입하여 실행되는지 확인
+
+          ```
           GET / HTTP/1.0
           Referer: <!--#exec cmd="/bin/ps ax"-->
           User-Agent: <!--#include virtual="/proc/version"-->
-          ■ 조치 방법
+          ```
+
+          **■ 조치 방법**
+
           1. 화이트리스트 방식으로 사용자 입력에 대한 사용 가능한 문자들을 정의하여 정해진 문자를 제외한 나머지 모든 문자들을 필터링 처리
           2. 필터링 해야 하는 대상은 GET 질의 문자열, POST 데이터, 쿠키, URL, 그리고 일반적으로 브라우저와 웹 서버가 주고받는 모든 데이터를 포함
           3. 웹 서버의 SSI 기능을 사용하지 않거나, 웹 방화벽에 특수문자를 필터링하도록 룰셋 적용
-          ※ 특수문자 필터링 예시
-          변경 전: <  >  "  (  )  #  &
-          변경 후: &lt;  &gt;  &quot;  &#40;  &#41;  &#35;  &amp;
+
+          **※ 특수문자 필터링 예시**
+
+          | 구분 | < | > | " | ( | ) | # | & |
+          |------|---|---|---|---|---|---|---|
+          | 변경 전 | < | > | " | ( | ) | # | & |
+          | 변경 후 | &amp;lt; | &amp;gt; | &amp;quot; | &amp;#40; | &amp;#41; | &amp;#35; | &amp;amp; |
+
       - os: "XPath 인젝션"
         content: |
-          ■ 점검 방법
-          Step 1) 취약점 존재 유무 판단을 위한 Xpath 쿼리(' or '1'='1, ' and 'a' = 'b 등) 삽입
-          (※ 예시로 제시한 것으로, 웹 사이트 환경에 맞춰 점검해야 함)
+          **■ 점검 방법**
+
+          Step 1) 취약점 존재 유무 판단을 위한 Xpath 쿼리 삽입 (※ 예시로 제시한 것으로, 웹 사이트 환경에 맞춰 점검해야 함)
+
+          ```
+          ' or '1'='1
+          ' and 'a' = 'b
+          ```
+
           Step 2) 추가적인 쿼리 질의를 통하여 데이터 추출 등의 타당성 검토
+
+          ```
           ' or count(parent::*[position()=1])=0 or 'a'='b
-          1' or string-length(username)=[COUNT] and '1'='1... 등
-          ■ 조치 방법
+          1' or string-length(username)=[COUNT] and '1'='1
+          ```
+
+          **■ 조치 방법**
+
           1. XPath 쿼리에 사용자가 값을 입력할 수 있는 경우, 입력값 검증을 통해 필요 문자만을 받아들이게 함. ( ) = ' [ ] : , * / 등의 오동작를 유발하는 특수문자는 제한하며, 특정 특수문자만을 필터링하는 것이 아닌 허용된 문자 이외의 모든 입력을 화이트리스트 방식으로 필터링 처리
           2. Xpath 및 XQuery의 쿼리 삽입 시 사용되는 특수문자를 필터링하도록 웹 방화벽 룰셋 적용
+
       - os: "XXE 인젝션"
         content: |
-          ■ 점검 방법
+          **■ 점검 방법**
+
           Step 1) 파일 업로드 페이지, API 엔드포인트, HTML Form 등 XML을 파싱하는 페이지 포인트 내 XML 객체 삽입 시도 (※ 예로 제시한 것으로, 웹 사이트 환경에 맞춰 점검해야 함)
+
+          ```xml
           <?xml version="1.0" encoding="ISO-8859-1"?>
           <!DOCTYPE foo [
             <!ELEMENT foo ANY >
             <!ENTITY xxe SYSTEM "file:///C:/Windows/System32/drivers/etc/hosts" >
           ]>
           <foo>&xxe;</foo>
-          ■ 조치 방법
+          ```
+
+          **■ 조치 방법**
+
           1. 허용된 태그와 속성만 사용하도록 화이트리스트 방식을 이용한 입력값 검증 로직 구현
           2. 최근 언어별 XML 파서의 경우, 기본적으로 외부 엔티티 처리가 비활성화되어 있으나 소스코드 상에서 명시적으로 비활성화 처리하는 것이 안전한 방법
           3. 의도하지 않은 오동작이 발생할 가능성이 존재하는 외부 엔티티 참조 명령어 및 주요 스키마 등에 대하여 웹 방화벽에 룰셋 적용
-          ※ Java DTD(외부 엔티티) 비활성화 예시
-          ...
+
+          **※ Java DTD(외부 엔티티) 비활성화 예시**
+
+          ```java
           // 공통 보안 설정
           dbf.setXIncludeAware(false);
-          ...
+
           if (mode == SecurityMode.FULL_SECURE) {
               dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
               dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
@@ -121,60 +173,78 @@ items:
               dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
               dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
           }
-          ...
-          ※ ASP.NET DTD(외부 엔티티) 비활성화 예시
-          ...
+          ```
+
+          **※ ASP.NET DTD(외부 엔티티) 비활성화 예시**
+
+          ```csharp
           // XmlDocument 객체 생성
           XmlDocument doc = new XmlDocument();
           // XmlResolver를 null로 설정하여 외부 엔티티의 해석을 비활성화
-          doc.XmlResolver = null
-          ...
-          ※ PHP 8.0 이전 DTD(외부 엔티티) 비활성화 예시
-          ...
+          doc.XmlResolver = null;
+          ```
+
+          **※ PHP 8.0 이전 DTD(외부 엔티티) 비활성화 예시**
+
+          ```php
           libxml_disable_entity_loader(true);
-          ...
-          ※ PHP 8.0 이후 DTD(외부 엔티티) 비활성화 예시
-          § libxml_disable_entity_loader() 함수가 더 이상 사용되지 않으며, 외부 엔티티 로드는 기본적으로 비활성화되어있지만, LIBXML_NOENT 플래그로 인하여 XML 파서가 외부 엔티티를 확장하도록 설정되어있는 경우 XXE 취약점 발생 가능
-          ...
+          ```
+
+          **※ PHP 8.0 이후 DTD(외부 엔티티) 비활성화 예시**
+
+          libxml_disable_entity_loader() 함수가 더 이상 사용되지 않으며, 외부 엔티티 로드는 기본적으로 비활성화되어있지만, LIBXML_NOENT 플래그로 인하여 XML 파서가 외부 엔티티를 확장하도록 설정되어있는 경우 XXE 취약점 발생 가능
+
+          ```php
           // DOMDocument 인스턴스 생성
           $dom = new DOMDocument();
           // 외부 엔티티 비활성화
           $dom->loadXML($xmlfile, LIBXML_NONET);
-          ...
+          ```
+
       - os: "SSTI 인젝션"
         content: |
-          ■ 점검 방법
-          Step 1) 사용자 입력값이 서버 템플릿 엔진 내에서 처리되는지 확인하기 위해 {{7*7}} 등의 수식 삽입 시도
+          **■ 점검 방법**
+
+          Step 1) 사용자 입력값이 서버 템플릿 엔진 내에서 처리되는지 확인하기 위해 \{\{7*7\}\} 등의 수식 삽입 시도
+
           Step 2) 상위 컨텍스트 및 객체 접근을 시도하여 원격 코드 실행의 가능 여부를 판별하기 위하여 페이로드 입력 및 실행 유무 확인
-          ■ 조치 방법
+
+          **■ 조치 방법**
+
           1. 템플릿 언어에서 예약된 의미를 가지는 문자({ } < > % # @ 등)에 대하여 이스케이프 처리
           2. 템플릿 엔진의 안전 모드를 사용함으로써 템플릿 내에서 실행할 수 있는 명령을 제한하여 임의 코드 실행 방지
           3. 안전 모드 및 내장 함수를 활용하여 보안 조치를 하는 경우 엔진의 버전과 그 버전에서 지원하는 기능을 고려하여 적절한 보안 패치 진행
           4. 에러 메시지를 통해 사용된 템플릿 언어 및 관련 취약점에 대한 유의미한 정보를 제공할 가능성이 존재하므로, 노출되는 에러 메시지를 제한
           5. 템플릿 엔진 내 사용되는 특수문자를 필터링하도록 웹 방화벽 룰셋 적용
-          ※ Java 사용자 입력값 특수문자 인코딩 처리 예시
-          ...
+
+          **※ Java 사용자 입력값 특수문자 인코딩 처리 예시**
+
+          ```java
           name = org.apache.commons.text.StringEscapeUtils.escapeHtml4(name); // 사용자 입력값 인코딩
           // 사용자 입력값 이스케이프 처리
           public static String escapeSpecialCharacters(String input) {
               if (input == null) return null;
               return input.replaceAll("([*{}\\[\\]<>%#@])", "\\\\$1");
           }
-          ...
-          § Velocity 템플릿 엔진에서 제공하는 '$esc.html'를 사용하여 사용자 입력을 HTML 인코딩 처리
-          Java(Velocity) 안전한 템플릿 사용 예시
-          ...
+          ```
+
+          **§ Velocity 템플릿 엔진에서 제공하는 '$esc.html'를 사용하여 사용자 입력을 HTML 인코딩 처리**
+
+          ```java
           #set($userInput = $esc.html($params.get("userInput")))
           <p>사용자 입력: $userInput</p>
-          ...
-          § FreeMarker 템플릿 엔진의 내장 함수인 '?html'를 사용하여 사용자 입력을 HTML 인코딩 처리
-          Java(FreeMarker) 안전한 템플릿 사용 예시
-          ...
+          ```
+
+          **§ FreeMarker 템플릿 엔진의 내장 함수인 '?html'를 사용하여 사용자 입력을 HTML 인코딩 처리**
+
+          ```java
           <p>사용자 입력: ${userInput?html}!</p>
-          ...
-          ※ ASP.NET 사용자 입력값 특수문자 인코딩 처리 예시
+          ```
+
+          **※ ASP.NET 사용자 입력값 특수문자 인코딩 처리 예시**
+
+          ```csharp
           // 사용자 입력값 인코딩
-          ...
           private static readonly Dictionary<char, string> HtmlEntities = new Dictionary<char, string> {
               { '*', "&#42;" },
               { '{', "&#123;" },
@@ -199,14 +269,17 @@ items:
               }
               return escapedString.ToString();
           }
-          ...
+
           // 사용자 입력값 이스케이프 처리
           public static string EscapeSpecialCharacters(string input) {
               if (input == null) return null;
               return Regex.Replace(input, @"([*{}\[\]<>%#@])", @"\$1");
           }
-          ...
-          ※ Python 사용자 입력값 특수문자 인코딩 처리 예시
+          ```
+
+          **※ Python 사용자 입력값 특수문자 인코딩 처리 예시**
+
+          ```python
           # 사용자 입력값 인코딩
           def escape_html_entities(input_string):
               if input_string is None:
@@ -222,24 +295,27 @@ items:
                   '%': '&#37;',
                   '#': '&#35;',
                   '@': '&#64;',
-                  ...
               }
               return ''.join(html_entities.get(char, char) for char in input_string)
-          ...
+
           # 사용자 입력값 이스케이프 처리
           def escape_special_characters(input_string):
               if input_string is None:
                   return None
               return re.sub(r'([*{}\[\]<>%#@])', r'\\\1', input_string)
-          ...
-          § 사용자 입력을 직접 템플릿에 삽입하는 방식은 SSTI 취약점에 노출될 수 있으므로 사용자 입력을 템플릿 변수로 전달하는 방식을 사용하여 안전하게 처리
-          Python(jinja2) 안전한 템플릿 사용 예시
-          ...
+          ```
+
+          **§ 사용자 입력을 직접 템플릿에 삽입하는 방식은 SSTI 취약점에 노출될 수 있으므로 사용자 입력을 템플릿 변수로 전달하는 방식을 사용하여 안전하게 처리**
+
+          ```python
+          # Python(jinja2) 안전한 템플릿 사용 예시
           template = "userinput : {{ userinput }}"
           return render_template_string(template, userinput=param)
-          ...
-          ※ PHP 사용자 입력값 특수문자 인코딩 처리 예시
-          ...
+          ```
+
+          **※ PHP 사용자 입력값 특수문자 인코딩 처리 예시**
+
+          ```php
           function escape_html_entities($input_string) {
               if ($input_string === null) {
                   return null;
@@ -252,7 +328,6 @@ items:
                   '<' => '&lt;',
                   '>' => '&gt;',
                   '%' => '&#37;',
-                  ...
               ];
               return strtr($input_string, $html_entities);
           }
@@ -263,10 +338,10 @@ items:
               }
               return preg_replace('/([*{}\[\]<>%#@])/', '\\\\$1', $input_string);
           }
-          ...
+
           // htmlspecialchars 함수를 이용하여 사용자 입력값을 HTML 인코딩
-          $userInput = htmlspecialchars($userInput ENT_QUOTES, 'UTF-8');
-          ...
+          $userInput = htmlspecialchars($userInput, ENT_QUOTES, 'UTF-8');
+          ```
 
   - id: "SI"
     title: "SQL 인젝션 (SQL Injection)"
@@ -289,23 +364,33 @@ items:
     examples:
       - os: "공통"
         content: |
-          ■ 점검 방법
+          **■ 점검 방법**
+
           Step 1) 사용자 입력값 조건에 따른 참, 거짓 SQL 쿼리를 삽입하여, 응답의 변화(응답시간, 에러메시지, 응답 내용 등) 유무 확인
+
           Step 2) 인증 페이지(로그인, 비밀번호 검증 등) 내 참이 되는 SQL쿼리를 삽입하여 우회 유무 확인
-          ■ 조치 방법
+
+          **■ 조치 방법**
+
           1. SQL 쿼리 내 사용되는 문자열의 유효성을 검증하는 로직 구현
           2. 아래와 같은 특수문자에 대하여 사용자 입력값으로 지정 금지
-          ' : 문자 데이터 구분 기호
-          ; : 쿼리 구분 기호
-          --, # : 해당 라인 주석 구분 기호
-          /* */ : /* 와 */ 사이 구문 주석
+
+          | 문자 | 상세 설명 |
+          |------|----------|
+          | ' | 문자 데이터 구분 기호 |
+          | ; | 쿼리 구분 기호 |
+          | --, # | 해당 라인 주석 구분 기호 |
+          | /\* \*/ | /\* 와 \*/ 사이 구문 주석 |
+
           3. Prepared Statements를 사용하여 사용자 입력과 SQL 쿼리를 분리하여 처리
           4. 시스템에서 제공하는 에러 메시지 및 DBMS에서 제공하는 에러코드가 노출되지 않도록 예외처리
           5. 웹 방화벽(WAF)에 대하여 SQL Injection 관련 룰셋 추가
+
       - os: "Java"
         content: |
-          ■ SQL 키워드 및 특수문자 필터링 로직 예시
-          ...
+          **■ SQL 키워드 및 특수문자 필터링 로직 예시**
+
+          ```java
           public static String sanitize(String input) {
               if (input == null) {
                   return null;
@@ -317,18 +402,25 @@ items:
               Matcher matcher = regex.matcher(input);
               return matcher.replaceAll(" ");
           }
-          ...
+
           String sanitizedInput = sanitize(userInput);
-          ■ Prepared Statement 사용 로직 예시
-          ...
+          ```
+
+          **■ Prepared Statement 사용 로직 예시**
+
+          ```java
           String sql = "SELECT * FROM users WHERE username = ?";
           PreparedStatement preparedStatement = connection.prepareStatement(sql);
           preparedStatement.setString(1, userInput);
-          ...
+
           ResultSet resultSet = preparedStatement.executeQuery();
-          ...
+          ```
+
           § JDBC 표준 예외 클래스를 사용하여 다양한 데이터베이스 시스템에 일관된 방식으로 예외처리
-          ■ 적절한 예외 처리 예시
+
+          **■ 적절한 예외 처리 예시**
+
+          ```java
           try {
               // 데이터베이스 작업
           } catch (SQLException e) {
@@ -336,9 +428,15 @@ items:
               e.printStackTrace();
               System.out.println("An error occurred. Please try again later.");
           }
+          ```
+
           § 사용자 입력을 직접 쿼리에 포함시킬 시 취약점이 발생하므로, 파라미터 바인딩을 사용하여 구현
+
           § 파라미터 바인딩 : 쿼리를 실행할 때, 쿼리 문자열과 사용자 입력값(파라미터)을 분리하여 처리하는 기법. 데이터베이스는 쿼리 문자열을 미리 파싱하고 컴파일하며, 쿼리 실행 시점에 파싱된 쿼리 문자열에 파라미터를 바인딩하여 데이터를 전달하므로 데이터베이스는 파라미터를 데이터로만 인식함
-          ■ ORM(JPA-Hibernate) 파라미터 바인딩 사용 예시
+
+          **■ ORM(JPA-Hibernate) 파라미터 바인딩 사용 예시**
+
+          ```java
           public class ItemService {
               @PersistenceContext
               private EntityManager em;
@@ -350,9 +448,13 @@ items:
                   return query.getResultList();
               }
           }
+          ```
+
           § SQL Mapper(Mybatis) 내 '${}' 구문의 경우 사용자 입력값이 SQL 구문으로 해석되기 때문에 파라미터 바인딩('#{}')을 사용하여 구현
-          ■ SQL Mapper(Mybatis) 파라미터 바인딩 사용 예시
-          ...
+
+          **■ SQL Mapper(Mybatis) 파라미터 바인딩 사용 예시**
+
+          ```xml
               <!-- 학생 정보 삽입 -->
               <insert id="insertStudent" parameterType="com.example.Student">
                   INSERT INTO STUDENTS (NUM, NAME, AGE, GRADE)
@@ -363,11 +465,15 @@ items:
                   DELETE FROM STUDENTS
                   WHERE NUM = #{num}
               </delete>
-          ...
+          ```
+
       - os: "ASP.NET"
         content: |
           § 정규표현식을 활용하여 SQL 키워드 및 특수문자에 대하여 필터링 로직 구현
-          ■ SQL 키워드 및 특수문자 필터링 로직 예시
+
+          **■ SQL 키워드 및 특수문자 필터링 로직 예시**
+
+          ```csharp
           public static string Sanitize(string input)
           {
               if (input == null)
@@ -380,8 +486,11 @@ items:
               return Regex.Replace(input, pattern, " ");
           }
           string sanitizedInput = Sanitize(userInput);
-          ...
-          ■ Prepared Statement 사용 로직 예시
+          ```
+
+          **■ Prepared Statement 사용 로직 예시**
+
+          ```csharp
           string strQry = "SELECT count(*) FROM users WHERE userName = @username
                                                          AND Password = @password";
           using (SqlCommand cmd = new SqlCommand(strQry, cnx))
@@ -400,16 +509,24 @@ items:
                   lblMsg.Text = "Login attempt failed.";
               }
           }
-          ■ 적절한 에러 예외처리 로직 예시
+          ```
+
+          **■ 적절한 에러 예외처리 로직 예시**
+
+          ```csharp
           catch (SqlException ex)
           {
               Logger.LogError(ex);  // 로그 상세 에러 기록
               // 사용자에게 일반적인 메시지 표시
               lblErrorMessage.Text = "데이터베이스 작업 중 오류가 발생했습니다.";
           }
+          ```
+
       - os: "ASP"
         content: |
-          ■ 적절한 에러 예외처리 예시
+          **■ 적절한 에러 예외처리 예시**
+
+          ```asp
           On Error Resume Next ' 에러 발생 시 계속 실행
           ...
           If Err.Number <> 0 Then
@@ -423,8 +540,13 @@ items:
           <%
               response.end
           End If
+          ```
+
           § SQL Server의 xp_cmdshell 기능의 경우 SQL Server 2005 버전부터 기본적으로 비활성화 되어있음
-          ■ xp_cmdshell 비활성화 처리 예시
+
+          **■ xp_cmdshell 비활성화 처리 예시**
+
+          ```sql
           sp_configure 'show advanced options', 1;     // SQL Server의 고급 옵션 활성화
           GO
           RECONFIGURE;
@@ -433,10 +555,15 @@ items:
           GO
           RECONFIGURE;
           GO
+          ```
+
       - os: "PHP"
         content: |
           § ereg_replace, eregi_replace 의 경우, PHP 5.3.0 이후 삭제되었으며, addslashes/magic_quotes_gpc의 경우 멀티바이트 문자 입력 시 우회의 가능성이 존재하므로 preg_replace를 이용하여 구현
-          ■ SQL 키워드 및 특수문자 필터링 로직 예시
+
+          **■ SQL 키워드 및 특수문자 필터링 로직 예시**
+
+          ```php
           function sanitize($input) {
               if ($input === null) {
                   return null;
@@ -447,16 +574,21 @@ items:
               return preg_replace($pattern, " ", $input);
           }
           $sanitizedInput = sanitize($userInput);
-          ■ Prepared Statement 사용 로직 예시
-          ...
+          ```
+
+          **■ Prepared Statement 사용 로직 예시**
+
+          ```php
           $sql = "SELECT * FROM users WHERE username = ?";
           $stmt = $pdo->prepare($sql);
           $stmt->execute([$userInput]);
-          ...
+
           $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-          ...
-          ■ 적절한 에러 예외처리 예시
-          ...
+          ```
+
+          **■ 적절한 에러 예외처리 예시**
+
+          ```php
           try {
               // 데이터베이스 작업
           } catch (PDOException $e) {             // PDO 확장의 표준 예외 클래스를 사용하여 예외처리
@@ -464,7 +596,7 @@ items:
               error_log($e->getMessage());
               echo 'SQL Exception';
           }
-          ...
+          ```
 
   - id: "DI"
     title: "디렉터리 인덱싱"
@@ -485,34 +617,53 @@ items:
     examples:
       - os: "공통"
         content: |
-          ■ 점검 방법
+          **■ 점검 방법**
+
           Step 1) URL 경로 중 확인하고자 하는 디렉터리 경로에 대하여 주소창에 입력하여 인덱싱 여부 확인
+
       - os: "Apache"
         content: |
-          ■ 조치 방법
+          **■ 조치 방법**
+
           httpd.conf 파일 내 Indexes 옵션 제거 후 서버 재기동
+
+          ```apache
           <Directory /var/www/html>
           Options FollowSymLinks
           </Directory>
+          ```
+
       - os: "Tomcat"
         content: |
-          ■ 조치 방법
+          **■ 조치 방법**
+
           web.xml 파일 내 아래 지시자 수정 후 서버 재기동
+
+          ```xml
           <init-param>
           <param-name>listings</param-name>
           <param-value>false</param-value>
           </init-param>
+          ```
+
       - os: "IIS"
         content: |
-          ■ 조치 방법
+          **■ 조치 방법**
+
           (6.0 이하) 인터넷 정보 서비스 → 등록 정보 → 홈 디렉터리 → 디렉터리 검색 해제
+
           (7.0 이상) IIS 관리자 → 디렉터리 검색 → 사용 안 함
+
       - os: "Nginx"
         content: |
-          ■ 조치 방법
+          **■ 조치 방법**
+
           /etc/nginx/sites-available/default 등 파일 내 아래 지시자 수정 후 서버 재기동
+
+          ```nginx
           server {
-          location / {
-          autoindex off;
+              location / {
+                  autoindex off;
+              }
           }
-          }
+          ```
