@@ -778,3 +778,83 @@ items:
           - 3(WARNING): 경고 및 오류를 기록함
           - 2(INFO): 디버그 항목이 아닌 모든 항목을 기록함
           - 1(DEBUG): 디버그 항목 및 모든 항목을 기록함
+
+  - id: "HV-16"
+    title: "비휘발성 경로 내 로그 파일 저장"
+    domain: "2. 시스템 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "비휘발성 경로에 로그파일 저장 여부 점검"
+      check_purpose: "비휘발성 경로에 로그파일 저장하여 로그 상실을 방지하기 위함"
+      threat: "휘발성 경로에 로그 파일이 저장될 경우, 일정시간이 지나거나 시스템 재시작 시 저장된 로그를 상실해 로그 분석이 불가능해지는 위험이 존재함"
+      reference:
+        - "※ ESXi의 경우 기본적으로 /scratch 경로에 로그가 저장되며, 해당 로그는 시스템 재시작 시 또는 하루가 지나면 삭제"
+        - "※ 원격 로그 서버 이용(HV-14) 시에도 일부 시스템 로그(vmksummary.log, dvs.log, vmkwarnning.log, fdm.log 등)는 전달되지 않으므로 비휘발성 경로에 로그파일 저장 필요"
+        - "※ 휘발성 경로: /scratch/, /tmp, /var/tmp, /run, /dev/shm, /dev/pts 등"
+    target: "VMware ESXi"
+    criteria:
+      good: "로그 파일 경로가 존재하며, 해당 경로가 비휘발성 경로에 저장된 경우"
+      vulnerable: "로그 파일 경로가 존재하지 않거나, 휘발성 경로에 저장되지 않은 경우"
+    action: "로그 파일 경로를 비휘발성 로그 파일 경로로 설정"
+    impact: "일반적 경우 영향 없음"
+    examples:
+      - os: "VMware ESXi"
+        content: |
+          Step 1) Web 콘솔 페이지 접속 > https://<VMware ESXi IP>
+          Step 2) 호스트 > 관리 > 시스템 > 고급 설정으로 이동
+          Step 3) Syslog.global.LogDir 설정값 확인
+          Step 4) 로그 파일 저장 경로 확인 후, [옵션 편집]을 클릭하여 수정
+
+  - id: "HV-17"
+    title: "코어덤프 수집 기능 활성화"
+    domain: "3. 가상머신 관리"
+    severity: "상"
+    description:
+      check_content: "코어 덤프 수집 기능 활성화 여부 점검"
+      check_purpose: "코어 덤프 기능이 활성화하여 시스템 장애 발생에 대한 원인을 파악하기 위함"
+      threat: "코어 덤프 기능이 활성화되어 있지 않을 경우, 시스템 장애 발생에 대한 원인을 파악할 수 없는 위험이 존재함"
+      reference:
+        - "※ 코어 덤프 기능(Vmware vSphere Network Dump Collector 서비스): 시스템에서 심각한 오류 발생 시 VMKernel 메모리 상태를 서버로 전송"
+    target: "VMware ESXi"
+    criteria:
+      good: "코어 덤프 수집 기능이 활성화(true)된 경우"
+      vulnerable: "코어 덤프 수집 기능이 비활성화(false)된 경우"
+    action: "코어 덤프 수집 기능 활성화 적용"
+    impact: "일반적 경우 영향 없음"
+    examples:
+      - os: "VMware ESXi"
+        content: |
+          Step 1) SSH를 통해 ESXi 호스트 서버 접속 후, 다음 명령어 실행
+          $ esxcli system coredump network get
+          Step 2) 다음 명령어를 사용해 VMkernel 네트워크 인터페이스와 원격 네트워크 코어 덤프 서버의 IP주소 및 UDP Port 번호 지정
+          $ esxcli system coredump network set --interface-name <VMkernel 인터페이스명> --server-ipv4 <IP주소> --server-port <Port 번호>
+          예시) esxcli system coredump network set --interface-name vmk0 --server-ipv4 10.0.1.10 --server-port 6500
+          Step 3) 다음 명령어를 사용해 네트워크 코어 덤프 구성 활성화
+          $ esxcli system coredump network set --enable true
+          Step 4) 코어 덤프 수집 기능 활성화 여부 확인
+          $ esxcli system coredump network check
+
+  - id: "HV-18"
+    title: "가상머신의 장치 변경 제한 설정"
+    domain: "3. 가상머신 관리"
+    severity: "상"
+    description:
+      check_content: "가상 머신 장치 변경 제한 설정 적용 여부 점검"
+      check_purpose: "가상 머신(게스트 OS)에서 관리자 권한이 없는 사용자(또는 프로세스)에 의한 장치(네트워크 어댑터, CD-ROM 등) 연결을 끊거나, 설정 변경을 방지하기 위함"
+      threat: "가상 머신(게스트 OS)에서 관리자 권한이 없는 사용자(또는 프로세스)에 의한 장치(네트워크 어댑터, CD-ROM 등) 연결을 끊거나, 설정 변경이 가능한 위험이 존재함"
+      reference:
+        - "※ 서버보안 솔루션 등에서 해당 기능을 통제할 경우 양호"
+    target: "VMware ESXi"
+    criteria:
+      good: "가상 머신의 장치 설정 변경 방지 설정이 활성화(true)된 경우"
+      vulnerable: "가상 머신의 장치 설정 변경 방지 설정이 없거나, 비활성화(false)된 경우"
+    action: "가상 머신의 장치 설정 변경 방지 활성화 적용"
+    impact: "일반적 경우 영향 없음"
+    examples:
+      - os: "VMware ESXi"
+        content: |
+          Step 1) Web 콘솔 페이지 접속 > https://<VMware ESXi IP>
+          Step 2) 가상 시스템 > [가상 머신 선택] > 설정 편집 > VM 옵션 > 고급 > 구성 매개 변수로 이동
+          Step 3) isolation.device.edit.disable, isolation.device.connectable.disable 설정값 확인
+          Step 4) 매개 변수 값을 각각 TRUE로 설정.
+          또는, 각 매개 변수가 존재하지 않을 시, 해당 매개 변수 추가 및 값을 TRUE로 설정
