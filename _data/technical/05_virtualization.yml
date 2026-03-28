@@ -643,3 +643,138 @@ items:
           Step 2) 호스트 > 관리 > 서비스로 이동
           Step 3) TSM, TSM-SSH 서비스 활성화 여부 확인
           Step 4) TSM, TSM-SSH 서비스가 활성화되어 있는 경우, [중지] 클릭하여 서비스 중지
+
+  - id: "HV-13"
+    title: "ESXi Shell 세션 종료 시간 설정"
+    domain: "2. 시스템 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "ESXi Shell(TSM, TSM-SSH)의 Session Timeout(로그인 후 일정 시간 사용하지 않을 경우 세션 종료) 설정의 적정성 여부 점검"
+      check_purpose: "비인가자에 의한 시스템 무단 사용 방지 목적으로 Session Timeout 설정을 적용하기 위함"
+      threat: "ESXi Shell(TSM, TSM-SSH)의 Session Timeout(로그인 후 일정 시간 사용하지 않을 경우 세션 종료) 설정이 적용되어 있지 않으면, 비인가자에 의한 시스템 무단 사용 위험이 존재함"
+      reference:
+        - "※ TSM(Tech Support Mode): 문제 해결 및 진단을 위해 ESXi 호스트에 물리적으로 접근하여 사용할 수 있는 텍스트 기반 명령 인터페이스"
+        - "※ TSM-SSH(Tech Support Mode via SSH): SSH 프로토콜을 통해 원격에서 TSM의 기능을 사용할 수 있게 하는 서비스"
+        - "※ 기본값: 0(제한 없음)"
+        - "※ 기본적으로 ESXi Shell은 비활성화(HV-12)하여야하며, 해당 설정은 필요 시 ESXi Shell을 사용할 경우에 대비한 설정"
+    target: "VMware ESXi"
+    criteria:
+      good: "Session Timeout 값(ESXiShellInteractiveTimeOut)이 600 이하로 설정된 경우"
+      vulnerable: "Session Timeout 값(ESXiShellInteractiveTimeOut)이 0이거나, 600초과로 설정된 경우"
+    action: "Session Timeout 값(ESXiShellInteractiveTimeOut)이 900 이하 설정"
+    impact: "일반적 경우 영향 없음"
+    examples:
+      - os: "VMware ESXi"
+        content: |
+          Step 1) Web 콘솔 페이지 접속 > https://<VMware ESXi IP>
+          Step 2) 관리 > 설정 > 시스템 > 고급 설정으로 이동
+          Step 3) UserVars.ESXiShellInteractiveTimeOut 설정값 확인
+          Step 4) 0 또는 600초(10분) 초과로 설정되어 있을 경우 [옵션 편집]을 클릭하여 900 이하로 설정 적용
+
+  - id: "HV-14"
+    title: "원격 로그 서버 이용"
+    domain: "2. 시스템 서비스 관리"
+    severity: "중"
+    description:
+      check_content: "원격 로그 서버를 이용한 로그 저장 여부 점검"
+      check_purpose: "원격 로그 서버를 이용하여 로그 관리를 수행하여 시스템 가용성 저하, 침해에 따른 로그 유실을 방지하기 위함"
+      threat: "원격 로그 서버를 이용하여 로그 관리를 하지 않을 경우, 시스템 가용성 저하, 침해에 따른 로그 유실 등의 위험이 존재함"
+      reference: []
+    target: "VMware ESXi, vCenter, XenServer, KVM, Nutanix"
+    criteria:
+      good: "원격 로그 서버 또는 스토리지가 연동 설정된 경우"
+      vulnerable: "원격 로그 서버 또는 스토리지가 연동 설정되지 않은 경우"
+    action: "원격 로그 서버 또는 스토리지 연동 설정"
+    impact: "일반적 경우 영향 없음"
+    examples:
+      - os: "VMware ESXi"
+        content: |
+          Step 1) Web 콘솔 페이지 접속
+          https://<VMware ESXi IP>
+          Step 2) 호스트 > 관리 > 시스템 > 고급 설정으로 이동
+          Step 3) Syslog.global.logHost 설정값 확인
+          Step 4) [옵션 편집]을 클릭한 후 아래와 같은 양식으로 원격 로그 서버 또는 스토리지 입력
+          protocol://hostname|ipv4|'['ipv6']'[:port]
+          ※ syslog 설정 예시
+          - tcp://10.0.1.10:3555 : TCP 및 Port 3555를 사용하여 Syslog 메시지를 10.0.1.10으로 전송
+          - tcp://[2001:db8:85a3:8d3:1319:8a2e:370:7348] : TCP 및 Port 1514를 사용하여 Syslog 메시지를 IPv6 주소로 전송
+          - udp://10.0.1.10 : UDP 및 Port 514를 사용하여 Syslog 메시지를 10.0.1.10으로 전송
+          - ssl://syslog.com : SSL(TLS) 및 Port 514를 사용하여 Syslog 메시지를 syslog.com으로 전송
+      - os: "VMware vCenter"
+        content: |
+          Step 1) Syslog 설정 여부를 확인
+          Step 2) vCenter Server 관리 페이지(https://<주소>:5480/) 접속 후, 다음 메뉴에 접근하여 확인(vCenter 버전에 따라, 메뉴 명칭은 달라질 수 있음)
+          # "Syslog" > Syslog 설정 여부를 확인
+      - os: "KVM"
+        content: |
+          Step 1) 원격 로그 서버 사용 확인
+          Step 2) (호스트 서버) /etc/rsyslog.conf 파일 확인
+          Step 3) 원격 로그 서버 전송 지시어 확인
+          Step 4) logger 명령어를 통해 전송 여부 확인
+      - os: "XenServer"
+        content: |
+          Step 1) Remote Log 서버 사용 유무 확인
+          Step 2) udp514 Port 확인
+          # netstat -an | grep "udp" 또는 # netstat -an | grep " udp" | egrep "514"
+          Step 3) Syslog.conf 파일 수정("/etc/sysconfig/syslog" 파일에 "SYSLOGD_OPTIONS"의 "-r" 옵션 삭제)
+          # vi /etc/sysconfig/syslog  SYSLOGD_OPTIONS="-m 0"
+      - os: "Nutanix"
+        content: |
+          Step 1) Controller VM에 접속하여 원격 로깅 서버가 설정되어 있는지 확인
+          ncli rsyslog-config list
+          Step 2) 원격 로깅 서버가 설정되어 있지 않으면 설정 적용
+          ncli rsyslog-config add-server name=<alias of log server> ip-address=<원격 로그 서버 IP> port=<원격 로그 서버 포트> network-protocol=tcp relp-enabled=no
+          Step 3) 로그 레벨 설정
+          ncli rsyslog-config add-module module-name=syslog_module level=info server-name=<alias of log server>
+
+  - id: "HV-15"
+    title: "시스템 주요 이벤트 로그 설정"
+    domain: "2. 시스템 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "시스템 주요 이벤트 로그가 설정 여부 점검"
+      check_purpose: "시스템 주요 이벤트 로그를 설정해 시스템 문제 발생 시 보안, 성능 등의 이슈를 파악하기 위함"
+      threat: "시스템 주요 이벤트 로그가 설정되어 있지 않으면 시스템 문제 발생 시 보안, 성능 등의 이슈를 파악할 수 없는 위험이 존재함"
+      reference: []
+    target: "VMware ESXi, vCenter, KVM"
+    criteria:
+      good: "로그 기록 정책이 내부 정책에 부합하게 설정된 경우"
+      vulnerable: "로그 기록 정책이 내부 정책에 부합하게 설정되지 않은 경우"
+    action: "로그 기록 정책을 내부 정책에 부합하게 설정"
+    impact: "일반적 경우 영향 없음"
+    examples:
+      - os: "VMware ESXi"
+        content: |
+          Step 1) Web 콘솔 페이지 접속 > https://<VMware ESXi IP>
+          Step 2) 호스트 > 관리 > 시스템 > 고급 설정으로 이동
+          Step 3) Config.HostAgent.log.level 설정값 확인
+          Step 4) 로그 기록 정책 확인 후, [옵션 편집]을 클릭해 내부 정책에 맞게 설정
+          ※ log.level 설정값
+          - None: 로그 기록하지 않음
+          - Quiet: 최소한의 로그 항목을 기록함
+          - Panic: 패닉 로그(장애 발생 시 기록되는 메시지) 항목만 기록함
+          - Error: 패닉 및 에러 로그 항목만 기록함
+          - Warning: 패닉, 에러 및 경고 로그 항목만 기록함
+          - Information: 패닉, 에러, 경고 및 정보 로그 항목을 기록함
+          - Verbose: 패닉, 에러, 경고, 정보 및 세부 정보를 표시하는 로그 항목을 기록함
+          - Trivia: 패닉, 에러, 경고, 정보, 세부 정보 표시 및 기타 정보를 표시하는 로그 항목을 기록함
+      - os: "VMware vCenter"
+        content: |
+          Step 1) 로그 설정 레벨 확인
+          Step 2) vSphere Client 접속 후, 다음 메뉴에 접근하여 확인(vSphere Client 버전에 따라, 메뉴 명칭은 달라질 수 있음)
+          # (vCenter6.5) "호스트 및 클러스터" > [vCenter 서버] > "구성" > "설정" > "고급 설정" > "config.log.level" 확인
+          # (vCenter8) "호스트 및 클러스터" > [vCenter 서버] > "구성" > "설정" > "고급 설정" > "config.log.level" 확인
+      - os: "KVM"
+        content: |
+          Step 1) 호스트에 접속
+          Step 2) libvirt 설정파일을 확인하여 로그 레벨 확인
+          $ cat /etc/libvirt/libvirtd.conf
+          Step 3) libvirt 설정파일의 log_level 설정 구문 수정
+          $ log_level =
+          Step 4) 변경 사항 적용을 위해 libvirt 데몬 재시작
+          $ systemctl restart libvirtd.service
+          ※ log.level 설정값
+          - 4(ERROR): 오류 메시지만 기록함
+          - 3(WARNING): 경고 및 오류를 기록함
+          - 2(INFO): 디버그 항목이 아닌 모든 항목을 기록함
+          - 1(DEBUG): 디버그 항목 및 모든 항목을 기록함
