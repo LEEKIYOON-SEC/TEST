@@ -1692,3 +1692,105 @@ items:
           user@host# show
           Step 2) [edit interfaces <인터페이스> unit <유닛>]
           user@host# delete proxy-arp
+
+  - id: "N-34"
+    title: "ICMP unreachable, redirect 차단"
+    domain: "5. 기능 관리"
+    severity: "중"
+    description:
+      check_content: "ICMP unreachable, ICMP redirect를 차단하는지 점검"
+      check_purpose: "ICMP unreachable 차단으로 DoS 공격을 차단하고 공격자가 네트워크 스캔 시 소요되는 시간을 길어지게 하여 스캔 공격을 지연 및 차단함\nICMP redirect 차단으로 라우팅 테이블이 변경되는 것을 차단하기 위함"
+      threat: "ICMP unreachable을 차단하지 않을 경우, 공격자의 스캔 공격을 통해 시스템의 현재 운영되고 있는 상태 정보가 노출될 수 있음\nICMP redirect을 차단하지 않을 경우, 호스트 패킷 경로를 다시 지정하는 과정에서 특정 목적지로 가기 위해 고의로 패킷 경로를 변경하여 가로챌 수 있음\n연속적으로 ICMP의 port-unreachable frame을 보내서 시스템의 성능을 저하 또는 마비시킬 수 있음"
+      reference:
+        - "※ ICMP unreachable: ICMP unreachable 메시지에는 특정 호스트 및 게이트웨이에 패킷을 보냈을 때 어떠한 이유로 전달될 수 없는지 나타내는 코드들을 포함하고 있음"
+        - "※ ICMP redirect: ICMP redirect는 라우터가 송신 측 호스트에 적합하지 않은 경로로 설정되어 있으면 해당 호스트에 대한 최적 경로를 다시 지정해주는 용도로 사용됨"
+    target: "Cisco, Juniper 등"
+    criteria:
+      good: "ICMP unreachable, ICMP redirect를 차단하는 경우"
+      vulnerable: "ICMP unreachable, ICMP redirect를 차단하지 않는 경우"
+    action: "각 인터페이스에서 ICMP unreachables, ICMP redirects 비활성화"
+    impact: "특정 경로를 찾아갈 때 많은 시간이 경과 될 수 있음"
+    examples:
+      - os: "Cisco IOS"
+        content: |
+          Step 1) 각 인터페이스에서 no ip unreachables과 no ip redirects 설정을 확인
+          Router> enable
+          Router# show running-config
+          ※ Global Configuration 모드의 ip icmp redirects 명령어는 ICMP redirection 메시지 유형을 호스트 또는 서브넷으로 지정하는 명령어로 ICMP redirection 차단과 무관
+          Step 2) Interface Configuration 모드에서 no ip unreachables과 no ip redirects 명령어를 실행
+          Router# config terminal
+          Router(config)# interface <인터페이스>
+          Router(config-if)# no ip unreachables
+          Router(config-if)# no ip redirects
+          Router(config-if)# end
+          ※ Null Interface는 no ip unreachables 외 다른 모든 명령어는 무시됨
+      - os: "Juniper Junos"
+        content: |
+          Step 1) ICMP unreachables , ICMP redirects 적용 확인
+          user@host# show
+          Step 2) ICMP redirect 차단
+          전체 장비에서 ICMP redirect 비활성화
+          [edit system]
+          user@host#set no-redirects
+          또는 특정 인터페이스에서 ICMP Redirect 비활성화
+          [edit interfaces]
+          user@host#set <인터페이스> unit <유닛> family <패밀리> no-redirects
+
+  - id: "N-35"
+    title: "identd 서비스 차단"
+    domain: "5. 기능 관리"
+    severity: "중"
+    description:
+      check_content: "identd 서비스를 차단하는지 점검"
+      check_purpose: "불필요한 identd 서비스를 차단하여 잠재적인 취약점 및 공격에 노출 방지"
+      threat: "identd 서비스는 TCP 세션의 사용자 식별이 가능하여 비인가자에게 사용자 정보가 노출될 수 있음"
+      reference:
+        - "※ identd 서비스: 특정 TCP 연결을 시작한 사용자의 신원을 확인하는 서비스(113/TCP)"
+        - "※ 사용자가 서버로 TCP 연결을 시작한 경우 서버는 클라이언트의 identd 서비스에 TCP 세션의 포트 번호를 보내 클라이언트 운영체제와 사용자 ID를 조회 가능"
+        - "※ 클라이언트의 정보에 의존하기 때문에 인증 또는 접근제어 용도로 사용할 수 없음"
+        - "※ IOS 12.2 이상 Default로 차단되어 있음"
+    target: "Cisco 등"
+    criteria:
+      good: "identd 서비스를 차단하는 경우"
+      vulnerable: "identd 서비스를 차단하지 않는 경우"
+    action: "idnetd 서비스 비활성화"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Cisco IOS"
+        content: |
+          Step 1) identd 서비스 확인
+          Router> enable
+          Router# show running-config
+          Step 2) Global Configuration 모드에서 no ip identd 명령어를 실행하여 비활성화
+          Router# config terminal
+          Router(config)# no ip identd
+          ※ 기본적으로 ip identd 설정을 별도로 설정하지 않으면 비활성화 상태이며, 구성에서 no ip identd 명령어가 표시되지 않음
+
+  - id: "N-36"
+    title: "Domain Lookup 차단"
+    domain: "5. 기능 관리"
+    severity: "중"
+    description:
+      check_content: "Domain Lookup을 차단하는지 점검"
+      check_purpose: "명령어를 잘못 입력할 때 발생하는 불필요한 Domain Lookup을 차단"
+      threat: "불필요한 DNS broadcast traffic과 사용자 대기시간 발생"
+      reference:
+        - "※ Domain Lookup: Cisco 장비는 Privileged Exec 모드에서 명령어가 아닌 문자열을 입력하면 호스트 이름으로 간주하고 Domain Lookup을 시도하며, DNS를 설정하지 않은 경우, DNS Broadcast Query를 수행하는 1분여간 사용자 입력을 받지 않음"
+    target: "Cisco 등"
+    criteria:
+      good: "Domain Lookup을 차단하는 경우"
+      vulnerable: "Domain Lookup을 차단하지 않은 경우"
+    action: "Domain Lookup 비활성화"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Cisco IOS"
+        content: |
+          Step 1) no ip domain-lookup 설정을 확인
+          Router> enable
+          Router# show running-config
+          Step 2) Global Configuration 모드에서 no ip domain lookup 명령어를 실행
+          Router# config terminal
+          Router(config)# no ip domain lookup
+          또는
+          Router(config)# no ip domain-lookup
+          ※ IOS 12.2 버전부터 ip domain-lookup을 ip domain lookup로 변경하고 두 명령어 모두 지원
