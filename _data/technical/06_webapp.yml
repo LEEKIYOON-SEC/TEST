@@ -636,14 +636,20 @@ items:
 
           Step 1) URL 경로 중 확인하고자 하는 디렉터리 경로에 대하여 주소창에 입력하여 인덱싱 여부 확인
 
+          [ 디렉터리 인덱싱 취약점 유무 판단 ]
+
       - os: "Apache"
         content: |
           **■ 조치 방법**
 
-          httpd.conf 파일 내 Indexes 옵션 제거 후 서버 재기동
+          § httpd.conf 파일 내 Indexes 옵션 제거 후 서버 재기동
+
+          **Apache 서버 설정 예시**
 
           ```
           <Directory /var/www/html>
+          Options Indexes FollowSymLinks
+          # Indexes 옵션 제거
           Options FollowSymLinks
           </Directory>
           ```
@@ -652,7 +658,9 @@ items:
         content: |
           **■ 조치 방법**
 
-          web.xml 파일 내 아래 지시자 수정 후 서버 재기동
+          § web.xml 파일 내 아래 지시자 수정 후 서버 재기동
+
+          **Tomcat 서버 설정 예시**
 
           ```
           <init-param>
@@ -665,20 +673,32 @@ items:
         content: |
           **■ 조치 방법**
 
-          (6.0 이하) 인터넷 정보 서비스 → 등록 정보 → 홈 디렉터리 → 디렉터리 검색 해제
+          **(6.0 이하)**
 
-          (7.0 이상) IIS 관리자 → 디렉터리 검색 → 사용 안 함
+          § 인터넷 정보 서비스 → 등록 정보 → 홈 디렉터리 → 디렉터리 검색 해제
+
+          [ 디렉터리 검색 옵션 해제 설정 ]
+
+          **(7.0 이상)**
+
+          § IIS 관리자 → 디렉터리 검색 → 사용 안 함
+
+          [ 디렉터리 검색 기능 사용 안함 설정 ]
 
       - os: "Nginx"
         content: |
           **■ 조치 방법**
 
-          /etc/nginx/sites-available/default 등 파일 내 아래 지시자 수정 후 서버 재기동
+          § /etc/nginx/sites-available/default 등 파일 내 아래 지시자 수정 후 서버 재기동
+
+          **Nginx 서버 설정 예시**
 
           ```
+          ...
           server {
-              location / {
-                  autoindex off;
-              }
+          location / {
+          autoindex off;
           }
+          }
+          ...
           ```
