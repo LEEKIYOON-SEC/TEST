@@ -66,17 +66,15 @@
     {% for example in include.item.examples %}
     <details class="example-detail">
       <summary><strong>{{ example.os | xml_escape }}</strong></summary>
-      {% if example.content contains '```' or example.content contains '|---' %}
       <div class="example-content">
+        {% if example.content contains '```' %}
         {{ example.content | markdownify }}
+        {% else %}
+        {{ example.content | replace: "
+# ", "
+\# " | markdownify }}
+        {% endif %}
       </div>
-      {% else %}
-      <div class="language-plaintext highlighter-rouge">
-        <div class="highlight">
-          <pre class="highlight"><code>{{ example.content | xml_escape }}</code></pre>
-        </div>
-      </div>
-      {% endif %}
     </details>
     {% endfor %}
     {% endif %}

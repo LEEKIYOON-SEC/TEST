@@ -396,6 +396,7 @@ items:
           **■ SQL 키워드 및 특수문자 필터링 로직 예시**
 
           ```java
+          ...
           public static String sanitize(String input) {
               if (input == null) {
                   return null;
@@ -407,18 +408,20 @@ items:
               Matcher matcher = regex.matcher(input);
               return matcher.replaceAll(" ");
           }
-
+          ...
           String sanitizedInput = sanitize(userInput);
           ```
 
           **■ Prepared Statement 사용 로직 예시**
 
           ```java
+          ...
           String sql = "SELECT * FROM users WHERE username = ?";
           PreparedStatement preparedStatement = connection.prepareStatement(sql);
           preparedStatement.setString(1, userInput);
-
+          ...
           ResultSet resultSet = preparedStatement.executeQuery();
+          ...
           ```
 
           § JDBC 표준 예외 클래스를 사용하여 다양한 데이터베이스 시스템에 일관된 방식으로 예외처리
@@ -460,6 +463,7 @@ items:
           **■ SQL Mapper(Mybatis) 파라미터 바인딩 사용 예시**
 
           ```xml
+          ...
               <!-- 학생 정보 삽입 -->
               <insert id="insertStudent" parameterType="com.example.Student">
                   INSERT INTO STUDENTS (NUM, NAME, AGE, GRADE)
@@ -469,7 +473,8 @@ items:
               <delete id="deleteStudent" parameterType="int">
                   DELETE FROM STUDENTS
                   WHERE NUM = #{num}
-              </delete>
+           </delete>
+          ...
           ```
 
       - os: "ASP.NET"
@@ -491,6 +496,7 @@ items:
               return Regex.Replace(input, pattern, " ");
           }
           string sanitizedInput = Sanitize(userInput);
+          ...
           ```
 
           **■ Prepared Statement 사용 로직 예시**
@@ -584,16 +590,19 @@ items:
           **■ Prepared Statement 사용 로직 예시**
 
           ```php
+          ...
           $sql = "SELECT * FROM users WHERE username = ?";
           $stmt = $pdo->prepare($sql);
           $stmt->execute([$userInput]);
-
+          ...
           $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+          ...
           ```
 
           **■ 적절한 에러 예외처리 예시**
 
           ```php
+          ...
           try {
               // 데이터베이스 작업
           } catch (PDOException $e) {             // PDO 확장의 표준 예외 클래스를 사용하여 예외처리
@@ -601,6 +610,7 @@ items:
               error_log($e->getMessage());
               echo 'SQL Exception';
           }
+          ...
           ```
 
   - id: "DI"
