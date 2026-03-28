@@ -557,7 +557,7 @@ items:
 
           **■ xp_cmdshell 비활성화 처리 예시**
 
-          ```sql
+          ```
           sp_configure 'show advanced options', 1;     // SQL Server의 고급 옵션 활성화
           GO
           RECONFIGURE;
