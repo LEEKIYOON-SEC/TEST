@@ -520,3 +520,126 @@ items:
           Step 5) Controller VM에 접속하여 Nutanix 호스트 타임존 설정
           hostssh "date; mv /etc/localtime /etc/localtime.bak; ln -s /usr/share/zoneinfo/Asia/Seoul /etc/localtime; date"
           ※ Nutanix를 처음 설치하면 타임존이 UTC로 설정되어 있어 실제 시간과 차이가 발생
+
+  - id: "HV-10"
+    title: "SNMP Community String 복잡성 적용"
+    domain: "2. 시스템 서비스 관리"
+    severity: "중"
+    description:
+      check_content: "SNMP Community String 복잡성 적용 여부 점검"
+      check_purpose: "SNMP Community String이 유추하기 어려운 문자열로 구성해 비인가자가 SNMP 서비스 무단 접근을 방지하기 위함"
+      threat: "SNMP Community String이 유추하기 쉬운 문자열로 구성되어 있는 경우 비인가자가 SNMP 서비스에 무단 접근이 가능한 위험이 존재함"
+      reference:
+        - "※ SNMP v3 사용 우선 권고"
+    target: "VMware ESXi, vCenter, XenServer, KVM, Nutanix"
+    criteria:
+      good: "SNMP Community String이 복잡도를 만족하는 경우"
+      vulnerable: "SNMP Community String이 복잡도를 만족하지 않는 경우"
+    action: "SNMP Community String을 복잡도를 만족하는 값으로 설정"
+    impact: "일반적 경우 영향 없음"
+    examples:
+      - os: "VMware ESXi"
+        content: |
+          Step 1) SSH를 통해 ESXi 호스트 서버 접속 후, 다음 명령어 실행
+          $ esxcli system snmp get
+          Step 2) 다음 명령어를 사용해 Community String 값 설정 변경
+          $ esxcli system snmp set --communities <변경 값>
+      - os: "VMware vCenter"
+        content: |
+          Step 1) SNMP 사용 확인
+          if [[ $(vim-cmd proxysvc/service_list | grep 'TSM') ]]; then
+          echo "SNMP service is running on vcenter"
+          else
+          echo "SNMP service is not running on vcenter"
+          fi
+          cat /etc/vmware/snmp.xml | grep community | awk -F '"' '{print $4}'
+          Step 2) SNMP Community String 설정 확인
+          # /etc/snmpd.conf 파일에서 Community String 확인
+      - os: "KVM"
+        content: |
+          Step 1) SNMP 파일에서 Community String 값 확인
+          sudo vi /etc/snmp/snmpd.conf
+          Step 2) Community String 설정 후 snmp 서비스 재시작
+          sudo systemctl enable snmpd
+          sudo systemctl start snmpd
+      - os: "XenServer"
+        content: |
+          Step 1) XenCenter 접속
+          Step 2) 해당 서버 설정 > SNMP
+          Step 3) SNMP 활성화 여부 확인
+          Step 4) 활성화 또는 필요에 의해 사용 시 Community String 값 확인
+      - os: "Nutanix"
+        content: |
+          [불필요한 경우 SNMP 서비스 비활성화]
+          Step 1) Nutanix 관리 웹 콘솔 접속
+          https://<Nutanix 웹 콘솔>:9440
+          Step 2) Settings > SNMP 선택
+          Step 3) Enable for Nutanix objects 체크 해제
+          [SNMP Trap 설정이 필요한 경우 v3 사용]
+          Step 1) Nutanix 관리 웹 콘솔 접속
+          https://<Nutanix 웹 콘솔>:9440
+          Step 2) Settings > SNMP > Users > New User 클릭
+          Step 3) SNMP User 생성
+          Step 4) Traps > New Trap receiver 클릭
+          Step 5) Receiver Name 및 Trap 수신 IP 설정
+          [v2c를 사용해야 하는 경우 Community String 복잡도 설정]
+          Step 1) Nutanix 관리 웹 콘솔 접속
+          https://<Nutanix 웹 콘솔>:9440
+          Step 2) Settings > SNMP > Traps > 편집 버튼
+          Step 3) SNMP Community String이 복잡도를 만족하도록 설정
+
+  - id: "HV-11"
+    title: "MOB(Managed Object Browser) 서비스 비활성화"
+    domain: "2. 시스템 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "MOB 서비스 비활성화 여부 점검"
+      check_purpose: "MOB(Managed Object Browser) 서비스를 통해 시스템 정보 수집, 가상 머신 제어, 시스템 설정 변경 등의 기능이 존재해 비인가자가 해당 기능을 사용하지 못하게 하기 위함"
+      threat: "MOB(Managed Object Browser) 서비스가 활성화되어 있을 경우, 해당 인터페이스를 통해 시스템 정보 수집, 가상 머신 제어, 시스템 설정 변경 등의 위험이 존재함"
+      reference:
+        - "※ ESXi의 경우 기본적으로 비활성화"
+        - "※ vCenter의 경우 기본적으로 활성화"
+    target: "VMware ESXi, vCenter"
+    criteria:
+      good: "MOB(Managed Object Browser)가 비활성화된 경우"
+      vulnerable: "MOB(Managed Object Browser)가 활성화된 경우"
+    action: "MOB(Managed Object Browser)서비스 비활성화 설정"
+    impact: "일반적 경우 영향 없음"
+    examples:
+      - os: "VMware ESXi"
+        content: |
+          Step 1) Web 콘솔 페이지 접속
+          https://<VMware ESXi IP>
+          Step 2) 호스트 > 관리 > 시스템 > 고급 설정으로 이동
+          Step 3) Config,HostAgent.plugins.solo.enableMob 설정값 확인
+          Step 4) 활성화(true)되어 있을 시, 해당 값을 false로 설정
+      - os: "VMware vCenter"
+        content: |
+          Step 1) vSphere Client 접속 후, 다음 메뉴에 접근하여 확인(vSphere Client 버전에 따라, 메뉴 명칭은 달라질 수 있음)
+          # (vCenter6.5) "호스트 및 클러스터" > [vCenter 서버] > "구성" > "설정" > "고급 설정" > "config.vpxd.enableDebugBrowse" 확인
+          # (vCenter8) "호스트 및 클러스터" > [vCenter 서버] > "구성" > "설정" > "고급 설정" > "config.vpxd.enableDebugBrowse" 확인
+
+  - id: "HV-12"
+    title: "ESXi Shell 비활성화"
+    domain: "2. 시스템 서비스 관리"
+    severity: "상"
+    description:
+      check_content: "ESXi Shell(TSM, TSM-SSH) 비활성화 여부 점검"
+      check_purpose: "감사기록에 대한 관리에 어려움이 발생할 수 있는 ESXi Shell(TSM, TSM-SSH) 사용 행위를 방지해 플랫폼(vCenter)과 동기화하기 위함"
+      threat: "ESXi Shell(TSM, TSM-SSH)에서 이루어지는 행위는 관리 플랫폼(vCenter)과 동기화되지 않을 수 있어 감사기록 관리가 불가능해지는 위험이 존재함"
+      reference:
+        - "※ TSM(Tech Support Mode): 문제 해결 및 진단을 위해 ESXi 호스트에 물리적으로 접근하여 사용할 수 있는 텍스트 기반 명령 인터페이스"
+        - "※ TSM-SSH(Tech Support Mode via SSH): SSH 프로토콜을 통해 원격에서 TSM의 기능을 사용할 수 있게 하는 서비스"
+    target: "VMware ESXi"
+    criteria:
+      good: "ESXi Shell(TSM, TSM-SSH) 서비스가 비활성화된 경우"
+      vulnerable: "ESXi Shell(TSM, TSM-SSH) 서비스가 활성화된 경우"
+    action: "ESXi Shell(TSM, TSM-SSH) 서비스가 비활성화 설정"
+    impact: "일반적 경우 영향 없음"
+    examples:
+      - os: "VMware ESXi"
+        content: |
+          Step 1) Web 콘솔 페이지 접속 > https://<VMware ESXi IP>
+          Step 2) 호스트 > 관리 > 서비스로 이동
+          Step 3) TSM, TSM-SSH 서비스 활성화 여부 확인
+          Step 4) TSM, TSM-SSH 서비스가 활성화되어 있는 경우, [중지] 클릭하여 서비스 중지
