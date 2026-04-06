@@ -435,3 +435,38 @@ items:
           ※ 업데이트 링크: https://www.microsoft.com/ko-kr/software-download/windows10
           ※ 수동업데이트 링크: https://www.microsoft.com/ko-kr/software-download/windows11
           ※ 윔(Worm), 랜섬웨어(Ransomware) 등의 위협을 피하기 위해 네트워크를 물리적으로 단절한 후 서비스팩 설치 및 업데이트 진행을 권장함
+
+  - id: "PC-12"
+    title: "Windows 자동 로그인 점검"
+    severity: "중"
+    domain: "PC > 4. 보안 관리"
+    target: "Windows 10, Windows 11"
+    description:
+      check_content: "Windows 자동 로그인이 비활성화 여부 점검"
+      check_purpose: "Windows 자동 로그인이 비활성화되어 있는지 점검하여 비인가자의 로그인을 방지하고자 하기 위함"
+      threat: "Windows 자동 로그인이 활성화되어 있을 때 비인가자가 별도의 로그인 과정을 거치지 않고 계정에 자동으로 로그인할 수 있는 위험이 존재함"
+      reference:
+        - "※ Windows 자동 로그인: 사용자 이름이나 비밀번호를 입력하지 않고 Windows에 로그인할 수 있음"
+    criteria:
+      good: "Windows 자동 로그인이 비활성화된 경우"
+      vulnerable: "Windows 자동 로그인이 활성화된 경우"
+    action: "Windows 자동 로그인 비활성화 설정"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Windows 10, Windows 11"
+        content: |
+          Step 1) 레지스트리 값 확인
+          시작 > Windows 관리 도구(Windows Tools) > 레지스트리 편집기 > HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon > AutoAdminLogon 확인
+
+          ※ 별도의 Windows 자동 로그인 설정을 하지 않았다면 AutoAdminLogon 레지스트리가 존재하지 않음
+          ※ 별도의 Windows 자동 로그인 설정을 하지 않았다면 Windows 자동 로그인이 비활성화되어 있으므로 양호함
+
+          Step 1) 레지스트리가 존재하지 않으면 "AutoAdminLogon" 문자열 값 생성함
+          우클릭 > 새로 만들기 > 문자열 값 클릭 > "AutoAdminLogon" 입력 > "AutoAdminLogon" 값 데이터 0 입력 > 확인
+
+          ["AutoAdminLogon" 레지스트리 확인]
+
+          Step 2) 레지스트리가 존재하지 않으면 "AutoAdminLogon" 문자열 값 생성함
+          우클릭 > 새로 만들기 > 문자열 값 클릭 > "AutoAdminLogon" 입력 > "AutoAdminLogon" 값 데이터 0 입력 > 확인
+
+          ["AutoAdminLogon" 설정값 0으로 설정]
