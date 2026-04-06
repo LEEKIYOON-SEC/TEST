@@ -409,3 +409,29 @@ items:
           ※ 윔(Worm), 랜섬웨어(Ransomware) 등의 위협을 피하고자 네트워크를 물리적으로 단절한 후 서비스팩 설치 및 업데이트 진행을 권장함
           - 웜(Worm): 컴퓨터 바이러스의 하나로 컴퓨터 바이러스와는 달리 다른 프로그램을 감염시키지 않고 자기 자신을 복제하면서 통신망 등을 통해 널리 퍼지는 부정 프로그램을 말함
           - 랜섬웨어(Ransomeware): 악성코드(malware)의 일종으로, 이에 감염된 컴퓨터는 시스템에 대한 접근이 제한되며 이를 해제하기 위해서는 악성코드 제작자에게 대가로 금품을 제공해야 하는 악성 프로그램을 말함
+
+  - id: "PC-11"
+    title: "지원이 종료되지 않은 Windows OS Build 적용"
+    severity: "상"
+    domain: "PC > 3. 패치 관리"
+    target: "Windows 10, Windows 11"
+    description:
+      check_content: "시스템에 최신 서비스팩이 적용 여부 점검"
+      check_purpose: "최신 서비스팩이 적용되어 있는지 점검하여 시스템 취약점을 이용한 공격(익스플로잇)에 대비가 되어있는지 확인하기 위함"
+      threat: "최신 서비스팩이 적용되지 않았을 경우 비인가자의 시스템 취약점을 이용한 공격(익스플로잇)에 노출될 수 있는 위험이 존재함"
+      reference:
+        - "※ 서비스 팩: 운영체제 응용프로그램의 기능 추가 및 버그나 보안 취약점을 해결한 패치 파일을 단일 묶음으로 배포하는 패키지"
+        - "※ 익스플로잇: 컴퓨터의 소프트웨어나 하드웨어 또는 컴퓨터 관련 전자 제품의 버그, 보안 취약점 등 설계상 결함을 이용해 공격자의 의도된 동작을 수행하도록 만들어진 프로그램"
+    criteria:
+      good: "최신 빌드가 적용되어 있고 내부적으로 관리 절차를 수립하여 이행한 경우"
+      vulnerable: "최신 빌드가 적용되어 있지 않거나 내부적으로 관리 절차가 수립되지 않은 경우"
+    action: "Windows Update 사이트에 접속하여 최신 서비스팩 여부 확인 및 적용"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Windows 10, Windows 11"
+        content: |
+          Step 1) 서비스팩이 아닌 윈도우 업데이트를 통해 진행하며 HOT FIX 패치를 통해 업데이트
+
+          ※ 업데이트 링크: https://www.microsoft.com/ko-kr/software-download/windows10
+          ※ 수동업데이트 링크: https://www.microsoft.com/ko-kr/software-download/windows11
+          ※ 윔(Worm), 랜섬웨어(Ransomware) 등의 위협을 피하기 위해 네트워크를 물리적으로 단절한 후 서비스팩 설치 및 업데이트 진행을 권장함
