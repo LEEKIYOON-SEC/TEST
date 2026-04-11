@@ -824,6 +824,20 @@ items:
 
           Step 2) Altibase HDB 서버에 적용된 접근 제어 설정 확인
           iSQL> SELECT name, value1 FROM v$property WHERE name LIKE 'ACCESS_CONTROL_%';
+      - os: "Tibero"
+        content: |
+          Step 1) LSNR_INVITED_IP(특정 IP주소를 갖는 클라이언트만 허용, 그 외 차단)
+          $TB_SID.tip 파일 안에 다음 예시 내용을 참조하여 입력
+          LSNR_INVITED_IP=192.168.1.1;192.168.2.0/24;192.1.0.0/16
+          LSNR_INVITED_IP의 최대 길이는 255자이며, 256자 이상의 IP주소를 설정할 경우에는 LSNR_INVITED_IP_FILE을 사용
+          (특정 IP주소를 기재한 파일의 절대 경로를 LSNR_INVITED_IP_FILE에 입력)
+          ※ 초기화 파라미터에 설정된 IP주소에 따라 클라이언트의 네트워크 접속을 허용하거나 차단
+          ※ $TB_SID는 Tibero 설치 시 입력한 데이터베이스 이름과 동일(/ c:/tibero/tibero5/config/데이터베이스.tip)
+          ● $TB_SID.tip 파일에 LSNR_INVITED_IP와 LSNR_DENIED_IP가 모두 설정되어 있는 경우 LSNR_DENIED_IP의 설정은 무시되며 LSNR_INVITED_IP만 적용된다. 즉, LSNR_INVITED_IP에 설정된 IP주소의 클라이언트를 제외하고는 모든 접속이 차단된다.
+          ● $TB_SID.tip 파일에 LSNR_INVITED_IP와 LSNR_DENIED_IP가 모두 설정되지 않은 경우 모든 클라이언트의 네트워크 접속이 허용된다.
+          ● 루프백 주소(Loopback Address, 127.0.0.1)에서 접속하는 경우 LSNR_INVITED_IP 또는 LSNR_DENIED_IP의 설정과는 무관하게 항상 허용된다. X Tibero 서버를 운영하는 중에 서버를 다시 기동하지 않고 LSNR_INVITED_IP 또는 LSNR_DENIED_IP의 설정을 변경하려는 경우 우선 $TB_SID.tip 파일에 LSNR_INVITED_IP 또는 LSNR_DENIED_IP의설정을 변경한 후 파일을 저장하고 다음의 명령을 실행한다.
+          ALTER SYSTEM LISTENER PARAMETER RELOAD;
+          위의 명령을 실행하면 $TB_SID.tip 파일에서 LSNR_INVITED_IP 또는 LSNR_DENIED_IP의 내용을 다시 읽어 변경된 내용을 실시간으로 적용한다.
       - os: "PostgreSQL"
         content: |
           Step 1) Data 디렉터리 내에 postgres.conf 파일 설정
@@ -842,3 +856,49 @@ items:
           Step 3) USER에 접근 허용 '계정명'과 CIDR-ADDRESS에 접속을 '허용할 IP' 설정
           ※ PostgreSQL은 기본 설치 시 외부에서 접속할 수 없음
           ※ IP 접근 제한 설정 시 postgresql.conf와 pg_hba.conf 두 개의 설정 파일이 연계되어 있으므로 하나의 파일이라도 설정이 잘못되어 있는 경우 DB 접속이 불가능 할 수 있음.
+  - id: "D-11"
+    title: "DBA 이외의 인가되지 않은 사용자가 시스템 테이블에 접근할 수 없도록 설정"
+    severity: "상"
+    domain: "DBMS > 2. 접근 관리"
+    target: "Oracle DB, MSSQL, MySQL, Altibase, Tibero, PostgreSQL 등"
+    description:
+      check_content: "시스템 테이블에 일반 사용자 계정이 접근할 수 없도록 설정되어 있는지 점검"
+      check_purpose: "시스템 테이블의 일반 사용자 계정 접근 제한 설정 적용 여부를 점검하여 일반 사용자 계정 유출 시 발생할 수 있는 비인가자의 시스템 테이블 접근 위험을 차단하기 위함"
+      threat: "시스템 테이블의 일반 사용자 계정 접근 제한 설정이 되어있지 않을 경우 Object, 사용자, 테이블 및 뷰, 작업 내역 등의 시스템 테이블에 저장된 정보가 누출될 수 있음"
+      reference:
+        - "-"
+    criteria:
+      good: "시스템 테이블에 DBA만 접근 가능하도록 설정되어 있는 경우"
+      vulnerable: "시스템 테이블에 DBA 외 일반 사용자 계정이 접근 가능하도록 설정되어 있는 경우"
+    action: "시스템 테이블에 일반 사용자 계정이 접근할 수 없도록 설정"
+    impact: "일반 계정으로 시스템 테이블 접근 불가"
+    examples:
+      - os: "Oracle DB, Tibero"
+        content: |
+          Step 1) DBA만 접근 가능한 테이블의 권한 확인(SQL*Plus)
+          SQL> SELECT grantee, privilege, owner, table_name FROM dba_tab_privs WHERE (owner = 'SYS' or table_name LIKE 'DBA_%') AND privilege <> 'EXECUTE' AND grantee NOT IN ('PUBLIC', 'AQ_ADMINISTRATOR_ROLE', 'AQ_USER_ROLE', 'AURORA$JIS$UTILITY$', 'OSE$HTTP$ADMIN', 'TRACESVR', 'CTXSYS', 'DBA', 'DELETE_CATALOG_ROLE', 'EXECUTE_CATALOG_ROLE', 'EXP_FULL_DATABASE', 'GATHER_SYSTEM_STATISTICS', 'HS_ADMIN_ROLE', 'IMP_FULL_DATABASE', 'LOGSTDBY_ADMINISTRATOR', 'MDSYS', 'ODM', 'OEM_MONITOR', 'OLAPSYS', 'ORDSYS', 'OUTLN', 'RECOVERY_CATALOG_OWNER', 'SELECT_CATALOG_ROLE', 'SNMPAGENT', 'SYSTEM', 'WKSYS', 'WKUSER', 'WMSYS', 'WM_ADMIN_ROLE', 'XDB', 'LBACSYS', 'PERFSTAT', 'XDBADMIN') AND grantee NOT IN (SELECT grantee FROM dba_role_privs WHERE granted_role = 'DBA') ORDER BY grantee; (어떤 계정이나 role이 나타나지 않으면 양호)
+          Step 2) 불필요하게 테이블 접근 권한이 사용자 계정에 할당된 경우(SQL*Plus)
+          SQL> REVOKE <권한> ON <Object> FROM user;
+      - os: "MSSQL"
+        content: |
+          Step 1) system tables 접근 권한이 PUBLIC, GUEST 또는 비인가된 사용자에게 부여된 경우 접근 권한을 제거
+          REVOKE <권한> ON <Object> FROM [계정명]|[PUBLIC]|[GUEST];
+          Step 2) 시스템 테이블에 접근하기 위해서는 stored procedure 또는 information_schema views를 통해 접근해야 함
+          Step 3) 시스템 테이블에 접근 가능한 stored procedure는 사용이 제한되어야 함
+      - os: "MySQL"
+        content: |
+          Step 1) 사용자 계정에 부여된 권한 확인
+          SHOW GRANTS FOR <계정명>;
+          Step 2) 접근이 필요한 데이터베이스 및 테이블에만 권한 적용
+          GRANT <권한> privileges ON <DB명>.<테이블명> to '<계정명>'@'<호스트명 or IP>';
+      - os: "Altibase"
+        content: |
+          Step 1) sys_tables_를 조회하여 system_ 외 접근 계정 유무 확인
+          SELECT * FROM system_.sys_tables_;
+          Step 2) 불필요 계정 접근 시 해당 접근 해제
+      - os: "PostgreSQL"
+        content: |
+          Step 1) 사용자 및 역할 권한 정보 조회
+          SELECT * FROM information_schema.role_table_grants;
+          Step 2) 스키마명에 해당되는 Table에 대한 접근 권한을 일반 사용자로부터 제거
+          REVOKE [all,select,insert,update...] ON all tables IN schema '스키마명' FROM '계정명';
