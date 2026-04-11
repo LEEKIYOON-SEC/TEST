@@ -941,3 +941,39 @@ items:
           LSNRCTL> lsnrctl reload
           LSNRCTL> lsnrctl status
           ※ Oracle 12c release 2 이후 버전은 Listener 비밀번호 설정을 지원하지 않으므로 해당사항 없음
+  - id: "D-13"
+    title: "불필요한 ODBC/OLE-DB 데이터 소스와 드라이브를 제거하여 사용"
+    severity: "중"
+    domain: "DBMS > 2. 접근 관리"
+    target: "Windows OS"
+    description:
+      check_content: "사용하지 않는 불필요한 ODBC/OLE-DB가 설치되어 있는지 점검"
+      check_purpose: "불필요한 데이터 소스 및 드라이버를 제거함으로써 비인가자에 의한 데이터베이스 접속 및 자료 유출을 차단하기 위함"
+      threat: "불필요한 ODBC/OLE-DB 데이터 소스를 통한 비인가자의 데이터베이스 접속 및 주요 정보유출에 대한 위험이 발생할 수 있음"
+      reference:
+        - "※ 특정 샘플 응용 프로그램은 샘플 데이터베이스를 위해 ODBC 데이터 소스를 설치하거나 불필요한 ODBC/OLE-DB 데이터베이스 드라이브를 설치하므로 불필요한 데이터 소스나 드라이버는 ODBC 데이터 소스 관리자 도구를 이용해서 제거하는 것이 바람직함"
+    criteria:
+      good: "불필요한 ODBC/OLE-DB가 설치되지 않은 경우"
+      vulnerable: "불필요한 ODBC/OLE-DB가 설치된 경우"
+    action: "불필요한 ODBC/OLE-DB 제거"
+    impact: "일반적인 경우 영향 없음"
+    examples:
+      - os: "Windows NT"
+        content: |
+          Step 1) 사용하지 않는 불필요한 ODBC 데이터 소스 확인
+          시작> 설정 > 제어판 > 관리 도구 > 데이터 원본(ODBC) > 시스템 DSN
+          Step 2) 사용하지 않는 데이터 소스 제거
+      - os: "Windows 2000, 2003, 2008, 2012, 2016"
+        content: |
+          Step 1) 사용하지 않는 불필요한 ODBC 데이터 소스 확인
+          시작 > 설정 > 제어판 > 관리 도구 > 데이터 원본 (ODBC) > 시스템 DSN > 해당 드라이브 클릭
+          Step 2) 사용하지 않는 데이터 소스 제거
+
+          [사용하지 않는 데이터 소스 제거]
+      - os: "Windows 2019, 2022"
+        content: |
+          Step 1) ODBC 사용하지 않는 불필요한 데이터 소스 확인
+          시작 > 설정 > 제어판 > 시스템 및 보안 > 관리 도구 > ODBC 데이터 원본 관리자(32비트/64비트) > 시스템DSN > 해당 드라이브 클릭
+          Step 2) 사용하지 않는 데이터 소스 제거
+
+          [사용하지 않는 데이터 소스 제거]
